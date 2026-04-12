@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -6,44 +7,36 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-onyx-black: #050505;
-  --color-onyx-graphite: #1A1A1A;
-  --color-onyx-green: #00FF41;
-  --color-onyx-green-muted: rgba(0, 255, 65, 0.15);
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --color-background: var(--color-onyx-black);
+  --color-background: #000000;
   --color-foreground: #FFFFFF;
 
-  --color-card: var(--color-onyx-graphite);
+  --color-card: #0A0A0A;
   --color-card-foreground: #FFFFFF;
 
-  --color-popover: var(--color-onyx-graphite);
+  --color-popover: #0A0A0A;
   --color-popover-foreground: #FFFFFF;
 
-  --color-primary: var(--color-onyx-green);
-  --color-primary-foreground: var(--color-onyx-black);
+  --color-primary: #FFFFFF;
+  --color-primary-foreground: #000000;
 
-  --color-secondary: #2A2A2A;
+  --color-secondary: #1A1A1A;
   --color-secondary-foreground: #FFFFFF;
 
-  --color-muted: #2A2A2A;
-  --color-muted-foreground: #D1D1D6;
+  --color-muted: #1A1A1A;
+  --color-muted-foreground: rgba(255, 255, 255, 0.5);
 
-  --color-accent: var(--color-onyx-green-muted);
-  --color-accent-foreground: var(--color-onyx-green);
+  --color-accent: rgba(255, 255, 255, 0.1);
+  --color-accent-foreground: #FFFFFF;
 
   --color-destructive: #FF4444;
   --color-destructive-foreground: #FFFFFF;
 
-  --color-border: #2A2A2A;
-  --color-input: #2A2A2A;
-  --color-ring: var(--color-onyx-green);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-ring: rgba(255, 255, 255, 0.3);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -74,6 +67,9 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.03) 0, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.02) 0, transparent 50%);
   }
 }
 
