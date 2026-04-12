@@ -208,94 +208,87 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-onyx-black text-onyx-green">
-        <div className="flex flex-col items-center gap-4">
-          <RefreshCcw className="h-12 w-12 animate-spin" />
-          <p className="font-mono text-sm tracking-widest uppercase">Initializing ScanServe Systems...</p>
+      <div className="flex h-screen w-full items-center justify-center bg-black text-white">
+        <div className="flex flex-col items-center gap-6">
+          <RefreshCcw className="h-10 w-10 animate-spin opacity-20" />
+          <p className="font-serif italic text-lg tracking-wide opacity-60">ScanServe</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-onyx-black font-sans text-white selection:bg-onyx-green selection:text-onyx-black">
+    <div className="flex h-screen w-full overflow-hidden bg-black font-sans text-white selection:bg-white selection:text-black">
       <Toaster position="top-right" theme="dark" richColors />
       
       {/* Sidebar */}
-      <aside className="flex w-20 flex-col items-center border-r border-onyx-graphite bg-onyx-black py-8 md:w-64">
-        <div className="mb-12 flex items-center gap-3 px-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-onyx-green text-onyx-black shadow-[0_0_15px_rgba(0,255,65,0.3)]">
-            <Coffee size={24} />
+      <aside className="flex w-20 flex-col items-center border-r border-white/10 bg-black py-10 md:w-64">
+        <div className="mb-16 flex items-center gap-3 px-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-transparent">
+            <Coffee size={20} strokeWidth={1.5} />
           </div>
-          <h1 className="hidden text-xl font-bold tracking-tighter md:block uppercase">SCAN<span className="text-onyx-green">SERVE</span></h1>
+          <h1 className="hidden text-2xl font-serif tracking-tight md:block">Scan<span className="italic opacity-60">Serve</span></h1>
         </div>
 
-        <nav className="flex w-full flex-1 flex-col gap-2 px-4">
+        <nav className="flex w-full flex-1 flex-col gap-1 px-4">
           <NavItem 
-            icon={<LayoutDashboard size={20} />} 
+            icon={<LayoutDashboard size={18} strokeWidth={1.5} />} 
             label="Counter" 
             active={activeTab === 'counter'} 
             onClick={() => setActiveTab('counter')}
           />
           <NavItem 
-            icon={<ChefHat size={20} />} 
+            icon={<ChefHat size={18} strokeWidth={1.5} />} 
             label="Kitchen" 
             active={activeTab === 'kitchen'} 
             onClick={() => setActiveTab('kitchen')}
           />
           <NavItem 
-            icon={<PackageCheck size={20} />} 
+            icon={<PackageCheck size={18} strokeWidth={1.5} />} 
             label="Pickup" 
             active={activeTab === 'pickup'} 
             onClick={() => setActiveTab('pickup')}
           />
           <NavItem 
-            icon={<MenuIcon size={20} />} 
+            icon={<MenuIcon size={18} strokeWidth={1.5} />} 
             label="Menu" 
             active={activeTab === 'menu'} 
             onClick={() => setActiveTab('menu')}
           />
         </nav>
-
-        <div className="mt-auto w-full px-4">
-          <button className="flex w-full items-center gap-3 rounded-xl p-3 text-muted-foreground transition-colors hover:bg-onyx-graphite hover:text-white">
-            <LogOut size={20} />
-            <span className="hidden text-sm font-medium md:block">Logout</span>
-          </button>
-        </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <header className="flex h-20 items-center justify-between border-b border-onyx-graphite px-8">
-            <TabsList className="bg-transparent p-0">
-              <TabsTrigger value="counter" className="text-zinc-300 data-[state=active]:bg-transparent data-[state=active]:text-onyx-green data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-onyx-green rounded-none h-20 px-6 text-sm font-medium uppercase tracking-widest transition-colors">Counter</TabsTrigger>
-              <TabsTrigger value="kitchen" className="text-zinc-300 data-[state=active]:bg-transparent data-[state=active]:text-onyx-green data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-onyx-green rounded-none h-20 px-6 text-sm font-medium uppercase tracking-widest transition-colors">Kitchen</TabsTrigger>
-              <TabsTrigger value="pickup" className="text-zinc-300 data-[state=active]:bg-transparent data-[state=active]:text-onyx-green data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-onyx-green rounded-none h-20 px-6 text-sm font-medium uppercase tracking-widest transition-colors">Pickup</TabsTrigger>
-              <TabsTrigger value="menu" className="text-zinc-300 data-[state=active]:bg-transparent data-[state=active]:text-onyx-green data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-onyx-green rounded-none h-20 px-6 text-sm font-medium uppercase tracking-widest transition-colors">Menu</TabsTrigger>
+          <header className="flex h-24 items-center justify-between border-b border-white/10 px-10">
+            <TabsList className="bg-transparent p-0 gap-8">
+              <TabsTrigger value="counter" className="text-white/40 data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b border-transparent data-[state=active]:border-white rounded-none h-24 px-0 text-xs font-medium uppercase tracking-[0.2em] transition-all">Counter</TabsTrigger>
+              <TabsTrigger value="kitchen" className="text-white/40 data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b border-transparent data-[state=active]:border-white rounded-none h-24 px-0 text-xs font-medium uppercase tracking-[0.2em] transition-all">Kitchen</TabsTrigger>
+              <TabsTrigger value="pickup" className="text-white/40 data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b border-transparent data-[state=active]:border-white rounded-none h-24 px-0 text-xs font-medium uppercase tracking-[0.2em] transition-all">Pickup</TabsTrigger>
+              <TabsTrigger value="menu" className="text-white/40 data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b border-transparent data-[state=active]:border-white rounded-none h-24 px-0 text-xs font-medium uppercase tracking-[0.2em] transition-all">Menu</TabsTrigger>
             </TabsList>
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full bg-onyx-graphite px-4 py-2 text-xs font-mono text-onyx-green">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-onyx-green" />
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3 rounded-full border border-white/10 px-5 py-2 text-[10px] font-medium uppercase tracking-widest text-white/60">
+                <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
                 SYSTEM ONLINE
               </div>
             </div>
           </header>
 
-          <div className="flex-1 overflow-hidden p-8">
-            <TabsContent value="counter" className="m-0 h-full flex flex-col gap-6 outline-none">
+          <div className="flex-1 min-h-0 p-10">
+            <TabsContent value="counter" className="m-0 h-full flex flex-col gap-10 outline-none data-[state=inactive]:hidden">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold tracking-tight">Counter View</h2>
-                  <p className="text-muted-foreground">Manage incoming orders and verify payments.</p>
+                  <h2 className="text-3xl font-serif italic tracking-tight">Counter</h2>
+                  <p className="text-xs uppercase tracking-widest text-white/30 mt-1">Incoming orders & Verification</p>
                 </div>
-                <div className="relative w-72">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <div className="relative w-80">
+                  <Search className="absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/20" />
                   <Input 
                     placeholder="Search Token ID..." 
-                    className="pl-10 bg-onyx-graphite border-none focus-visible:ring-1 focus-visible:ring-onyx-green"
+                    className="pl-12 bg-white/[0.03] border-white/10 rounded-full h-12 text-xs tracking-widest focus-visible:ring-white/20"
                     value={searchToken}
                     onChange={(e) => setSearchToken(e.target.value)}
                   />
@@ -303,125 +296,125 @@ export default function App() {
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                   <AnimatePresence mode="popLayout">
                     {pendingOrders.map((order) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
                         actionLabel="Confirm Payment" 
-                        actionIcon={<CheckCircle2 size={18} />}
+                        actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
                         onAction={() => updateOrderStatus(order.id, 'preparing')}
                       />
                     ))}
                   </AnimatePresence>
                   {pendingOrders.length === 0 && (
-                    <div className="col-span-full flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-onyx-graphite text-muted-foreground">
-                      <Clock size={48} className="mb-4 opacity-20" />
-                      <p>No pending orders found.</p>
+                    <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.01]">
+                      <Clock size={40} strokeWidth={1} className="mb-6 opacity-10" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/20">All systems clear</p>
                     </div>
                   )}
                 </div>
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="kitchen" className="m-0 h-full flex flex-col gap-6 outline-none">
+            <TabsContent value="kitchen" className="m-0 h-full flex flex-col gap-10 outline-none data-[state=inactive]:hidden">
               <div>
-                <h2 className="text-3xl font-bold tracking-tight">Kitchen View</h2>
-                <p className="text-muted-foreground">Active orders currently being prepared.</p>
+                <h2 className="text-3xl font-serif italic tracking-tight">Kitchen</h2>
+                <p className="text-xs uppercase tracking-widest text-white/30 mt-1">Active Preparations</p>
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                   <AnimatePresence mode="popLayout">
                     {preparingOrders.map((order) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Order Done" 
-                        actionIcon={<CheckCircle2 size={18} />}
+                        actionLabel="Order Ready" 
+                        actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
                         onAction={() => updateOrderStatus(order.id, 'ready')}
                         variant="preparing"
                       />
                     ))}
                   </AnimatePresence>
                   {preparingOrders.length === 0 && (
-                    <div className="col-span-full flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-onyx-graphite text-muted-foreground">
-                      <ChefHat size={48} className="mb-4 opacity-20" />
-                      <p>Kitchen is clear. No active preparations.</p>
+                    <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.01]">
+                      <ChefHat size={40} strokeWidth={1} className="mb-6 opacity-10" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/20">Kitchen is clear</p>
                     </div>
                   )}
                 </div>
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="pickup" className="m-0 h-full flex flex-col gap-6 outline-none">
+            <TabsContent value="pickup" className="m-0 h-full flex flex-col gap-10 outline-none data-[state=inactive]:hidden">
               <div>
-                <h2 className="text-3xl font-bold tracking-tight">Pickup View</h2>
-                <p className="text-muted-foreground">Orders ready for customer collection.</p>
+                <h2 className="text-3xl font-serif italic tracking-tight">Pickup</h2>
+                <p className="text-xs uppercase tracking-widest text-white/30 mt-1">Awaiting Collection</p>
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                   <AnimatePresence mode="popLayout">
                     {readyOrders.map((order) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Mark Picked Up" 
-                        actionIcon={<PackageCheck size={18} />}
+                        actionLabel="Mark Collected" 
+                        actionIcon={<PackageCheck size={14} strokeWidth={1.5} />}
                         onAction={() => updateOrderStatus(order.id, 'completed')}
                         variant="ready"
                       />
                     ))}
                   </AnimatePresence>
                   {readyOrders.length === 0 && (
-                    <div className="col-span-full flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-onyx-graphite text-muted-foreground">
-                      <PackageCheck size={48} className="mb-4 opacity-20" />
-                      <p>No orders waiting for pickup.</p>
+                    <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.01]">
+                      <PackageCheck size={40} strokeWidth={1} className="mb-6 opacity-10" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/20">No orders waiting</p>
                     </div>
                   )}
                 </div>
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="menu" className="m-0 h-full flex flex-col gap-6 outline-none">
+            <TabsContent value="menu" className="m-0 h-full flex flex-col gap-10 outline-none data-[state=inactive]:hidden">
               <div>
-                <h2 className="text-3xl font-bold tracking-tight text-white">Menu Management</h2>
-                <p className="text-zinc-300">Toggle item availability in real-time.</p>
+                <h2 className="text-3xl font-serif italic tracking-tight">Menu</h2>
+                <p className="text-xs uppercase tracking-widest text-white/30 mt-1">Inventory & Availability</p>
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {menuItems.map((item) => (
-                    <Card key={item.id} className="bg-onyx-graphite border border-white/5 overflow-hidden group hover:border-onyx-green/30 transition-colors">
-                      <div className="flex items-center p-4 gap-4">
-                        <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-onyx-black flex items-center justify-center overflow-hidden border border-white/10">
+                    <Card key={item.id} className="bg-white/[0.02] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-500">
+                      <div className="flex items-center p-6 gap-6">
+                        <div className="h-20 w-20 flex-shrink-0 rounded-full bg-black flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-white/30 transition-all">
                           {item.image ? (
-                            <img src={item.image} alt={item.name} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                            <img src={item.image} alt={item.name} className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" referrerPolicy="no-referrer" />
                           ) : (
-                            <Coffee className="text-zinc-500" size={24} />
+                            <Coffee className="text-white/20" size={24} strokeWidth={1} />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold truncate text-white">{item.name}</h4>
-                          <p className="text-xs text-zinc-400 truncate font-medium">{item.category}</p>
-                          <p className="text-sm font-mono text-onyx-green mt-1 font-bold">${(item.price || 0).toFixed(2)}</p>
+                          <h4 className="text-sm font-medium truncate text-white/90">{item.name}</h4>
+                          <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">{item.category}</p>
+                          <p className="text-xs font-medium text-white/60 mt-2">${(item.price || 0).toFixed(2)}</p>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col items-end gap-3">
+                          <div className="flex items-center gap-3">
                             <EditMenuItemDialog item={item} onSave={(updates) => updateMenuItem(item.id, updates)} />
                             <Switch 
                               checked={!item.is_sold_out} 
                               onCheckedChange={(checked) => toggleMenuItemSoldOut(item.id, !checked)}
-                              className="data-[state=checked]:bg-onyx-green"
+                              className="data-[state=checked]:bg-white"
                             />
                           </div>
                           <span className={cn(
-                            "text-[10px] font-black uppercase tracking-widest",
-                            item.is_sold_out ? "text-red-500" : "text-onyx-green"
+                            "text-[9px] font-medium uppercase tracking-[0.2em]",
+                            item.is_sold_out ? "text-red-500/60" : "text-white/40"
                           )}>
-                            {item.is_sold_out ? "Sold Out" : "Available"}
+                            {item.is_sold_out ? "Sold Out" : "Active"}
                           </span>
                         </div>
                       </div>
@@ -457,71 +450,71 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-onyx-green hover:bg-onyx-green/10">
-          <Edit2 size={14} />
-        </Button>
+        <button className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 text-white/20 hover:text-white hover:border-white/30 transition-all">
+          <Edit2 size={12} strokeWidth={1.5} />
+        </button>
       </DialogTrigger>
-      <DialogContent className="bg-onyx-graphite border-onyx-black text-white sm:max-w-[425px]">
+      <DialogContent className="bg-black border-white/10 text-white sm:max-w-[425px] rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold tracking-tight">Edit Menu Item</DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Make changes to the menu item here. Click save when you're done.
+          <DialogTitle className="text-2xl font-serif italic tracking-tight">Edit Item</DialogTitle>
+          <DialogDescription className="text-[10px] uppercase tracking-widest text-white/30">
+            Modify menu item specifications
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-6 py-6">
           <div className="grid gap-2">
-            <label htmlFor="name" className="text-sm font-medium text-zinc-300">Name</label>
+            <label htmlFor="name" className="text-[10px] uppercase tracking-widest text-white/40 ml-1">Item Name</label>
             <Input 
               id="name" 
               value={name} 
               onChange={(e) => setName(e.target.value)}
-              className="bg-onyx-black border-white/10 focus-visible:ring-onyx-green"
+              className="bg-white/[0.03] border-white/10 rounded-full h-12 text-xs tracking-widest focus-visible:ring-white/20"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <label htmlFor="price" className="text-sm font-medium text-zinc-300">Price ($)</label>
+              <label htmlFor="price" className="text-[10px] uppercase tracking-widest text-white/40 ml-1">Price ($)</label>
               <Input 
                 id="price" 
                 type="number" 
                 step="0.01"
                 value={price} 
                 onChange={(e) => setPrice(e.target.value)}
-                className="bg-onyx-black border-white/10 focus-visible:ring-onyx-green"
+                className="bg-white/[0.03] border-white/10 rounded-full h-12 text-xs tracking-widest focus-visible:ring-white/20"
               />
             </div>
             <div className="grid gap-2">
-              <label htmlFor="category" className="text-sm font-medium text-zinc-300">Category</label>
+              <label htmlFor="category" className="text-[10px] uppercase tracking-widest text-white/40 ml-1">Category</label>
               <Input 
                 id="category" 
                 value={category} 
                 onChange={(e) => setCategory(e.target.value)}
-                className="bg-onyx-black border-white/10 focus-visible:ring-onyx-green"
+                className="bg-white/[0.03] border-white/10 rounded-full h-12 text-xs tracking-widest focus-visible:ring-white/20"
               />
             </div>
           </div>
-          <div className="flex items-center justify-between rounded-lg bg-onyx-black p-3 border border-white/5">
+          <div className="flex items-center justify-between rounded-3xl bg-white/[0.02] p-5 border border-white/5">
             <div className="space-y-0.5">
-              <label className="text-sm font-medium text-zinc-300">Availability</label>
-              <p className="text-xs text-zinc-500">Toggle if this item is currently sold out.</p>
+              <label className="text-[10px] uppercase tracking-widest text-white/60">Availability</label>
+              <p className="text-[9px] text-white/20 uppercase tracking-widest">Toggle sold out status</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={cn("text-[10px] font-bold uppercase", isSoldOut ? "text-red-500" : "text-onyx-green")}>
-                {isSoldOut ? "Sold Out" : "Available"}
+            <div className="flex items-center gap-3">
+              <span className={cn("text-[9px] font-medium uppercase tracking-widest", isSoldOut ? "text-red-500/60" : "text-white/40")}>
+                {isSoldOut ? "Sold Out" : "Active"}
               </span>
               <Switch 
                 checked={!isSoldOut} 
                 onCheckedChange={(checked) => setIsSoldOut(!checked)}
-                className="data-[state=checked]:bg-onyx-green"
+                className="data-[state=checked]:bg-white"
               />
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)} className="text-zinc-400 hover:text-white">Cancel</Button>
-          <Button onClick={handleSave} className="bg-onyx-green text-onyx-black hover:bg-onyx-green/90 font-bold">
-            <Save size={16} className="mr-2" />
-            Save Changes
+        <DialogFooter className="gap-3">
+          <Button variant="ghost" onClick={() => setOpen(false)} className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white hover:bg-transparent">Cancel</Button>
+          <Button onClick={handleSave} className="bg-white text-black hover:bg-white/90 rounded-full px-8 h-12 text-[10px] uppercase tracking-[0.2em] font-medium">
+            <Save size={14} className="mr-2" strokeWidth={1.5} />
+            Update Item
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -534,14 +527,14 @@ function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNo
     <button 
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-3 rounded-xl p-3 transition-all duration-200",
+        "flex w-full items-center gap-3 rounded-full px-4 py-3 transition-all duration-300",
         active 
-          ? "bg-onyx-green text-onyx-black shadow-[0_0_20px_rgba(0,255,65,0.2)]" 
-          : "text-zinc-400 hover:bg-onyx-graphite hover:text-white"
+          ? "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.1)]" 
+          : "text-white/40 hover:text-white"
       )}
     >
       {icon}
-      <span className="hidden text-sm font-bold md:block uppercase tracking-wider">{label}</span>
+      <span className="hidden text-[11px] font-medium md:block uppercase tracking-[0.15em]">{label}</span>
     </button>
   );
 }
@@ -562,75 +555,67 @@ function OrderCard({
 }) {
   const timeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 60) return `${seconds}s`;
     const minutes = Math.floor(seconds / 60);
-    return `${minutes}m ago`;
+    return `${minutes}m`;
   };
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, x: -20 }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
     >
-      <Card className="border-none bg-onyx-graphite overflow-hidden relative group">
-        {variant === 'preparing' && (
-          <div className="absolute top-0 left-0 w-1 h-full bg-onyx-green animate-pulse" />
-        )}
-        {variant === 'ready' && (
-          <div className="absolute top-0 left-0 w-full h-1 bg-onyx-green" />
-        )}
-        
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <Badge variant="outline" className="font-mono text-onyx-green border-onyx-green/40 bg-onyx-green/10 px-3 py-1 text-lg">
-              #{order.token}
-            </Badge>
-            <div className="flex items-center gap-1 text-xs text-zinc-300 font-mono">
-              <Clock size={12} />
+      <Card className="border border-white/5 bg-white/[0.02] backdrop-blur-sm overflow-hidden relative group transition-all hover:border-white/20">
+        <CardHeader className="pb-4 pt-6 px-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+              Order #{order.token}
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-white/30 font-medium uppercase tracking-widest">
+              <Clock size={10} strokeWidth={2} />
               {timeAgo(order.created_at)}
             </div>
           </div>
-          <CardTitle className="mt-4 text-xl flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <span>{order.customer_name || 'Guest'}</span>
-              <span className="text-sm font-mono text-onyx-green">${(order.total || 0).toFixed(2)}</span>
+          <CardTitle className="flex flex-col gap-1">
+            <div className="flex items-baseline justify-between">
+              <span className="text-xl font-serif italic tracking-tight">{order.customer_name || 'Anonymous'}</span>
+              <span className="text-xs font-medium tracking-widest opacity-80">${(order.total || 0).toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-tighter">
-              <span>ID: {order.token}</span>
+            <div className="flex items-center justify-between text-[9px] font-medium text-white/30 uppercase tracking-[0.15em] mt-1">
+              <span>Ref: {order.id.slice(0, 8)}</span>
               {order.table_id && (
-                <span className="text-onyx-green font-bold">Table: {order.table_id}</span>
+                <span className="text-white/60">Table {order.table_id}</span>
               )}
             </div>
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="pb-4">
-          <div className="space-y-2">
+        <CardContent className="pb-6 px-6">
+          <div className="space-y-3">
             {order.items.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded bg-onyx-black text-[10px] font-bold text-onyx-green">
-                    {item.quantity}x
+              <div key={idx} className="flex items-center justify-between text-xs group/item">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-white/10 text-[9px] font-medium text-white/40">
+                    {item.quantity}
                   </span>
-                  <span className="text-white/90">{item.name}</span>
+                  <span className="text-white/70 group-hover/item:text-white transition-colors">{item.name}</span>
                 </div>
               </div>
             ))}
           </div>
         </CardContent>
 
-        <CardFooter className="pt-2 border-t border-onyx-black/50">
+        <CardFooter className="p-0 border-t border-white/5">
           <Button 
             onClick={onAction}
-            className="w-full bg-onyx-green text-onyx-black hover:bg-onyx-green/90 font-bold uppercase tracking-widest h-12 rounded-xl group"
+            variant="ghost"
+            className="w-full h-14 rounded-none text-[10px] font-medium uppercase tracking-[0.3em] text-white/40 hover:bg-white hover:text-black transition-all duration-500"
           >
-            <span className="flex items-center gap-2">
-              {actionIcon}
-              {actionLabel}
-            </span>
+            {actionIcon}
+            <span className="ml-2">{actionLabel}</span>
           </Button>
         </CardFooter>
       </Card>
