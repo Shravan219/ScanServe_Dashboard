@@ -621,11 +621,9 @@ function OrderCard({
             </div>
           <CardTitle className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between">
-              <span className="text-2xl font-serif tracking-tight group-hover:text-primary transition-colors duration-500">{order.customer_name || 'Anonymous'}</span>
               <span className="text-sm font-bold tracking-tight text-primary/80">₹{(order.total || 0).toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between text-[8px] font-bold text-white/20 uppercase tracking-[0.3em] mt-2">
-              <span>ID: {order.id.slice(0, 8)}</span>
               {order.table_id && (
                 <span className="text-primary/40 px-2 py-0.5 rounded-full border border-primary/10 bg-primary/5">Table {order.table_id}</span>
               )}
