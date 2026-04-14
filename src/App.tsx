@@ -21,7 +21,10 @@ import {
   RefreshCcw,
   Edit2,
   Save,
-  X
+  X,
+  TrendingUp,
+  Timer,
+  Bell
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -50,7 +53,14 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [searchToken, setSearchToken] = useState('');
   const [menuSearch, setMenuSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('counter');
+  const [activeTab, setActiveTab] = useState('service');
+  const [stats, setStats] = useState({ preparedToday: 0, avgTime: '12m' });
+
+  const playChime = () => {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+    audio.volume = 0.4;
+    audio.play().catch(e => console.log('Audio play failed:', e));
+  };
 
   // ... (rest of the useEffect and handlers)
   useEffect(() => {
@@ -62,10 +72,24 @@ export default function App() {
           .select('*')
           .neq('status', 'completed')
           .neq('status', 'cancelled')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: true });
 
         if (ordersError) throw ordersError;
         setOrders(ordersData || []);
+
+        // Fetch stats for today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const { count, error: statsError } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'completed')
+          .gte('created_at', today.toISOString());
+
+        if (!statsError) {
+          setStats(prev => ({ ...prev, preparedToday: count || 0 }));
+        }
 
         const { data: menuData, error: menuError } = await supabase
           .from('menu_items')
@@ -89,11 +113,15 @@ export default function App() {
       .channel('orders-realtime')
       .on('postgres_changes', { event: '*', table: 'orders', schema: 'public' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setOrders(prev => [payload.new as Order, ...prev]);
+          setOrders(prev => [...prev, payload.new as Order]);
+          playChime();
           toast.success(`New Order Received! Token: ${(payload.new as Order).token}`);
         } else if (payload.eventType === 'UPDATE') {
+          const updated = payload.new as Order;
+          if (updated.status === 'completed') {
+            setStats(prev => ({ ...prev, preparedToday: prev.preparedToday + 1 }));
+          }
           setOrders(prev => {
-            const updated = payload.new as Order;
             if (updated.status === 'completed' || updated.status === 'cancelled') {
               return prev.filter(o => o.id !== updated.id);
             }
@@ -199,13 +227,16 @@ export default function App() {
   };
 
   const filteredOrders = useMemo(() => {
-    if (!searchToken) return orders;
-    return orders.filter(o => o.token.toLowerCase().includes(searchToken.toLowerCase()));
+    let base = orders;
+    if (searchToken) {
+      base = base.filter(o => o.token.toLowerCase().includes(searchToken.toLowerCase()));
+    }
+    return base;
   }, [orders, searchToken]);
 
-  const pendingOrders = filteredOrders.filter(o => o.status === 'pending');
-  const preparingOrders = orders.filter(o => o.status === 'preparing');
-  const readyOrders = orders.filter(o => o.status === 'ready');
+  const serviceRailOrders = useMemo(() => {
+    return filteredOrders.filter(o => o.status === 'pending');
+  }, [filteredOrders]);
 
   const filteredMenuItems = useMemo(() => {
     if (!menuSearch) return menuItems;
@@ -242,6 +273,12 @@ export default function App() {
 
         <nav className="flex w-full flex-1 flex-col gap-2 px-4">
           <NavItem 
+            icon={<RefreshCcw size={18} strokeWidth={1.5} />} 
+            label="Service Rail" 
+            active={activeTab === 'service'} 
+            onClick={() => setActiveTab('service')}
+          />
+          <NavItem 
             icon={<LayoutDashboard size={18} strokeWidth={1.5} />} 
             label="Counter" 
             active={activeTab === 'counter'} 
@@ -273,13 +310,30 @@ export default function App() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
           <header className="flex h-24 items-center justify-between border-b border-white/5 px-10 backdrop-blur-xl sticky top-0 z-10">
             <TabsList className="bg-transparent p-0 gap-10">
+              <TabsTrigger value="service" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
               <TabsTrigger value="counter" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
               <TabsTrigger value="kitchen" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
               <TabsTrigger value="pickup" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
               <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
             </TabsList>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-12">
+              <div className="flex items-center gap-8">
+                <div className="flex flex-col items-end">
+                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20">Prepared Today</span>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={12} className="text-primary/60" />
+                    <span className="text-xl font-serif text-primary">{stats.preparedToday}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end border-l border-white/5 pl-8">
+                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20">Avg Crafting</span>
+                  <div className="flex items-center gap-2">
+                    <Timer size={12} className="text-primary/60" />
+                    <span className="text-xl font-serif text-primary">{stats.avgTime}</span>
+                  </div>
+                </div>
+              </div>
               <div className="flex items-center gap-3 rounded-full border border-primary/20 px-5 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(197,160,89,0.8)]" />
                 SYSTEM ONLINE
@@ -306,23 +360,70 @@ export default function App() {
               </div>
 
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3 pb-10">
+                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
-                    {pendingOrders.map((order, index) => (
+                    {serviceRailOrders.map((order, index) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Confirm Payment" 
+                        actionLabel="Start Crafting" 
                         actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
                         onAction={() => updateOrderStatus(order.id, 'preparing')}
+                        variant="pending"
                         index={index}
                       />
                     ))}
                   </AnimatePresence>
-                  {pendingOrders.length === 0 && (
-                    <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
+                  {serviceRailOrders.length === 0 && (
+                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
                       <Clock size={48} strokeWidth={1} className="mb-6 text-primary/20" />
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">All systems clear</p>
+                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No new orders</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="service" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-4xl font-serif tracking-tight">Service Rail</h2>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold">Full Order Lifecycle</p>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
+                  <AnimatePresence mode="popLayout">
+                    {filteredOrders.map((order, index) => {
+                      let actionLabel = "Start Crafting";
+                      let nextStatus: OrderStatus = "preparing";
+                      
+                      if (order.status === 'preparing') {
+                        actionLabel = "Mark Ready";
+                        nextStatus = "ready";
+                      } else if (order.status === 'ready') {
+                        actionLabel = "Complete & Paid";
+                        nextStatus = "completed";
+                      }
+
+                      return (
+                        <OrderCard 
+                          key={order.id} 
+                          order={order} 
+                          actionLabel={actionLabel} 
+                          actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
+                          onAction={() => updateOrderStatus(order.id, nextStatus)}
+                          variant={order.status as any}
+                          index={index}
+                        />
+                      );
+                    })}
+                  </AnimatePresence>
+                  {filteredOrders.length === 0 && (
+                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
+                      <Clock size={48} strokeWidth={1} className="mb-6 text-primary/20" />
+                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No active orders</p>
                     </div>
                   )}
                 </div>
@@ -336,13 +437,13 @@ export default function App() {
               </div>
 
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3 pb-10">
+                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
-                    {preparingOrders.map((order, index) => (
+                    {orders.filter(o => o.status === 'preparing').map((order, index) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Order Ready" 
+                        actionLabel="Mark Ready" 
                         actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
                         onAction={() => updateOrderStatus(order.id, 'ready')}
                         variant="preparing"
@@ -350,8 +451,8 @@ export default function App() {
                       />
                     ))}
                   </AnimatePresence>
-                  {preparingOrders.length === 0 && (
-                    <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
+                  {orders.filter(o => o.status === 'preparing').length === 0 && (
+                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
                       <ChefHat size={48} strokeWidth={1} className="mb-6 text-primary/20" />
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">Kitchen is clear</p>
                     </div>
@@ -367,13 +468,13 @@ export default function App() {
               </div>
 
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3 pb-10">
+                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
-                    {readyOrders.map((order, index) => (
+                    {orders.filter(o => o.status === 'ready').map((order, index) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Mark Collected" 
+                        actionLabel="Complete & Paid" 
                         actionIcon={<PackageCheck size={14} strokeWidth={1.5} />}
                         onAction={() => updateOrderStatus(order.id, 'completed')}
                         variant="ready"
@@ -381,8 +482,8 @@ export default function App() {
                       />
                     ))}
                   </AnimatePresence>
-                  {readyOrders.length === 0 && (
-                    <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
+                  {orders.filter(o => o.status === 'ready').length === 0 && (
+                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
                       <PackageCheck size={48} strokeWidth={1} className="mb-6 text-primary/20" />
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No orders waiting</p>
                     </div>
@@ -426,11 +527,7 @@ export default function App() {
                           <p className="text-sm font-medium text-primary mt-3 tracking-tight">₹{(item.price || 0).toFixed(2)}</p>
                         </div>
                         <div className="flex flex-col items-end justify-between h-full">
-                          <Switch 
-                            checked={!item.is_sold_out} 
-                            onCheckedChange={(checked) => toggleMenuItemSoldOut(item.id, !checked)}
-                            className="data-[state=checked]:bg-primary"
-                          />
+                          <EditMenuItemDialog item={item} onSave={(updates) => updateMenuItem(item.id, updates)} />
                           <span className={cn(
                             "text-[8px] font-bold uppercase tracking-[0.25em] px-3 py-1 rounded-full border mt-auto",
                             item.is_sold_out 
@@ -439,9 +536,6 @@ export default function App() {
                           )}>
                             {item.is_sold_out ? "Sold Out" : "Active"}
                           </span>
-                        </div>
-                        <div className="absolute bottom-6 right-6">
-                          <EditMenuItemDialog item={item} onSave={(updates) => updateMenuItem(item.id, updates)} />
                         </div>
                       </div>
                     </Card>
@@ -589,6 +683,21 @@ function OrderCard({
   index?: number,
   key?: string | number
 }) {
+  const [isOldReady, setIsOldReady] = useState(false);
+
+  useEffect(() => {
+    if (variant !== 'ready') return;
+    
+    const checkAge = () => {
+      const ageInMinutes = (new Date().getTime() - new Date(order.created_at).getTime()) / (1000 * 60);
+      setIsOldReady(ageInMinutes > 5);
+    };
+
+    checkAge();
+    const interval = setInterval(checkAge, 30000);
+    return () => clearInterval(interval);
+  }, [variant, order.created_at]);
+
   const timeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
     if (seconds < 60) return `${seconds}s`;
@@ -599,65 +708,82 @@ function OrderCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ 
-        duration: 0.8, 
+        duration: 0.6, 
         delay: index * 0.05,
         ease: [0.16, 1, 0.3, 1] 
       }}
+      className="w-full"
     >
-      <Card className="border border-white/5 bg-[#0A0A0A] overflow-hidden relative group transition-all duration-700 hover:border-primary/30 rounded-[2rem] hover:shadow-[0_0_40px_rgba(197,160,89,0.05)]">
-        <CardHeader className="pb-6 pt-8 px-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="px-3 py-1 rounded-full border border-primary/10 bg-primary/5 text-[8px] font-bold uppercase tracking-[0.3em] text-primary/80">
-                Token #{order.token}
+      <Card className={cn(
+        "border border-white/5 bg-[#0A0A0A] overflow-hidden relative group transition-all duration-700 rounded-[2.5rem]",
+        variant === 'pending' && "animate-pulse-subtle",
+        isOldReady ? "border-primary/40 shadow-[0_0_50px_rgba(197,160,89,0.15)]" : "hover:border-primary/30 hover:shadow-[0_0_40px_rgba(197,160,89,0.05)]"
+      )}>
+        <div className="flex flex-col md:flex-row">
+          {/* Token Section - Most Prominent */}
+          <div className="flex flex-col items-center justify-center bg-black/40 p-8 border-b md:border-b-0 md:border-r border-white/5 min-w-[200px]">
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/20 mb-2">Token</span>
+            <span className="text-5xl font-serif text-primary tracking-tighter">{order.token}</span>
+            {order.table_id && (
+              <div className="mt-4 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                Table {order.table_id}
               </div>
-              <div className="flex items-center gap-2 text-[8px] text-white/20 font-bold uppercase tracking-[0.2em]">
-                <Clock size={10} strokeWidth={2} className="text-primary/40" />
+            )}
+          </div>
+
+          {/* Info Section */}
+          <div className="flex-1 p-8 flex flex-col justify-between">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  <span className={cn(
+                    "h-2 w-2 rounded-full",
+                    variant === 'pending' ? "bg-blue-500" : variant === 'preparing' ? "bg-amber-500" : "bg-green-500"
+                  )} />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">{variant}</span>
+                </div>
+                <span className="text-xl font-serif text-white/90">{order.customer_name || 'Guest Order'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-[10px] text-white/20 font-bold uppercase tracking-[0.2em]">
+                <Clock size={12} strokeWidth={2} className="text-primary/40" />
                 {timeAgo(order.created_at)}
               </div>
             </div>
-          <CardTitle className="flex flex-col gap-2">
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm font-bold tracking-tight text-primary/80">₹{(order.total || 0).toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between text-[8px] font-bold text-white/20 uppercase tracking-[0.3em] mt-2">
-              {order.table_id && (
-                <span className="text-primary/40 px-2 py-0.5 rounded-full border border-primary/10 bg-primary/5">Table {order.table_id}</span>
-              )}
-            </div>
-          </CardTitle>
-        </CardHeader>
 
-        <CardContent className="pb-8 px-8">
-          <div className="space-y-4">
-            {order.items.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs group/item">
-                <div className="flex items-center gap-4">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/10 bg-primary/5 text-[9px] font-bold text-primary/60">
-                    {item.quantity}
-                  </span>
-                  <span className="text-white/60 group-hover/item:text-white transition-colors tracking-tight">{item.name}</span>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+              <div className="space-y-3">
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-4 text-xs group/item">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/10 bg-primary/5 text-[9px] font-bold text-primary/60">
+                      {item.quantity}
+                    </span>
+                    <span className="text-white/60 group-hover/item:text-white transition-colors tracking-tight">{item.name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </CardContent>
 
-        <CardFooter className="p-0 border-t border-white/5">
-          <Button 
-            onClick={onAction}
-            variant="ghost"
-            className="w-full h-16 rounded-none text-[9px] font-bold uppercase tracking-[0.4em] text-white/30 hover:bg-primary hover:text-black transition-all duration-700 group/btn"
-          >
-            <span className="transition-transform duration-500 group-hover/btn:scale-110 flex items-center gap-3">
-              {actionIcon}
-              {actionLabel}
-            </span>
-          </Button>
-        </CardFooter>
+              <div className="flex flex-col items-end gap-4">
+                <div className="text-right">
+                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 block mb-1">Total Amount</span>
+                  <span className="text-2xl font-serif text-primary">₹{(order.total || 0).toFixed(2)}</span>
+                </div>
+                <Button 
+                  onClick={onAction}
+                  className="bg-primary text-black hover:bg-primary/90 rounded-full px-8 h-12 text-[10px] uppercase tracking-[0.3em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] transition-all duration-500 hover:scale-105"
+                >
+                  <span className="flex items-center gap-3">
+                    {actionIcon}
+                    {actionLabel}
+                  </span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       </Card>
     </motion.div>
   );
