@@ -24,7 +24,9 @@ import {
   X,
   TrendingUp,
   Timer,
-  Bell
+  Bell,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -55,6 +57,56 @@ export default function App() {
   const [menuSearch, setMenuSearch] = useState('');
   const [activeTab, setActiveTab] = useState('service');
   const [stats, setStats] = useState({ preparedToday: 0, avgTime: '12m' });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const authData = localStorage.getItem('scanserve_staff_auth');
+      if (authData) {
+        try {
+          const { expiry } = JSON.parse(authData);
+          if (new Date().getTime() < expiry) {
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('scanserve_staff_auth');
+          }
+        } catch (e) {
+          localStorage.removeItem('scanserve_staff_auth');
+        }
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Default password for staff access
+    if (password === 'ScanServe2026') {
+      // Calculate expiry: End of the day in IST
+      // IST is UTC+5:30
+      const now = new Date();
+      const istOffset = 5.5 * 60 * 60 * 1000;
+      const istNow = new Date(now.getTime() + istOffset);
+      
+      const istEndOfDay = new Date(istNow);
+      istEndOfDay.setHours(23, 59, 59, 999);
+      
+      const expiryUtc = istEndOfDay.getTime() - istOffset;
+      
+      localStorage.setItem('scanserve_staff_auth', JSON.stringify({
+        authenticated: true,
+        expiry: expiryUtc
+      }));
+      setIsAuthenticated(true);
+      setAuthError(false);
+      toast.success('Access Granted');
+    } else {
+      setAuthError(true);
+      toast.error('Invalid Access Password');
+    }
+  };
 
   const playPopSound = () => {
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
@@ -246,6 +298,56 @@ export default function App() {
       item.category.toLowerCase().includes(query)
     );
   }, [menuItems, menuSearch]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-black text-white p-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <div className="flex flex-col items-center gap-8 text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-primary/20 bg-[#0A0A0A] shadow-[0_0_30px_rgba(197,160,89,0.1)]">
+              <Lock size={32} strokeWidth={1.5} className="text-primary" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-serif tracking-tight mb-2">Staff <span className="italic opacity-60 text-primary">Access</span></h1>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-bold">Secure Dashboard Entry</p>
+            </div>
+            
+            <form onSubmit={handleLogin} className="w-full space-y-6 mt-4">
+              <div className="relative group">
+                <Input 
+                  type="password"
+                  placeholder="Enter Access Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={cn(
+                    "bg-[#0A0A0A] border-white/5 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all",
+                    authError && "border-red-500/50 focus-visible:border-red-500/50"
+                  )}
+                  autoFocus
+                />
+              </div>
+              <Button 
+                type="submit"
+                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.4em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group"
+              >
+                Authenticate
+                <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </form>
+            
+            <p className="text-[9px] text-white/10 uppercase tracking-[0.2em] font-bold mt-8">
+              Authorized Personnel Only
+            </p>
+          </div>
+        </motion.div>
+        <Toaster position="top-center" theme="dark" richColors />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
