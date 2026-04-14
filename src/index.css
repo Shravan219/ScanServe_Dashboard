@@ -40,6 +40,18 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-pulse-subtle: pulse-subtle 3s ease-in-out infinite;
+
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(0.995);
+    }
+  }
 
   @keyframes accordion-down {
     from {
