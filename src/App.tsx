@@ -56,9 +56,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('service');
   const [stats, setStats] = useState({ preparedToday: 0, avgTime: '12m' });
 
-  const playChime = () => {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-    audio.volume = 0.4;
+  const playPopSound = () => {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+    audio.volume = 0.8;
     audio.play().catch(e => console.log('Audio play failed:', e));
   };
 
@@ -114,7 +114,7 @@ export default function App() {
       .on('postgres_changes', { event: '*', table: 'orders', schema: 'public' }, (payload) => {
         if (payload.eventType === 'INSERT') {
           setOrders(prev => [...prev, payload.new as Order]);
-          playChime();
+          playPopSound();
           toast.success(`New Order Received! Token: ${(payload.new as Order).token}`);
         } else if (payload.eventType === 'UPDATE') {
           const updated = payload.new as Order;
