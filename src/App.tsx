@@ -5,6 +5,7 @@
 
 import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/src/lib/supabase';
 import { Order, MenuItem, OrderStatus } from '@/src/types';
 import { 
@@ -50,16 +51,34 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 export default function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchToken, setSearchToken] = useState('');
   const [menuSearch, setMenuSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('service');
+  
+  const activeTab = useMemo(() => {
+    const path = location.pathname.split('/')[1];
+    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu'];
+    return validTabs.includes(path) ? path : 'service';
+  }, [location.pathname]);
+
+  const setActiveTab = (tab: string) => {
+    navigate(`/${tab}`);
+  };
+
   const [stats, setStats] = useState({ preparedToday: 0, avgTime: '12m' });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === '/' || location.pathname === '') {
+      navigate('/service', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     const checkAuth = () => {
