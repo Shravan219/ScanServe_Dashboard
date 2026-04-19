@@ -705,7 +705,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
     onSave({
       name,
       price: parseFloat(price) || 0,
-      discount_price: discountPrice ? parseFloat(discountPrice) : undefined,
+      discount_price: discountPrice ? parseFloat(discountPrice) : null,
       category,
       is_sold_out: isSoldOut
     });
