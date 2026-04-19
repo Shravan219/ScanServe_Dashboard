@@ -23,6 +23,7 @@ export interface MenuItem {
   name: string;
   description?: string;
   price: number;
+  discount_price?: number;
   category: string;
   image?: string;
   is_sold_out: boolean;

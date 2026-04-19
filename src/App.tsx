@@ -626,10 +626,26 @@ export default function App() {
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
                           <h4 className="text-lg font-serif tracking-tight text-white/90 group-hover:text-primary transition-colors">{item.name}</h4>
                           <p className="text-[9px] text-white/20 uppercase tracking-[0.2em] mt-2 font-bold">{item.category}</p>
-                          <p className="text-sm font-medium text-primary mt-3 tracking-tight">₹{(item.price || 0).toFixed(2)}</p>
+                          <div className="flex items-baseline gap-2 mt-3">
+                            {item.discount_price && item.discount_price > 0 ? (
+                              <>
+                                <p className="text-sm font-medium text-primary tracking-tight">₹{item.discount_price.toFixed(2)}</p>
+                                <p className="text-[10px] text-white/20 line-through tracking-tight">₹{item.price.toFixed(2)}</p>
+                              </>
+                            ) : (
+                              <p className="text-sm font-medium text-primary tracking-tight">₹{(item.price || 0).toFixed(2)}</p>
+                            )}
+                          </div>
                         </div>
                         <div className="flex flex-col items-end justify-between h-full">
-                          <EditMenuItemDialog item={item} onSave={(updates) => updateMenuItem(item.id, updates)} />
+                          <div className="flex flex-col items-end gap-2">
+                            <EditMenuItemDialog item={item} onSave={(updates) => updateMenuItem(item.id, updates)} />
+                            {item.discount_price && item.discount_price > 0 && (
+                              <span className="text-[7px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                                Discount Active
+                              </span>
+                            )}
+                          </div>
                           <span className={cn(
                             "text-[8px] font-bold uppercase tracking-[0.25em] px-3 py-1 rounded-full border mt-auto",
                             item.is_sold_out 
@@ -661,6 +677,7 @@ export default function App() {
 function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates: Partial<MenuItem>) => void }) {
   const [name, setName] = useState(item.name);
   const [price, setPrice] = useState(item.price.toString());
+  const [discountPrice, setDiscountPrice] = useState(item.discount_price?.toString() || '');
   const [category, setCategory] = useState(item.category);
   const [isSoldOut, setIsSoldOut] = useState(item.is_sold_out);
   const [open, setOpen] = useState(false);
@@ -669,6 +686,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
     onSave({
       name,
       price: parseFloat(price) || 0,
+      discount_price: discountPrice ? parseFloat(discountPrice) : undefined,
       category,
       is_sold_out: isSoldOut
     });
@@ -701,7 +719,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
           </div>
           <div className="grid grid-cols-2 gap-6">
             <div className="grid gap-3">
-              <label htmlFor="price" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Price (₹)</label>
+              <label htmlFor="price" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Base Price (₹)</label>
               <Input 
                 id="price" 
                 type="number" 
@@ -712,14 +730,26 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
               />
             </div>
             <div className="grid gap-3">
-              <label htmlFor="category" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Category</label>
+              <label htmlFor="discount" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Discount Price (₹)</label>
               <Input 
-                id="category" 
-                value={category} 
-                onChange={(e) => setCategory(e.target.value)}
+                id="discount" 
+                type="number" 
+                step="0.01"
+                placeholder="Optional"
+                value={discountPrice} 
+                onChange={(e) => setDiscountPrice(e.target.value)}
                 className="bg-black border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
               />
             </div>
+          </div>
+          <div className="grid gap-3">
+            <label htmlFor="category" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Category</label>
+            <Input 
+              id="category" 
+              value={category} 
+              onChange={(e) => setCategory(e.target.value)}
+              className="bg-black border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+            />
           </div>
           <div className="flex items-center justify-between rounded-[1.5rem] bg-black p-6 border border-white/5">
             <div className="space-y-1">
