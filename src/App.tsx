@@ -702,10 +702,18 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
   const [open, setOpen] = useState(false);
 
   const handleSave = () => {
+    const parsedPrice = parseFloat(price) || 0;
+    const parsedDiscount = discountPrice ? parseFloat(discountPrice) : null;
+
+    if (parsedDiscount !== null && parsedDiscount >= parsedPrice) {
+      toast.error('Discount price must be lower than base price');
+      return;
+    }
+
     onSave({
       name,
-      price: parseFloat(price) || 0,
-      discount_price: discountPrice ? parseFloat(discountPrice) : null,
+      price: parsedPrice,
+      discount_price: parsedDiscount,
       category,
       is_sold_out: isSoldOut
     });
