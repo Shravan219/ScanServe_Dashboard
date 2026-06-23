@@ -15,6 +15,7 @@ export interface Order {
   total: number;
   items: OrderItem[];
   customer_name?: string;
+  customer_phone?: string;
   table_id?: string | number;
 }
 

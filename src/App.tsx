@@ -27,7 +27,10 @@ import {
   Timer,
   Bell,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Users,
+  Copy,
+  Check
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -58,10 +61,192 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [searchToken, setSearchToken] = useState('');
   const [menuSearch, setMenuSearch] = useState('');
+  const [customerSearch, setCustomerSearch] = useState('');
+
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [dbCustomers, setDbCustomers] = useState<any[]>([]);
+
+  const [copiedValue, setCopiedValue] = useState<string | null>(null);
+
+  const handleCopyValue = (value: string) => {
+    navigator.clipboard.writeText(value);
+    setCopiedValue(value);
+    toast.success('Phone number copied!');
+    setTimeout(() => {
+      setCopiedValue(null);
+    }, 2000);
+  };
+
+  const [frequentDiscountEnabled, setFrequentDiscountEnabled] = useState<boolean>(() => {
+    const saved = localStorage.getItem('scanserve_frequent_discount_enabled');
+    return saved === 'true';
+  });
+  const [minOrdersForDiscount, setMinOrdersForDiscount] = useState<number>(() => {
+    const saved = localStorage.getItem('scanserve_min_orders_discount');
+    return saved ? parseInt(saved) : 3;
+  });
+  const [discountPercentage, setDiscountPercentage] = useState<number>(() => {
+    const saved = localStorage.getItem('scanserve_discount_percentage');
+    return saved ? parseInt(saved) : 10;
+  });
+
+  const toggleFrequentDiscount = async () => {
+    const newValue = !frequentDiscountEnabled;
+    setFrequentDiscountEnabled(newValue);
+    
+    if (!newValue) {
+      toast.promise(
+        (async () => {
+          // Clear VIP status and active loyal tags in database for ALL records
+          const { error } = await supabase
+            .from('customers')
+            .update({ loyal_vip: false, discount: null })
+            .not('phone', 'is', null);
+          
+          if (error) throw error;
+
+          // Refetch customer table data to update current state
+          const { data: updatedCusts, error: listErr } = await supabase
+            .from('customers')
+            .select('*');
+          if (listErr) throw listErr;
+          if (updatedCusts) {
+            setDbCustomers(updatedCusts);
+          }
+        })(),
+        {
+          loading: 'Updating Customer Database...',
+          success: 'Loyalty system disabled. Cleared all Loyal VIP profiles and discounts.',
+          error: 'Failed to update customer loyalty status in database.'
+        }
+      );
+    } else {
+      toast.success('Loyalty system enabled!');
+    }
+  };
+
+  const computedCustomers = useMemo(() => {
+    const customerMap = new Map<string, {
+      name: string;
+      orderCount: number;
+      totalSpent: number;
+      lastOrder: string;
+      tables: Set<string | number>;
+      lastTable: string | number | null;
+      favoriteItems: { [key: string]: number };
+      phone: string;
+      loyal_vip: boolean;
+      discount: number | null;
+    }>();
+
+    allOrders.forEach(order => {
+      const name = order.customer_name?.trim();
+      if (!name || name.toLowerCase() === 'guest' || name.toLowerCase() === 'guest order') return;
+      
+      const key = name.toLowerCase();
+      const existing = customerMap.get(key);
+      const orderTotal = order.total || 0;
+      
+      const tables = existing ? existing.tables : new Set<string | number>();
+      if (order.table_id) {
+        tables.add(order.table_id);
+      }
+      
+      const favoriteItems = existing ? existing.favoriteItems : {};
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          favoriteItems[item.name] = (favoriteItems[item.name] || 0) + (item.quantity || 1);
+        });
+      }
+
+      const phone = order.customer_phone?.trim() || '';
+
+      if (existing) {
+        existing.orderCount += 1;
+        existing.totalSpent += orderTotal;
+        if (phone && !existing.phone) {
+          existing.phone = phone;
+        }
+        if (new Date(order.created_at) > new Date(existing.lastOrder)) {
+          existing.lastOrder = order.created_at;
+          if (order.table_id) {
+            existing.lastTable = order.table_id;
+          }
+        }
+      } else {
+        customerMap.set(key, {
+          name,
+          phone,
+          orderCount: 1,
+          totalSpent: orderTotal,
+          lastOrder: order.created_at,
+          tables,
+          lastTable: order.table_id || null,
+          favoriteItems,
+          loyal_vip: false,
+          discount: null
+        });
+      }
+    });
+
+    dbCustomers.forEach(dc => {
+      const name = dc.name || dc.customer_name;
+      if (!name) return;
+      const key = name.toLowerCase();
+      const existing = customerMap.get(key);
+      if (existing) {
+        existing.loyal_vip = !!dc.loyal_vip;
+        existing.discount = dc.discount;
+        if (dc.order_count !== undefined && dc.order_count !== null) {
+          existing.orderCount = dc.order_count;
+        }
+        if (dc.phone) {
+          existing.phone = dc.phone;
+        }
+        if (dc.table_id && !existing.lastTable) {
+          existing.lastTable = dc.table_id;
+        }
+      } else {
+        customerMap.set(key, {
+          name,
+          phone: dc.phone || '',
+          orderCount: dc.order_count || dc.total_orders || 0,
+          totalSpent: dc.total_spent || 0,
+          lastOrder: dc.last_order_date || dc.created_at || new Date().toISOString(),
+          tables: new Set(dc.table_id ? [dc.table_id] : []),
+          lastTable: dc.table_id || null,
+          favoriteItems: {},
+          loyal_vip: dc.loyal_vip || false,
+          discount: dc.discount || null
+        });
+      }
+    });
+
+    const sortedList = Array.from(customerMap.values()).map(c => {
+      let topItem = 'None';
+      let maxQty = 0;
+      Object.entries(c.favoriteItems).forEach(([item, qty]) => {
+        if (qty > maxQty) {
+          maxQty = qty;
+          topItem = item;
+        }
+      });
+
+      return {
+        ...c,
+        favoriteItem: topItem,
+        tablesList: c.lastTable ? `Table ${c.lastTable}` : 'Walk-in'
+      };
+    }).sort((a, b) => b.orderCount - a.orderCount);
+
+    if (!customerSearch) return sortedList;
+    const q = customerSearch.toLowerCase();
+    return sortedList.filter(c => c.name.toLowerCase().includes(q));
+  }, [allOrders, dbCustomers, customerSearch]);
   
   const activeTab = useMemo(() => {
     const path = location.pathname.split('/')[1];
-    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu'];
+    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu', 'customers'];
     return validTabs.includes(path) ? path : 'service';
   }, [location.pathname]);
 
@@ -73,6 +258,56 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('scanserve_frequent_discount_enabled', frequentDiscountEnabled.toString());
+  }, [frequentDiscountEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem('scanserve_min_orders_discount', minOrdersForDiscount.toString());
+  }, [minOrdersForDiscount]);
+
+  useEffect(() => {
+    localStorage.setItem('scanserve_discount_percentage', discountPercentage.toString());
+  }, [discountPercentage]);
+
+  const getOrderDiscountInfo = (order: Order) => {
+    if (!order.customer_name) {
+      return { isDiscounted: false, discountPercentage, originalTotal: order.total, finalTotal: order.total, orderCount: 0 };
+    }
+    
+    const nameToMatch = order.customer_name.trim().toLowerCase();
+    const phoneToMatch = order.customer_phone?.trim();
+    if (nameToMatch === '' || nameToMatch === 'guest order') {
+      return { isDiscounted: false, discountPercentage, originalTotal: order.total, finalTotal: order.total, orderCount: 0 };
+    }
+
+    // Check if customer exists in dbCustomers with loyal_vip = true
+    const dbCust = dbCustomers.find(c => 
+      (phoneToMatch && c.phone === phoneToMatch) || 
+      (c.name && c.name.trim().toLowerCase() === nameToMatch)
+    );
+
+    const isVipInDb = dbCust ? !!dbCust.loyal_vip : false;
+    const dbDiscountValue = dbCust?.discount != null ? Number(dbCust.discount) : null;
+
+    const occurrencesCount = allOrders.filter(o => o.customer_name?.trim().toLowerCase() === nameToMatch).length;
+    
+    if (frequentDiscountEnabled && (isVipInDb || occurrencesCount >= minOrdersForDiscount)) {
+      const activeDiscount = dbDiscountValue ?? discountPercentage;
+      const factor = (100 - activeDiscount) / 100;
+      const finalTotal = order.total * factor;
+      return {
+        isDiscounted: true,
+        discountPercentage: activeDiscount,
+        originalTotal: order.total,
+        finalTotal: finalTotal,
+        orderCount: occurrencesCount
+      };
+    }
+    
+    return { isDiscounted: false, discountPercentage, originalTotal: order.total, finalTotal: order.total, orderCount: occurrencesCount };
+  };
 
   useEffect(() => {
     if (location.pathname === '/' || location.pathname === '') {
@@ -148,6 +383,27 @@ export default function App() {
         if (ordersError) throw ordersError;
         setOrders(ordersData || []);
 
+        // Fetch all orders for Customer Database statistics
+        const { data: allOrdersData, error: allOrdersError } = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!allOrdersError && allOrdersData) {
+          setAllOrders(allOrdersData);
+        }
+
+        // Try getting dedicated customer records
+        try {
+          const { data: custData, error: custError } = await supabase
+            .from('customers')
+            .select('*');
+          if (!custError && custData) {
+            setDbCustomers(custData);
+          }
+        } catch (e) {
+          console.warn('Dedicated customers table not found, fallback to dynamically computed customer history.');
+        }
+
         // Fetch stats for today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -184,9 +440,11 @@ export default function App() {
       .channel('orders-realtime')
       .on('postgres_changes', { event: '*', table: 'orders', schema: 'public' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setOrders(prev => [...prev, payload.new as Order]);
+          const newOrder = payload.new as Order;
+          setOrders(prev => [...prev, newOrder]);
+          setAllOrders(prev => [newOrder, ...prev]);
           playPopSound();
-          toast.success(`New Order Received! Token: ${(payload.new as Order).token}`);
+          toast.success(`New Order Received! Token: ${newOrder.token}`);
         } else if (payload.eventType === 'UPDATE') {
           const updated = payload.new as Order;
           if (updated.status === 'completed') {
@@ -198,8 +456,10 @@ export default function App() {
             }
             return prev.map(o => o.id === updated.id ? updated : o);
           });
+          setAllOrders(prev => prev.map(o => o.id === updated.id ? updated : o));
         } else if (payload.eventType === 'DELETE') {
           setOrders(prev => prev.filter(o => o.id !== payload.old.id));
+          setAllOrders(prev => prev.filter(o => o.id !== payload.old.id));
         }
       })
       .subscribe();
@@ -220,9 +480,60 @@ export default function App() {
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     console.log(`Updating order ${orderId} status to ${newStatus}...`);
     try {
+      const orderToUpdate = orders.find(o => o.id === orderId);
+      if (!orderToUpdate) {
+        throw new Error('Order not found');
+      }
+
+      // 1. Fetch fresh customer data to check for exact up-to-date values, avoiding state mismatch
+      const phone = orderToUpdate.customer_phone?.trim();
+      const name = orderToUpdate.customer_name?.trim() || 'Guest';
+
+      let isEligible = false;
+      let currentDbCount = 0;
+      let existingDiscount = discountPercentage;
+
+      if (phone) {
+        try {
+          const { data: existingCust, error: fetchErr } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('phone', phone)
+            .maybeSingle();
+
+          if (!fetchErr && existingCust) {
+            currentDbCount = existingCust.order_count || 0;
+            isEligible = !!existingCust.loyal_vip;
+            if (existingCust.discount != null) {
+              existingDiscount = Number(existingCust.discount);
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching customer profile:', err);
+        }
+      }
+
+      // Calculate state as of after the current order is completed
+      const newCount = currentDbCount + (newStatus === 'completed' ? 1 : 0);
+      
+      // Eligibility is met if they are already VIP, or if frequent loyalty is enabled and newCount hits threshold
+      const isEligibleNow = frequentDiscountEnabled && (isEligible || newCount >= minOrdersForDiscount);
+      const activeDiscountPercentage = (frequentDiscountEnabled && isEligible) ? existingDiscount : discountPercentage;
+
+      // Calculate order discount details
+      const discountInfo = getOrderDiscountInfo(orderToUpdate);
+      const shouldApplyDiscount = isEligibleNow || discountInfo.isDiscounted;
+
+      const updatePayload: any = { status: newStatus };
+      if (newStatus === 'completed' && shouldApplyDiscount) {
+        const factor = (100 - activeDiscountPercentage) / 100;
+        updatePayload.total = orderToUpdate.total * factor;
+      }
+
+      // 2. Perform the Order Update in Supabase
       const { data, error } = await supabase
         .from('orders')
-        .update({ status: newStatus })
+        .update(updatePayload)
         .eq('id', orderId)
         .select();
 
@@ -232,7 +543,45 @@ export default function App() {
       }
       
       console.log('Update successful:', data);
-      toast.success(`Order status updated to ${newStatus}`);
+
+      // 3. Handle Customer Database loyalty update
+      if (newStatus === 'completed' && phone) {
+        try {
+          const customerPayload = {
+            phone,
+            name,
+            order_count: newCount,
+            loyal_vip: isEligibleNow,
+            discount: isEligibleNow ? activeDiscountPercentage : null
+          };
+
+          console.log('Upserting customers record:', customerPayload);
+          const { error: upsertErr } = await supabase
+            .from('customers')
+            .upsert(customerPayload);
+
+          if (upsertErr) {
+            console.error('Error upserting customer table:', upsertErr);
+          } else {
+            console.log('Customer table updated successfully:', customerPayload);
+            // Fetch updated list of customers to keep UI fully in sync
+            const { data: updatedCusts, error: listErr } = await supabase
+              .from('customers')
+              .select('*');
+            if (!listErr && updatedCusts) {
+              setDbCustomers(updatedCusts);
+            }
+          }
+        } catch (err) {
+          console.error('Exception updating customer loyalty:', err);
+        }
+      }
+
+      toast.success(
+        shouldApplyDiscount && newStatus === 'completed'
+          ? `Order status updated to ${newStatus} (${activeDiscountPercentage}% Loyalty Discount applied!)`
+          : `Order status updated to ${newStatus}`
+      );
       
       // Manual state update
       setOrders(prev => {
@@ -240,6 +589,19 @@ export default function App() {
           return prev.filter(o => o.id !== orderId);
         }
         return prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
+      });
+
+      setAllOrders(prev => {
+        return prev.map(o => {
+          if (o.id === orderId) {
+            const updatedOrder = { ...o, status: newStatus };
+            if (newStatus === 'completed' && discountInfo?.isDiscounted) {
+              updatedOrder.total = discountInfo.finalTotal;
+            }
+            return updatedOrder;
+          }
+          return o;
+        });
       });
     } catch (error) {
       console.error('Error updating order:', error);
@@ -423,19 +785,26 @@ export default function App() {
             active={activeTab === 'menu'} 
             onClick={() => setActiveTab('menu')}
           />
+          <NavItem 
+            icon={<Users size={18} strokeWidth={1.5} />} 
+            label="Customers" 
+            active={activeTab === 'customers'} 
+            onClick={() => setActiveTab('customers')}
+          />
         </nav>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <header className="flex h-24 items-center justify-between border-b border-white/5 px-10 backdrop-blur-xl sticky top-0 z-10">
+          <header className="flex h-24 items-center justify-between border-b border-white/5 px-10 backdrop-blur-xl sticky top-0 z-10 animate-fade-in">
             <TabsList className="bg-transparent p-0 gap-10">
               <TabsTrigger value="service" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
               <TabsTrigger value="counter" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
               <TabsTrigger value="kitchen" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
               <TabsTrigger value="pickup" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
               <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
+              <TabsTrigger value="customers" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
             </TabsList>
 
             <div className="flex items-center gap-12">
@@ -492,6 +861,7 @@ export default function App() {
                         onAction={() => updateOrderStatus(order.id, 'preparing')}
                         variant="pending"
                         index={index}
+                        discountInfo={getOrderDiscountInfo(order)}
                       />
                     ))}
                   </AnimatePresence>
@@ -537,6 +907,7 @@ export default function App() {
                           onAction={() => updateOrderStatus(order.id, nextStatus)}
                           variant={order.status as any}
                           index={index}
+                          discountInfo={getOrderDiscountInfo(order)}
                         />
                       );
                     })}
@@ -569,6 +940,7 @@ export default function App() {
                         onAction={() => updateOrderStatus(order.id, 'ready')}
                         variant="preparing"
                         index={index}
+                        discountInfo={getOrderDiscountInfo(order)}
                       />
                     ))}
                   </AnimatePresence>
@@ -600,6 +972,7 @@ export default function App() {
                         onAction={() => updateOrderStatus(order.id, 'completed')}
                         variant="ready"
                         index={index}
+                        discountInfo={getOrderDiscountInfo(order)}
                       />
                     ))}
                   </AnimatePresence>
@@ -683,6 +1056,193 @@ export default function App() {
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No items match your search</p>
                     </div>
                   )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="customers" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden overflow-hidden">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in">
+                <div>
+                  <h2 className="text-4xl font-serif tracking-tight">Customer Database</h2>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold font-sans">Loyalty & Historical Statistics</p>
+                </div>
+                <div className="relative w-full md:w-80">
+                  <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+                  <Input 
+                    placeholder="Search Customers..." 
+                    className="pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all font-sans"
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Loyalty Discount Option Panel */}
+              <div className="bg-[#0A0A0A] border border-white/5 rounded-[2.5rem] p-8 md:p-10 shadow-[0_0_30px_rgba(197,160,89,0.02)] animate-fade-in delay-100">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                  <div className="space-y-4 lg:max-w-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary">
+                        <TrendingUp size={12} />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Automatic Checkout Promotion</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-serif tracking-tight text-white mb-2">Loyal Customer Checkout Discounts</h3>
+                      <p className="text-xs text-white/40 leading-relaxed font-sans">
+                        Encourage repeat visits by automatically applying percentage-based discounts to customers on checkout once they reach a set order threshold.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-6 lg:self-end">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[8px] font-bold uppercase tracking-[0.25em] text-white/30 ml-1 font-sans">Min Orders Needed</label>
+                        <Input 
+                          type="number"
+                          min="1"
+                          className="bg-black border-white/5 rounded-full h-12 w-28 text-center text-xs font-bold font-sans"
+                          value={minOrdersForDiscount}
+                          onChange={(e) => setMinOrdersForDiscount(Math.max(1, parseInt(e.target.value) || 0))}
+                          disabled={!frequentDiscountEnabled}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[8px] font-bold uppercase tracking-[0.25em] text-white/30 ml-1 font-sans">Discount Percentage (%)</label>
+                        <Input 
+                          type="number"
+                          min="1"
+                          max="100"
+                          className="bg-black border-white/5 rounded-full h-12 w-28 text-center text-xs font-bold font-sans text-primary"
+                          value={discountPercentage}
+                          onChange={(e) => setDiscountPercentage(Math.min(100, Math.max(1, parseInt(e.target.value) || 0)))}
+                          disabled={!frequentDiscountEnabled}
+                        />
+                      </div>
+                    </div>
+
+                    <button 
+                      type="button"
+                      onClick={toggleFrequentDiscount}
+                      className="flex items-center gap-4 bg-black/40 hover:bg-black/60 border border-white/5 rounded-full px-6 py-3 self-center sm:self-auto h-12 mt-auto cursor-pointer select-none transition-all"
+                    >
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase tracking-[0.2em] font-sans",
+                        frequentDiscountEnabled ? "text-primary/90" : "text-white/20"
+                      )}>
+                        {frequentDiscountEnabled ? "SYSTEM ACTIVE" : "DISABLED"}
+                      </span>
+                      <Switch 
+                        checked={frequentDiscountEnabled} 
+                        onCheckedChange={toggleFrequentDiscount}
+                        className="data-[state=checked]:bg-primary pointer-events-none"
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer List Table */}
+              <div className="flex-1 overflow-hidden flex flex-col border border-white/5 bg-[#0A0A0A] rounded-[2.5rem] p-8 md:p-10 shadow-[0_0_40px_rgba(0,0,0,0.3)] animate-fade-in delay-200">
+                <div className="overflow-x-auto flex-1 custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.3em] text-white/30 font-bold font-sans">
+                        <th className="pb-6">Customer Name</th>
+                        <th className="pb-6 pl-4">Phone Number</th>
+                        <th className="pb-6 text-center">Order Count</th>
+                        <th className="pb-6 text-right">Total Spent</th>
+                        <th className="pb-6 text-right">Avg Order Value</th>
+                        <th className="pb-6 pl-6">Favorite Item</th>
+                        <th className="pb-6">Last Table</th>
+                        <th className="pb-6 text-right">Last Visit</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-xs font-sans">
+                      {computedCustomers.map((customer, idx) => {
+                        const qualifies = frequentDiscountEnabled && (customer.loyal_vip || customer.orderCount >= minOrdersForDiscount);
+                        const avgValue = customer.orderCount > 0 ? customer.totalSpent / customer.orderCount : 0;
+                        const formattedDate = new Date(customer.lastOrder).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        });
+
+                        return (
+                          <motion.tr 
+                            key={customer.name}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: idx * 0.03 }}
+                            className="group hover:bg-white/[0.01] transition-colors"
+                          >
+                            <td className="py-5 font-medium text-white/95">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-serif">{customer.name}</span>
+                                {qualifies && (
+                                  <span className="text-[7px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                                    Loyal VIP {customer.discount ? `(${customer.discount}%)` : ''}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-5 pl-4 font-mono text-white/70">
+                              {customer.phone ? (
+                                <div className="flex items-center gap-2 group/copy">
+                                  <span>{customer.phone}</span>
+                                  <button
+                                    onClick={() => handleCopyValue(customer.phone)}
+                                    className="p-1 px-1.5 text-white/30 hover:text-primary hover:bg-white/5 rounded-md cursor-pointer transition-all flex items-center gap-1 active:scale-95"
+                                    title="Copy Phone Number"
+                                  >
+                                    {copiedValue === customer.phone ? (
+                                      <Check size={11} className="text-emerald-400" />
+                                    ) : (
+                                      <Copy size={11} className="opacity-40 group-hover/copy:opacity-100 transition-opacity" />
+                                    )}
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-white/20 italic">No phone</span>
+                              )}
+                            </td>
+                            <td className="py-5 text-center">
+                              <span className="inline-flex items-center justify-center h-7 w-12 rounded-full bg-white/5 font-mono text-white/80 font-semibold group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                {customer.orderCount}
+                              </span>
+                            </td>
+                            <td className="py-5 text-right font-mono text-white/80 font-medium">
+                              ₹{customer.totalSpent.toFixed(2)}
+                            </td>
+                            <td className="py-5 text-right font-mono text-white/60">
+                              ₹{avgValue.toFixed(2)}
+                            </td>
+                            <td className="py-5 pl-6 text-white/60">
+                              <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] uppercase font-bold tracking-wider text-white/55">
+                                {customer.favoriteItem}
+                              </span>
+                            </td>
+                            <td className="py-5 text-white/40 max-w-[150px] truncate">
+                              {customer.tablesList}
+                            </td>
+                            <td className="py-5 text-right text-white/40 font-mono">
+                              {formattedDate}
+                            </td>
+                          </motion.tr>
+                        );
+                      })}
+
+                      {computedCustomers.length === 0 && (
+                        <tr>
+                          <td colSpan={8} className="py-20 text-center">
+                            <Users size={48} strokeWidth={1} className="mx-auto mb-6 text-primary/10" />
+                            <p className="text-[10px] uppercase tracking-[0.4em] text-white/15 font-bold">No registered customers found</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </TabsContent>
@@ -783,16 +1343,20 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
               <label className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-bold">Availability</label>
               <p className="text-[8px] text-white/20 uppercase tracking-[0.2em] font-bold">Toggle sold out status</p>
             </div>
-            <div className="flex items-center gap-4">
+            <button 
+              type="button"
+              onClick={() => setIsSoldOut(!isSoldOut)}
+              className="flex items-center gap-4 cursor-pointer select-none"
+            >
               <span className={cn("text-[8px] font-bold uppercase tracking-[0.2em]", isSoldOut ? "text-red-500/40" : "text-primary/40")}>
                 {isSoldOut ? "Sold Out" : "Active"}
               </span>
               <Switch 
                 checked={!isSoldOut} 
                 onCheckedChange={(checked) => setIsSoldOut(!checked)}
-                className="data-[state=checked]:bg-primary"
+                className="data-[state=checked]:bg-primary pointer-events-none"
               />
-            </div>
+            </button>
           </div>
         </div>
         <DialogFooter className="gap-4">
@@ -832,7 +1396,8 @@ function OrderCard({
   actionIcon, 
   onAction,
   variant = 'pending',
-  index = 0
+  index = 0,
+  discountInfo
 }: { 
   order: Order, 
   actionLabel: string, 
@@ -840,7 +1405,14 @@ function OrderCard({
   onAction: () => void | Promise<void>,
   variant?: 'pending' | 'preparing' | 'ready',
   index?: number,
-  key?: string | number
+  key?: string | number,
+  discountInfo?: {
+    isDiscounted: boolean;
+    discountPercentage: number;
+    originalTotal: number;
+    finalTotal: number;
+    orderCount: number;
+  }
 }) {
   const [isOldReady, setIsOldReady] = useState(false);
 
@@ -928,7 +1500,19 @@ function OrderCard({
               <div className="flex flex-col items-end gap-4">
                 <div className="text-right">
                   <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 block mb-1">Total Amount</span>
-                  <span className="text-2xl font-serif text-primary">₹{(order.total || 0).toFixed(2)}</span>
+                  {discountInfo && discountInfo.isDiscounted ? (
+                    <div className="flex flex-col items-end">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xs text-white/20 line-through">₹{(discountInfo.originalTotal || 0).toFixed(2)}</span>
+                        <span className="text-2xl font-serif text-primary">₹{(discountInfo.finalTotal || 0).toFixed(2)}</span>
+                      </div>
+                      <span className="text-[8px] font-bold uppercase text-green-500 tracking-wider mt-1">
+                        {discountInfo.discountPercentage}% Loyalty Discount ({discountInfo.orderCount} Orders)
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-2xl font-serif text-primary">₹{(order.total || 0).toFixed(2)}</span>
+                  )}
                 </div>
                 <Button 
                   onClick={onAction}
