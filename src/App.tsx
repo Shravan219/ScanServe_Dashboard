@@ -131,7 +131,6 @@ export default function App() {
     const sortedList = dbCustomers.map(dc => {
       const phone = dc.phone || '';
       const name = dc.name || 'Unknown';
-      const orderCount = dc.order_count || 0;
       const loyal_vip = !!dc.loyal_vip;
       const discount = dc.discount != null ? Number(dc.discount) : null;
       const createdAt = dc.created_at || new Date().toISOString();
@@ -142,11 +141,16 @@ export default function App() {
       const favoriteItems: { [key: string]: number } = {};
       const tables = new Set<string | number>();
 
-      // Filter orders that belong to this specific customer
+      // Filter orders that belong to this specific customer with normalized phone verification
       const customerOrders = allOrders.filter(order => {
         const orderPhone = order.customer_phone?.trim();
         const orderName = order.customer_name?.trim();
         if (phone && orderPhone) {
+          const normPhone = phone.replace(/\D/g, '');
+          const normOrderPhone = orderPhone.replace(/\D/g, '');
+          if (normPhone && normOrderPhone) {
+            return normPhone === normOrderPhone;
+          }
           return orderPhone === phone;
         }
         if (name && orderName) {
@@ -155,7 +159,12 @@ export default function App() {
         return false;
       });
 
-      customerOrders.forEach(order => {
+      // Cross-verify the true order count from the orders table (excluding cancelled orders)
+      const verifiedOrders = customerOrders.filter(o => o.status !== 'cancelled');
+      const orderCount = customerOrders.length > 0 ? verifiedOrders.length : (dc.order_count || 0);
+
+      // Compute statistics based on verified non-cancelled orders
+      verifiedOrders.forEach(order => {
         totalSpent += order.total || 0;
         
         if (order.table_id) {
@@ -250,16 +259,38 @@ export default function App() {
       return { isDiscounted: false, discountPercentage, originalTotal: order.total, finalTotal: order.total, orderCount: 0 };
     }
 
-    // Check if customer exists in dbCustomers with loyal_vip = true
-    const dbCust = dbCustomers.find(c => 
-      (phoneToMatch && c.phone === phoneToMatch) || 
-      (c.name && c.name.trim().toLowerCase() === nameToMatch)
-    );
+    // Check if customer exists in dbCustomers with loyal_vip = true (using normalized phone matching)
+    const dbCust = dbCustomers.find(c => {
+      if (phoneToMatch && c.phone) {
+        const p1 = phoneToMatch.replace(/\D/g, '');
+        const p2 = c.phone.replace(/\D/g, '');
+        if (p1 && p2) return p1 === p2;
+      }
+      return c.name && c.name.trim().toLowerCase() === nameToMatch;
+    });
 
     const isVipInDb = dbCust ? !!dbCust.loyal_vip : false;
     const dbDiscountValue = dbCust?.discount != null ? Number(dbCust.discount) : null;
 
-    const occurrencesCount = allOrders.filter(o => o.customer_name?.trim().toLowerCase() === nameToMatch).length;
+    // Verify occurrences from orders table using normalized phone matching (excluding cancelled orders)
+    const occurrencesCount = allOrders.filter(o => {
+      if (o.status === 'cancelled') return false;
+      
+      const orderPhone = o.customer_phone?.trim();
+      const orderName = o.customer_name?.trim();
+      if (phoneToMatch && orderPhone) {
+        const p1 = phoneToMatch.replace(/\D/g, '');
+        const p2 = orderPhone.replace(/\D/g, '');
+        if (p1 && p2) {
+          return p1 === p2;
+        }
+        return orderPhone === phoneToMatch;
+      }
+      if (nameToMatch && orderName) {
+        return orderName.toLowerCase() === nameToMatch;
+      }
+      return false;
+    }).length;
     
     if (frequentDiscountEnabled && (isVipInDb || occurrencesCount >= minOrdersForDiscount)) {
       const activeDiscount = dbDiscountValue ?? discountPercentage;
@@ -481,8 +512,29 @@ export default function App() {
         }
       }
 
+      // Calculate completed order count as of before this status change, verified from the orders list
+      let completedOrdersCount = 0;
+      if (phone) {
+        const pNormalized = phone.replace(/\D/g, '');
+        completedOrdersCount = allOrders.filter(o => {
+          if (o.id === orderId) return false;
+          if (o.status !== 'completed') return false;
+          const oPhone = o.customer_phone?.trim();
+          if (oPhone) {
+            return oPhone.replace(/\D/g, '') === pNormalized;
+          }
+          return false;
+        }).length;
+      } else if (name) {
+        completedOrdersCount = allOrders.filter(o => {
+          if (o.id === orderId) return false;
+          if (o.status !== 'completed') return false;
+          return o.customer_name?.trim().toLowerCase() === name.toLowerCase();
+        }).length;
+      }
+
       // Calculate state as of after the current order is completed
-      const newCount = currentDbCount + (newStatus === 'completed' ? 1 : 0);
+      const newCount = completedOrdersCount + (newStatus === 'completed' ? 1 : 0);
       
       // Eligibility is met if they are already VIP, or if frequent loyalty is enabled and newCount hits threshold
       const isEligibleNow = frequentDiscountEnabled && (isEligible || newCount >= minOrdersForDiscount);
