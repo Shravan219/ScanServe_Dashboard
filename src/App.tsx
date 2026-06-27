@@ -126,106 +126,64 @@ export default function App() {
   };
 
   const computedCustomers = useMemo(() => {
-    const customerMap = new Map<string, {
-      name: string;
-      orderCount: number;
-      totalSpent: number;
-      lastOrder: string;
-      tables: Set<string | number>;
-      lastTable: string | number | null;
-      favoriteItems: { [key: string]: number };
-      phone: string;
-      loyal_vip: boolean;
-      discount: number | null;
-    }>();
+    // Build the list of customers strictly and exclusively from the dbCustomers array,
+    // which corresponds directly to the public.customers table schema.
+    const sortedList = dbCustomers.map(dc => {
+      const phone = dc.phone || '';
+      const name = dc.name || 'Unknown';
+      const orderCount = dc.order_count || 0;
+      const loyal_vip = !!dc.loyal_vip;
+      const discount = dc.discount != null ? Number(dc.discount) : null;
+      const createdAt = dc.created_at || new Date().toISOString();
 
-    allOrders.forEach(order => {
-      const name = order.customer_name?.trim();
-      if (!name || name.toLowerCase() === 'guest' || name.toLowerCase() === 'guest order') return;
-      
-      const key = name.toLowerCase();
-      const existing = customerMap.get(key);
-      const orderTotal = order.total || 0;
-      
-      const tables = existing ? existing.tables : new Set<string | number>();
-      if (order.table_id) {
-        tables.add(order.table_id);
+      let totalSpent = 0;
+      let lastOrder = createdAt;
+      let lastTable: string | number | null = null;
+      const favoriteItems: { [key: string]: number } = {};
+      const tables = new Set<string | number>();
+
+      // Filter orders that belong to this specific customer
+      const customerOrders = allOrders.filter(order => {
+        const orderPhone = order.customer_phone?.trim();
+        const orderName = order.customer_name?.trim();
+        if (phone && orderPhone) {
+          return orderPhone === phone;
+        }
+        if (name && orderName) {
+          return orderName.toLowerCase() === name.toLowerCase();
+        }
+        return false;
+      });
+
+      customerOrders.forEach(order => {
+        totalSpent += order.total || 0;
+        
+        if (order.table_id) {
+          tables.add(order.table_id);
+        }
+        
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            if (item.name) {
+              favoriteItems[item.name] = (favoriteItems[item.name] || 0) + (item.quantity || 1);
+            }
+          });
+        }
+      });
+
+      // Find the most recent order details
+      const sortedCustOrders = [...customerOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      if (sortedCustOrders.length > 0) {
+        lastOrder = sortedCustOrders[0].created_at;
+        const withTable = sortedCustOrders.find(o => o.table_id);
+        if (withTable) {
+          lastTable = withTable.table_id;
+        }
       }
-      
-      const favoriteItems = existing ? existing.favoriteItems : {};
-      if (order.items && Array.isArray(order.items)) {
-        order.items.forEach(item => {
-          favoriteItems[item.name] = (favoriteItems[item.name] || 0) + (item.quantity || 1);
-        });
-      }
 
-      const phone = order.customer_phone?.trim() || '';
-
-      if (existing) {
-        existing.orderCount += 1;
-        existing.totalSpent += orderTotal;
-        if (phone && !existing.phone) {
-          existing.phone = phone;
-        }
-        if (new Date(order.created_at) > new Date(existing.lastOrder)) {
-          existing.lastOrder = order.created_at;
-          if (order.table_id) {
-            existing.lastTable = order.table_id;
-          }
-        }
-      } else {
-        customerMap.set(key, {
-          name,
-          phone,
-          orderCount: 1,
-          totalSpent: orderTotal,
-          lastOrder: order.created_at,
-          tables,
-          lastTable: order.table_id || null,
-          favoriteItems,
-          loyal_vip: false,
-          discount: null
-        });
-      }
-    });
-
-    dbCustomers.forEach(dc => {
-      const name = dc.name || dc.customer_name;
-      if (!name) return;
-      const key = name.toLowerCase();
-      const existing = customerMap.get(key);
-      if (existing) {
-        existing.loyal_vip = !!dc.loyal_vip;
-        existing.discount = dc.discount;
-        if (dc.order_count !== undefined && dc.order_count !== null) {
-          existing.orderCount = dc.order_count;
-        }
-        if (dc.phone) {
-          existing.phone = dc.phone;
-        }
-        if (dc.table_id && !existing.lastTable) {
-          existing.lastTable = dc.table_id;
-        }
-      } else {
-        customerMap.set(key, {
-          name,
-          phone: dc.phone || '',
-          orderCount: dc.order_count || dc.total_orders || 0,
-          totalSpent: dc.total_spent || 0,
-          lastOrder: dc.last_order_date || dc.created_at || new Date().toISOString(),
-          tables: new Set(dc.table_id ? [dc.table_id] : []),
-          lastTable: dc.table_id || null,
-          favoriteItems: {},
-          loyal_vip: dc.loyal_vip || false,
-          discount: dc.discount || null
-        });
-      }
-    });
-
-    const sortedList = Array.from(customerMap.values()).map(c => {
       let topItem = 'None';
       let maxQty = 0;
-      Object.entries(c.favoriteItems).forEach(([item, qty]) => {
+      Object.entries(favoriteItems).forEach(([item, qty]) => {
         if (qty > maxQty) {
           maxQty = qty;
           topItem = item;
@@ -233,15 +191,25 @@ export default function App() {
       });
 
       return {
-        ...c,
+        name,
+        phone,
+        orderCount,
+        totalSpent,
+        lastOrder,
+        lastTable,
+        loyal_vip,
+        discount,
         favoriteItem: topItem,
-        tablesList: c.lastTable ? `Table ${c.lastTable}` : 'Walk-in'
+        tablesList: lastTable ? `Table ${lastTable}` : 'Walk-in'
       };
     }).sort((a, b) => b.orderCount - a.orderCount);
 
     if (!customerSearch) return sortedList;
     const q = customerSearch.toLowerCase();
-    return sortedList.filter(c => c.name.toLowerCase().includes(q));
+    return sortedList.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      c.phone.toLowerCase().includes(q)
+    );
   }, [allOrders, dbCustomers, customerSearch]);
   
   const activeTab = useMemo(() => {
