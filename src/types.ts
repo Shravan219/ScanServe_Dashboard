@@ -17,6 +17,7 @@ export interface Order {
   customer_name?: string;
   customer_phone?: string;
   table_id?: string | number;
+  gstin?: string;
 }
 
 export interface MenuItem {

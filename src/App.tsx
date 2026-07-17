@@ -1439,7 +1439,7 @@ function OrderCard({
 }) {
   const [isOldReady, setIsOldReady] = useState(false);
   const [receiptGstin, setReceiptGstin] = useState(() => {
-    return localStorage.getItem('scanserve_default_gstin') || '';
+    return order.gstin || localStorage.getItem('scanserve_default_gstin') || '';
   });
   const [receiptTaxRate, setReceiptTaxRate] = useState(() => {
     const saved = localStorage.getItem('scanserve_default_tax_rate');
@@ -1453,6 +1453,39 @@ function OrderCard({
   useEffect(() => {
     localStorage.setItem('scanserve_default_tax_rate', receiptTaxRate.toString());
   }, [receiptTaxRate]);
+
+  const [isSavingGstin, setIsSavingGstin] = useState(false);
+
+  const handleSaveGstinToDb = async (gstToSave: string) => {
+    setIsSavingGstin(true);
+    try {
+      // 1. Update order
+      const { error: orderErr } = await supabase
+        .from('orders')
+        .update({ gstin: gstToSave || null })
+        .eq('id', order.id);
+
+      if (orderErr) throw orderErr;
+      
+      // Update local reference
+      order.gstin = gstToSave;
+
+      // 2. Update customer if phone is provided
+      if (order.customer_phone) {
+        const { error: custErr } = await supabase
+          .from('customers')
+          .update({ gstin: gstToSave || null })
+          .eq('phone', order.customer_phone);
+      }
+      
+      toast.success('GSTIN saved to Database successfully!');
+    } catch (err: any) {
+      console.error('Error saving GSTIN:', err);
+      toast.error('Failed to save GSTIN to database');
+    } finally {
+      setIsSavingGstin(false);
+    }
+  };
 
   const printRef = React.useRef<HTMLDivElement>(null);
   const handlePrintReceipt = useReactToPrint({
@@ -1581,12 +1614,23 @@ function OrderCard({
                       <div className="space-y-6 my-6 border-t border-b border-white/5 py-6 flex-1 overflow-y-auto custom-scrollbar">
                         <div className="grid gap-3">
                           <label className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">GSTIN (India Compliance)</label>
-                          <Input 
-                            placeholder="e.g. 27AAAAA1111A1Z1 (Leave empty for unregistered)" 
-                            value={receiptGstin} 
-                            onChange={(e) => setReceiptGstin(e.target.value)}
-                            className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-white/10 text-white"
-                          />
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="e.g. 27AAAAA1111A1Z1 (Leave empty for unregistered)" 
+                              value={receiptGstin} 
+                              onChange={(e) => setReceiptGstin(e.target.value)}
+                              className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-white/10 text-white flex-1"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => handleSaveGstinToDb(receiptGstin)}
+                              disabled={isSavingGstin}
+                              variant="outline"
+                              className="border border-primary/20 hover:border-primary/40 text-primary hover:bg-primary/5 rounded-full h-12 px-5 text-[9px] uppercase tracking-wider font-bold transition-all shrink-0"
+                            >
+                              {isSavingGstin ? 'Saving...' : 'Save to DB'}
+                            </Button>
+                          </div>
                         </div>
                         
                         {receiptGstin && (
@@ -1632,7 +1676,12 @@ function OrderCard({
 
                       <DialogFooter className="gap-3 mt-auto">
                         <Button 
-                          onClick={handlePrintReceipt}
+                          onClick={async () => {
+                            if (receiptGstin !== (order.gstin || '')) {
+                              await handleSaveGstinToDb(receiptGstin);
+                            }
+                            handlePrintReceipt();
+                          }}
                           className="bg-primary text-black hover:bg-primary/90 rounded-full px-8 h-14 text-[10px] uppercase tracking-[0.3em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] w-full"
                         >
                           <Printer size={16} className="mr-3" strokeWidth={1.5} />

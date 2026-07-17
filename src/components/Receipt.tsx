@@ -214,15 +214,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({
         </div>
       </div>
 
-      {/* Pseudo-Barcode for high authenticity */}
-      <div className="flex flex-col items-center justify-center my-5 select-none">
-        <div className="text-xl tracking-[0.15em] leading-none font-bold font-mono">
-          ||||| | |||| ||| ||| | ||||| | |||
-        </div>
-        <div className="text-[8px] text-gray-500 tracking-[0.1em] mt-1">
-          *{orderId.slice(0, 8).toUpperCase()}*
-        </div>
-      </div>
+
 
       {/* Receipt Footer */}
       <div className="text-center text-[9px] text-gray-600 space-y-1 border-t border-dashed border-black/40 pt-3">
