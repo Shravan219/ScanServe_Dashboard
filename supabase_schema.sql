@@ -14,7 +14,15 @@
 -- 1. If using Supabase SQL Editor: Paste the entire script and click "Run".
 --    The official Supabase Dashboard handles PL/pgSQL blocks perfectly.
 -- 2. If using DBeaver/TablePlus: Highlight the CREATE FUNCTION block fully
---    (lines 75 to 110) and use "Execute as single query / block" (or hit Cmd+Enter/Ctrl+Enter).
+--    (lines 88 to 123) and use "Execute as single query / block" (or hit Cmd+Enter/Ctrl+Enter).
+-- ====================================================================
+
+-- ====================================================================
+-- MIGRATION SCRIPTS FOR EXISTING DATABASES
+-- Run the following queries to add the gstin column to your existing tables:
+--
+-- ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS gstin TEXT DEFAULT NULL;
+-- ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS gstin TEXT DEFAULT NULL;
 -- ====================================================================
 
 -- 1. EXTENSIONS & UTILITIES
@@ -28,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public.customers (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     loyal_vip BOOLEAN DEFAULT false,
     discount BIGINT DEFAULT NULL,
+    gstin TEXT DEFAULT NULL,
     CONSTRAINT customers_pkey PRIMARY KEY (phone)
 );
 
@@ -61,6 +70,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     customer_name TEXT,
     customer_phone TEXT,
     table_id TEXT,
+    gstin TEXT DEFAULT NULL,
     CONSTRAINT orders_pkey PRIMARY KEY (id)
 );
 
