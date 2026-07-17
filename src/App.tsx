@@ -30,8 +30,11 @@ import {
   ArrowRight,
   Users,
   Copy,
-  Check
+  Check,
+  Printer
 } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
+import { Receipt } from '@/src/components/Receipt';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -1435,6 +1438,26 @@ function OrderCard({
   }
 }) {
   const [isOldReady, setIsOldReady] = useState(false);
+  const [receiptGstin, setReceiptGstin] = useState(() => {
+    return localStorage.getItem('scanserve_default_gstin') || '';
+  });
+  const [receiptTaxRate, setReceiptTaxRate] = useState(() => {
+    const saved = localStorage.getItem('scanserve_default_tax_rate');
+    return saved ? Number(saved) : 5;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('scanserve_default_gstin', receiptGstin);
+  }, [receiptGstin]);
+
+  useEffect(() => {
+    localStorage.setItem('scanserve_default_tax_rate', receiptTaxRate.toString());
+  }, [receiptTaxRate]);
+
+  const printRef = React.useRef<HTMLDivElement>(null);
+  const handlePrintReceipt = useReactToPrint({
+    contentRef: printRef,
+  });
 
   useEffect(() => {
     if (variant !== 'ready') return;
@@ -1534,15 +1557,101 @@ function OrderCard({
                     <span className="text-2xl font-serif text-primary">₹{(order.total || 0).toFixed(2)}</span>
                   )}
                 </div>
-                <Button 
-                  onClick={onAction}
-                  className="bg-primary text-black hover:bg-primary/90 rounded-full px-8 h-12 text-[10px] uppercase tracking-[0.3em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] transition-all duration-500 hover:scale-105"
-                >
-                  <span className="flex items-center gap-3">
-                    {actionIcon}
-                    {actionLabel}
-                  </span>
-                </Button>
+                <div className="flex items-center">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline"
+                        className="border border-white/10 text-white/60 hover:text-primary hover:border-primary/40 rounded-full px-6 h-12 text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:scale-105 mr-3"
+                      >
+                        <span className="flex items-center gap-3">
+                          <Printer size={14} strokeWidth={1.5} />
+                          Receipt
+                        </span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-[#0A0A0A] border border-white/5 text-white max-w-[450px] w-full rounded-[2rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col">
+                      <DialogHeader>
+                        <DialogTitle className="text-3xl font-serif tracking-tight text-white">Receipt Terminal</DialogTitle>
+                        <DialogDescription className="text-[9px] uppercase tracking-[0.3em] text-white/20 font-bold mt-2">
+                          Print thermal or invoice copy for Token {order.token}
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="space-y-6 my-6 border-t border-b border-white/5 py-6 flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="grid gap-3">
+                          <label className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">GSTIN (India Compliance)</label>
+                          <Input 
+                            placeholder="e.g. 27AAAAA1111A1Z1 (Leave empty for unregistered)" 
+                            value={receiptGstin} 
+                            onChange={(e) => setReceiptGstin(e.target.value)}
+                            className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-white/10 text-white"
+                          />
+                        </div>
+                        
+                        {receiptGstin && (
+                          <div className="grid gap-3 animate-fade-in">
+                            <div className="flex justify-between items-center px-1">
+                              <label className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">GST Tax Rate</label>
+                              <span className="text-[10px] font-mono font-bold text-primary">{receiptTaxRate}% (CGST {receiptTaxRate/2}% + SGST {receiptTaxRate/2}%)</span>
+                            </div>
+                            <div className="flex items-center bg-black rounded-full h-12 px-6 border border-white/5">
+                              <input 
+                                type="range" 
+                                min="0" 
+                                max="28" 
+                                step="1"
+                                value={receiptTaxRate} 
+                                onChange={(e) => setReceiptTaxRate(Number(e.target.value))}
+                                className="w-full accent-primary bg-white/10 h-1 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="space-y-3">
+                          <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Live Receipt Preview</span>
+                          <div className="border border-white/5 rounded-[1.5rem] bg-zinc-100 p-4 max-h-[300px] overflow-y-auto custom-scrollbar flex justify-center shadow-inner">
+                            <div className="receipt-print-wrapper" ref={printRef}>
+                              <Receipt 
+                                orderId={order.id}
+                                table={order.table_id?.toString() || 'Walk-in'}
+                                items={order.items}
+                                subtotal={discountInfo?.isDiscounted ? discountInfo.finalTotal : order.total}
+                                gstin={receiptGstin}
+                                taxRate={receiptTaxRate}
+                                token={order.token}
+                                customerName={order.customer_name}
+                                customerPhone={order.customer_phone}
+                                createdAt={order.created_at}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <DialogFooter className="gap-3 mt-auto">
+                        <Button 
+                          onClick={handlePrintReceipt}
+                          className="bg-primary text-black hover:bg-primary/90 rounded-full px-8 h-14 text-[10px] uppercase tracking-[0.3em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] w-full"
+                        >
+                          <Printer size={16} className="mr-3" strokeWidth={1.5} />
+                          Print Thermal Receipt
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Button 
+                    onClick={onAction}
+                    className="bg-primary text-black hover:bg-primary/90 rounded-full px-8 h-12 text-[10px] uppercase tracking-[0.3em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] transition-all duration-500 hover:scale-105"
+                  >
+                    <span className="flex items-center gap-3">
+                      {actionIcon}
+                      {actionLabel}
+                    </span>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
