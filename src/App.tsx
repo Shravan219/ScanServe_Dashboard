@@ -56,6 +56,63 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 
+const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
+  coffee: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80",
+  espresso: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=400&q=80",
+  latte: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=400&q=80",
+  beverage: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80",
+  tea: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=400&q=80",
+  bakery: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80",
+  dessert: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=400&q=80",
+  pastry: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=400&q=80",
+  sandwich: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=400&q=80",
+  burger: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80",
+  pizza: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80",
+  pasta: "https://images.unsplash.com/photo-1621996346565-e3d5d6281288?auto=format&fit=crop&w=400&q=80",
+  starter: "https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&w=400&q=80",
+  food: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80",
+};
+
+function MenuItemImage({ src, name, category }: { src?: string; name: string; category?: string }) {
+  const fallbackUrl = useMemo(() => {
+    const catLower = (category || '').toLowerCase();
+    const nameLower = (name || '').toLowerCase();
+    for (const [key, url] of Object.entries(DEFAULT_CATEGORY_IMAGES)) {
+      if (catLower.includes(key) || nameLower.includes(key)) {
+        return url;
+      }
+    }
+    return DEFAULT_CATEGORY_IMAGES.food;
+  }, [category, name]);
+
+  const initialUrl = (src && src.trim() && src.trim().startsWith('http')) ? src.trim() : fallbackUrl;
+  const [imgSrc, setImgSrc] = useState<string>(initialUrl);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const validSrc = (src && src.trim() && src.trim().startsWith('http')) ? src.trim() : fallbackUrl;
+    setImgSrc(validSrc);
+    setHasError(false);
+  }, [src, fallbackUrl]);
+
+  return (
+    <img 
+      src={hasError ? fallbackUrl : imgSrc} 
+      alt={name} 
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        if (!hasError) {
+          setHasError(true);
+          setImgSrc(fallbackUrl);
+        }
+      }}
+      className="h-full w-full object-cover opacity-85 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110" 
+      referrerPolicy="no-referrer" 
+    />
+  );
+}
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,73 +186,110 @@ export default function App() {
   };
 
   const computedCustomers = useMemo(() => {
-    // Build the list of customers strictly and exclusively from the dbCustomers array,
-    // which corresponds directly to the public.customers table schema.
-    const sortedList = dbCustomers.map(dc => {
-      const phone = dc.phone || '';
-      const name = dc.name || 'Unknown';
-      const loyal_vip = !!dc.loyal_vip;
-      const discount = dc.discount != null ? Number(dc.discount) : null;
-      const createdAt = dc.created_at || new Date().toISOString();
+    // Single-pass Map data structure for high-performance O(N + M) aggregation
+    const customerMap = new Map<string, {
+      name: string;
+      phone: string;
+      orderCount: number;
+      totalSpent: number;
+      lastOrder: string;
+      lastTable: string | number | null;
+      loyal_vip: boolean;
+      discount: number | null;
+      favoriteItems: Record<string, number>;
+    }>();
 
-      let totalSpent = 0;
-      let lastOrder = createdAt;
-      let lastTable: string | number | null = null;
-      const favoriteItems: { [key: string]: number } = {};
-      const tables = new Set<string | number>();
+    // 1. Populate from dedicated dbCustomers records
+    dbCustomers.forEach(dc => {
+      const rawPhone = (dc.phone || '').trim();
+      const rawName = (dc.name || 'Guest').trim();
+      const normPhone = rawPhone.replace(/\D/g, '') || rawPhone;
+      const key = normPhone || rawName.toLowerCase();
 
-      // Filter orders that belong to this specific customer with normalized phone verification
-      const customerOrders = allOrders.filter(order => {
-        const orderPhone = order.customer_phone?.trim();
-        const orderName = order.customer_name?.trim();
-        if (phone && orderPhone) {
-          const normPhone = phone.replace(/\D/g, '');
-          const normOrderPhone = orderPhone.replace(/\D/g, '');
-          if (normPhone && normOrderPhone) {
-            return normPhone === normOrderPhone;
+      if (key) {
+        customerMap.set(key, {
+          name: rawName,
+          phone: rawPhone,
+          orderCount: dc.order_count || 0,
+          totalSpent: 0,
+          lastOrder: dc.created_at || new Date().toISOString(),
+          lastTable: null,
+          loyal_vip: !!dc.loyal_vip,
+          discount: dc.discount != null ? Number(dc.discount) : null,
+          favoriteItems: {},
+        });
+      }
+    });
+
+    // 2. Scan allOrders in a single pass to aggregate metrics & discover missing customers
+    allOrders.forEach(order => {
+      if (order.status === 'cancelled') return;
+
+      const orderPhone = (order.customer_phone || '').trim();
+      const orderName = (order.customer_name || '').trim();
+      const normPhone = orderPhone.replace(/\D/g, '') || orderPhone;
+      const key = normPhone || (orderName ? orderName.toLowerCase() : '');
+
+      if (!key) return; // Skip guest order without phone or name
+
+      let cust = customerMap.get(key);
+
+      if (!cust && orderPhone) {
+        // Try finding by raw phone string matching
+        for (const [_, existing] of customerMap.entries()) {
+          if (existing.phone && (existing.phone === orderPhone || existing.phone.replace(/\D/g, '') === normPhone)) {
+            cust = existing;
+            break;
           }
-          return orderPhone === phone;
-        }
-        if (name && orderName) {
-          return orderName.toLowerCase() === name.toLowerCase();
-        }
-        return false;
-      });
-
-      // Cross-verify the true order count from the orders table (excluding cancelled orders)
-      const verifiedOrders = customerOrders.filter(o => o.status !== 'cancelled');
-      const orderCount = customerOrders.length > 0 ? verifiedOrders.length : (dc.order_count || 0);
-
-      // Compute statistics based on verified non-cancelled orders
-      verifiedOrders.forEach(order => {
-        totalSpent += order.total || 0;
-        
-        if (order.table_id) {
-          tables.add(order.table_id);
-        }
-        
-        if (order.items && Array.isArray(order.items)) {
-          order.items.forEach(item => {
-            if (item.name) {
-              favoriteItems[item.name] = (favoriteItems[item.name] || 0) + (item.quantity || 1);
-            }
-          });
-        }
-      });
-
-      // Find the most recent order details
-      const sortedCustOrders = [...customerOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      if (sortedCustOrders.length > 0) {
-        lastOrder = sortedCustOrders[0].created_at;
-        const withTable = sortedCustOrders.find(o => o.table_id);
-        if (withTable) {
-          lastTable = withTable.table_id;
         }
       }
 
+      if (!cust) {
+        cust = {
+          name: orderName || 'Guest',
+          phone: orderPhone,
+          orderCount: 0,
+          totalSpent: 0,
+          lastOrder: order.created_at,
+          lastTable: order.table_id || null,
+          loyal_vip: false,
+          discount: null,
+          favoriteItems: {},
+        };
+        customerMap.set(key, cust);
+      } else {
+        if ((!cust.name || cust.name === 'Guest') && orderName && orderName !== 'Guest') {
+          cust.name = orderName;
+        }
+        if (!cust.phone && orderPhone) {
+          cust.phone = orderPhone;
+        }
+      }
+
+      cust.orderCount += 1;
+      cust.totalSpent += Number(order.total) || 0;
+
+      if (new Date(order.created_at).getTime() >= new Date(cust.lastOrder).getTime()) {
+        cust.lastOrder = order.created_at;
+        if (order.table_id) cust.lastTable = order.table_id;
+      } else if (!cust.lastTable && order.table_id) {
+        cust.lastTable = order.table_id;
+      }
+
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          if (item.name) {
+            cust!.favoriteItems[item.name] = (cust!.favoriteItems[item.name] || 0) + (item.quantity || 1);
+          }
+        });
+      }
+    });
+
+    // 3. Format and sort list
+    const sortedList = Array.from(customerMap.values()).map(c => {
       let topItem = 'None';
       let maxQty = 0;
-      Object.entries(favoriteItems).forEach(([item, qty]) => {
+      Object.entries(c.favoriteItems).forEach(([item, qty]) => {
         if (qty > maxQty) {
           maxQty = qty;
           topItem = item;
@@ -203,16 +297,16 @@ export default function App() {
       });
 
       return {
-        name,
-        phone,
-        orderCount,
-        totalSpent,
-        lastOrder,
-        lastTable,
-        loyal_vip,
-        discount,
+        name: c.name,
+        phone: c.phone,
+        orderCount: c.orderCount,
+        totalSpent: c.totalSpent,
+        lastOrder: c.lastOrder,
+        lastTable: c.lastTable,
+        loyal_vip: c.loyal_vip,
+        discount: c.discount,
         favoriteItem: topItem,
-        tablesList: lastTable ? `Table ${lastTable}` : 'Walk-in'
+        tablesList: c.lastTable ? `Table ${c.lastTable}` : 'Walk-in'
       };
     }).sort((a, b) => b.orderCount - a.orderCount);
 
@@ -682,6 +776,42 @@ export default function App() {
     }
   };
 
+  const handleToggleCustomerVip = async (phone: string, currentVipStatus: boolean, customerName: string, currentDiscount: number | null) => {
+    if (!phone) {
+      toast.error('Customer phone number is required to assign VIP status');
+      return;
+    }
+    const nextVip = !currentVipStatus;
+    const targetDiscount = nextVip ? (currentDiscount || discountPercentage) : null;
+
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .upsert({
+          phone,
+          name: customerName || 'Guest',
+          loyal_vip: nextVip,
+          discount: targetDiscount
+        }, { onConflict: 'phone' });
+
+      if (error) throw error;
+
+      toast.success(nextVip ? `${customerName || 'Customer'} marked as Loyal VIP (${targetDiscount}%)` : `VIP status revoked for ${customerName || 'Customer'}`);
+
+      // Update local dbCustomers state
+      setDbCustomers(prev => {
+        const idx = prev.findIndex(c => c.phone === phone);
+        if (idx >= 0) {
+          return prev.map((c, i) => i === idx ? { ...c, loyal_vip: nextVip, discount: targetDiscount } : c);
+        }
+        return [...prev, { phone, name: customerName, order_count: 0, loyal_vip: nextVip, discount: targetDiscount, created_at: new Date().toISOString() }];
+      });
+    } catch (err: any) {
+      console.error('Error toggling customer VIP status:', err);
+      toast.error('Failed to update VIP status in database');
+    }
+  };
+
   const filteredOrders = useMemo(() => {
     let base = orders;
     if (searchToken) {
@@ -1032,11 +1162,7 @@ export default function App() {
                     <Card key={item.id} className="relative bg-[#0A0A0A] border border-white/5 rounded-[2rem] overflow-hidden group hover:border-primary/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(197,160,89,0.03)]">
                       <div className="flex items-stretch p-8 gap-8">
                         <div className="h-24 w-24 flex-shrink-0 rounded-full bg-black flex items-center justify-center overflow-hidden border border-white/5 group-hover:border-primary/20 transition-all duration-700 self-center">
-                          {item.image ? (
-                            <img src={item.image} alt={item.name} className="h-full w-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110" referrerPolicy="no-referrer" />
-                          ) : (
-                            <Coffee className="text-primary/20" size={28} strokeWidth={1} />
-                          )}
+                          <MenuItemImage src={item.image} name={item.name} category={item.category} />
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
                           <h4 className="text-lg font-serif tracking-tight text-white/90 group-hover:text-primary transition-colors">{item.name}</h4>
@@ -1179,6 +1305,7 @@ export default function App() {
                         <th className="pb-6 text-right">Avg Order Value</th>
                         <th className="pb-6 pl-6">Favorite Item</th>
                         <th className="pb-6">Last Table</th>
+                        <th className="pb-6 text-center">VIP Status</th>
                         <th className="pb-6 text-right">Last Visit</th>
                       </tr>
                     </thead>
@@ -1194,7 +1321,7 @@ export default function App() {
 
                         return (
                           <motion.tr 
-                            key={customer.name}
+                            key={customer.phone || customer.name}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4, delay: idx * 0.03 }}
@@ -1249,6 +1376,22 @@ export default function App() {
                             <td className="py-5 text-white/40 max-w-[150px] truncate">
                               {customer.tablesList}
                             </td>
+                            <td className="py-5 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleCustomerVip(customer.phone, customer.loyal_vip, customer.name, customer.discount)}
+                                disabled={!customer.phone}
+                                className={cn(
+                                  "px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border cursor-pointer active:scale-95",
+                                  customer.loyal_vip
+                                    ? "bg-primary/20 text-primary border-primary/40 hover:bg-primary/30"
+                                    : "bg-white/5 text-white/40 border-white/10 hover:border-white/20 hover:text-white/80"
+                                )}
+                                title={customer.phone ? "Click to toggle Loyal VIP status" : "Phone required to toggle VIP"}
+                              >
+                                {customer.loyal_vip ? "VIP Active" : "Make VIP"}
+                              </button>
+                            </td>
                             <td className="py-5 text-right text-white/40 font-mono">
                               {formattedDate}
                             </td>
@@ -1258,7 +1401,7 @@ export default function App() {
 
                       {computedCustomers.length === 0 && (
                         <tr>
-                          <td colSpan={8} className="py-20 text-center">
+                          <td colSpan={9} className="py-20 text-center">
                             <Users size={48} strokeWidth={1} className="mx-auto mb-6 text-primary/10" />
                             <p className="text-[10px] uppercase tracking-[0.4em] text-white/15 font-bold">No registered customers found</p>
                           </td>
@@ -1281,6 +1424,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
   const [price, setPrice] = useState(item.price.toString());
   const [discountPrice, setDiscountPrice] = useState(item.discount_price?.toString() || '');
   const [category, setCategory] = useState(item.category);
+  const [image, setImage] = useState(item.image || '');
   const [isSoldOut, setIsSoldOut] = useState(item.is_sold_out);
   const [open, setOpen] = useState(false);
 
@@ -1298,6 +1442,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
       price: parsedPrice,
       discount_price: parsedDiscount,
       category,
+      image: image.trim() || undefined,
       is_sold_out: isSoldOut
     });
     setOpen(false);
@@ -1310,24 +1455,24 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
           <Edit2 size={14} strokeWidth={1.5} />
         </button>
       </DialogTrigger>
-      <DialogContent className="bg-[#0A0A0A] border-white/5 text-white sm:max-w-[450px] rounded-[2rem] p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+      <DialogContent className="bg-[#0A0A0A] border-white/5 text-white sm:max-w-[480px] rounded-[2rem] p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="text-3xl font-serif tracking-tight">Edit Item</DialogTitle>
           <DialogDescription className="text-[9px] uppercase tracking-[0.3em] text-white/20 font-bold mt-2">
-            Modify menu item specifications
+            Modify menu item specifications & image
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-8 py-8">
+        <div className="grid gap-6 py-6">
           <div className="grid gap-3">
             <label htmlFor="name" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Item Name</label>
             <Input 
               id="name" 
               value={name} 
               onChange={(e) => setName(e.target.value)}
-              className="bg-black border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+              className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
             />
           </div>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-3">
               <label htmlFor="price" className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Base Price (₹)</label>
               <Input 
@@ -1336,7 +1481,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
                 step="0.01"
                 value={price} 
                 onChange={(e) => setPrice(e.target.value)}
-                className="bg-black border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+                className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
               />
             </div>
             <div className="grid gap-3">
@@ -1348,7 +1493,7 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
                 placeholder="Optional"
                 value={discountPrice} 
                 onChange={(e) => setDiscountPrice(e.target.value)}
-                className="bg-black border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+                className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
               />
             </div>
           </div>
@@ -1358,10 +1503,36 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
               id="category" 
               value={category} 
               onChange={(e) => setCategory(e.target.value)}
-              className="bg-black border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+              className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
             />
           </div>
-          <div className="flex items-center justify-between rounded-[1.5rem] bg-black p-6 border border-white/5">
+          <div className="grid gap-3">
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="image" className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">Image URL</label>
+              <span className="text-[8px] uppercase tracking-wider text-primary/60 font-bold">Food Photography</span>
+            </div>
+            <Input 
+              id="image" 
+              placeholder="Paste Image URL (https://...)" 
+              value={image} 
+              onChange={(e) => setImage(e.target.value)}
+              className="bg-black border-white/5 rounded-full h-12 text-[10px] font-mono focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+            />
+            <div className="flex flex-wrap gap-2 mt-1">
+              <span className="text-[8px] uppercase tracking-wider text-white/20 w-full font-bold">Quick Presets:</span>
+              {Object.entries(DEFAULT_CATEGORY_IMAGES).slice(0, 6).map(([key, url]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setImage(url)}
+                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-primary/20 border border-white/5 hover:border-primary/40 text-[8px] uppercase font-bold text-white/60 hover:text-primary transition-all"
+                >
+                  {key}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between rounded-[1.5rem] bg-black p-5 border border-white/5">
             <div className="space-y-1">
               <label className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-bold">Availability</label>
               <p className="text-[8px] text-white/20 uppercase tracking-[0.2em] font-bold">Toggle sold out status</p>

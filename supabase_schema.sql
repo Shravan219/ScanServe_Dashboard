@@ -90,32 +90,36 @@ CREATE OR REPLACE FUNCTION public.sync_customer_from_order()
 RETURNS TRIGGER AS $$
 DECLARE
     cleaned_phone TEXT;
-    completed_orders_count INTEGER;
+    total_orders_count INTEGER;
 BEGIN
     -- Normalize and clean the phone number if present
-    IF NEW.customer_phone IS NOT NULL AND NEW.customer_phone <> '' THEN
-        cleaned_phone := NEW.customer_phone;
+    IF NEW.customer_phone IS NOT NULL AND TRIM(NEW.customer_phone) <> '' THEN
+        cleaned_phone := TRIM(NEW.customer_phone);
         
-        -- Calculate the count of completed, non-cancelled orders for this phone number
+        -- Calculate the count of orders for this phone number (excluding cancelled)
         SELECT COUNT(*)::INTEGER
-        INTO completed_orders_count
+        INTO total_orders_count
         FROM public.orders
-        WHERE customer_phone = cleaned_phone 
-          AND status = 'completed';
+        WHERE TRIM(customer_phone) = cleaned_phone 
+          AND status <> 'cancelled';
 
         -- Upsert customer profile
-        INSERT INTO public.customers (phone, name, order_count, created_at)
+        INSERT INTO public.customers (phone, name, order_count, created_at, gstin)
         VALUES (
             cleaned_phone,
-            COALESCE(NEW.customer_name, 'Guest'),
-            completed_orders_count,
-            COALESCE(NEW.created_at, now())
+            COALESCE(NULLIF(TRIM(NEW.customer_name), ''), 'Guest'),
+            total_orders_count,
+            COALESCE(NEW.created_at, now()),
+            NULLIF(TRIM(NEW.gstin), '')
         )
         ON CONFLICT (phone) DO UPDATE
         SET 
-            name = EXCLUDED.name,
-            -- Update the order count from the verified orders query
-            order_count = completed_orders_count;
+            name = CASE 
+                WHEN EXCLUDED.name IS NOT NULL AND EXCLUDED.name <> '' AND EXCLUDED.name <> 'Guest' THEN EXCLUDED.name 
+                ELSE public.customers.name 
+            END,
+            order_count = GREATEST(public.customers.order_count, total_orders_count),
+            gstin = COALESCE(NULLIF(TRIM(EXCLUDED.gstin), ''), public.customers.gstin);
     END IF;
     
     RETURN NEW;
