@@ -1209,17 +1209,17 @@ export default function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="customers" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden overflow-hidden">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in">
+            <TabsContent value="customers" className="m-0 h-full flex flex-col gap-6 p-6 md:p-10 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in flex-shrink-0">
                 <div>
-                  <h2 className="text-4xl font-serif tracking-tight">Customer Database</h2>
+                  <h2 className="text-3xl md:text-4xl font-serif tracking-tight">Customer Database</h2>
                   <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold font-sans">Loyalty & Historical Statistics</p>
                 </div>
                 <div className="relative w-full md:w-80">
                   <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
                   <Input 
                     placeholder="Search Customers..." 
-                    className="pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all font-sans"
+                    className="pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all font-sans"
                     value={customerSearch}
                     onChange={(e) => setCustomerSearch(e.target.value)}
                   />
@@ -1227,9 +1227,9 @@ export default function App() {
               </div>
 
               {/* Loyalty Discount Option Panel */}
-              <div className="bg-[#0A0A0A] border border-white/5 rounded-[2.5rem] p-8 md:p-10 shadow-[0_0_30px_rgba(197,160,89,0.02)] animate-fade-in delay-100">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                  <div className="space-y-4 lg:max-w-xl">
+              <div className="bg-[#0A0A0A] border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-[0_0_30px_rgba(197,160,89,0.02)] animate-fade-in delay-100 flex-shrink-0">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="space-y-3 lg:max-w-xl">
                     <div className="flex items-center gap-3">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary">
                         <TrendingUp size={12} />
@@ -1237,7 +1237,7 @@ export default function App() {
                       <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Automatic Checkout Promotion</span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-serif tracking-tight text-white mb-2">Loyal Customer Checkout Discounts</h3>
+                      <h3 className="text-xl font-serif tracking-tight text-white mb-1">Loyal Customer Checkout Discounts</h3>
                       <p className="text-xs text-white/40 leading-relaxed font-sans">
                         Encourage repeat visits by automatically applying percentage-based discounts to customers on checkout once they reach a set order threshold.
                       </p>
@@ -1251,7 +1251,7 @@ export default function App() {
                         <Input 
                           type="number"
                           min="1"
-                          className="bg-black border-white/5 rounded-full h-12 w-28 text-center text-xs font-bold font-sans"
+                          className="bg-black border-white/5 rounded-full h-11 w-28 text-center text-xs font-bold font-sans"
                           value={minOrdersForDiscount}
                           onChange={(e) => setMinOrdersForDiscount(Math.max(1, parseInt(e.target.value) || 0))}
                           disabled={!frequentDiscountEnabled}
@@ -1263,7 +1263,7 @@ export default function App() {
                           type="number"
                           min="1"
                           max="100"
-                          className="bg-black border-white/5 rounded-full h-12 w-28 text-center text-xs font-bold font-sans text-primary"
+                          className="bg-black border-white/5 rounded-full h-11 w-28 text-center text-xs font-bold font-sans text-primary"
                           value={discountPercentage}
                           onChange={(e) => setDiscountPercentage(Math.min(100, Math.max(1, parseInt(e.target.value) || 0)))}
                           disabled={!frequentDiscountEnabled}
@@ -1274,7 +1274,7 @@ export default function App() {
                     <button 
                       type="button"
                       onClick={toggleFrequentDiscount}
-                      className="flex items-center gap-4 bg-black/40 hover:bg-black/60 border border-white/5 rounded-full px-6 py-3 self-center sm:self-auto h-12 mt-auto cursor-pointer select-none transition-all"
+                      className="flex items-center gap-4 bg-black/40 hover:bg-black/60 border border-white/5 rounded-full px-6 py-3 self-center sm:self-auto h-11 mt-auto cursor-pointer select-none transition-all"
                     >
                       <span className={cn(
                         "text-[9px] font-bold uppercase tracking-[0.2em] font-sans",
@@ -1293,20 +1293,20 @@ export default function App() {
               </div>
 
               {/* Customer List Table */}
-              <div className="flex-1 overflow-hidden flex flex-col border border-white/5 bg-[#0A0A0A] rounded-[2.5rem] p-8 md:p-10 shadow-[0_0_40px_rgba(0,0,0,0.3)] animate-fade-in delay-200">
+              <div className="flex-1 min-h-[450px] border border-white/5 bg-[#0A0A0A] rounded-[2rem] p-6 md:p-8 shadow-[0_0_40px_rgba(0,0,0,0.3)] animate-fade-in delay-200 flex flex-col overflow-hidden">
                 <div className="overflow-x-auto flex-1 custom-scrollbar">
-                  <table className="w-full text-left border-collapse min-w-[700px]">
+                  <table className="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
-                      <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.3em] text-white/30 font-bold font-sans">
-                        <th className="pb-6">Customer Name</th>
-                        <th className="pb-6 pl-4">Phone Number</th>
-                        <th className="pb-6 text-center">Order Count</th>
-                        <th className="pb-6 text-right">Total Spent</th>
-                        <th className="pb-6 text-right">Avg Order Value</th>
-                        <th className="pb-6 pl-6">Favorite Item</th>
-                        <th className="pb-6">Last Table</th>
-                        <th className="pb-6 text-center">VIP Status</th>
-                        <th className="pb-6 text-right">Last Visit</th>
+                      <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.25em] text-white/30 font-bold font-sans">
+                        <th className="px-4 pb-4 text-left whitespace-nowrap">Customer Name</th>
+                        <th className="px-4 pb-4 text-left whitespace-nowrap">Phone Number</th>
+                        <th className="px-4 pb-4 text-center whitespace-nowrap">Order Count</th>
+                        <th className="px-4 pb-4 text-right whitespace-nowrap">Total Spent</th>
+                        <th className="px-4 pb-4 text-right whitespace-nowrap">Avg Order Value</th>
+                        <th className="px-4 pb-4 text-left whitespace-nowrap">Favorite Item</th>
+                        <th className="px-4 pb-4 text-left whitespace-nowrap">Last Table</th>
+                        <th className="px-4 pb-4 text-center whitespace-nowrap">VIP Status</th>
+                        <th className="px-4 pb-4 text-right whitespace-nowrap">Last Visit</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 text-xs font-sans">
@@ -1327,7 +1327,7 @@ export default function App() {
                             transition={{ duration: 0.4, delay: idx * 0.03 }}
                             className="group hover:bg-white/[0.01] transition-colors"
                           >
-                            <td className="py-5 font-medium text-white/95">
+                            <td className="px-4 py-4 font-medium text-white/95 whitespace-nowrap">
                               <div className="flex items-center gap-3">
                                 <span className="text-sm font-serif">{customer.name}</span>
                                 {qualifies && (
@@ -1337,7 +1337,7 @@ export default function App() {
                                 )}
                               </div>
                             </td>
-                            <td className="py-5 pl-4 font-mono text-white/70">
+                            <td className="px-4 py-4 font-mono text-white/70 whitespace-nowrap">
                               {customer.phone ? (
                                 <div className="flex items-center gap-2 group/copy">
                                   <span>{customer.phone}</span>
@@ -1357,26 +1357,26 @@ export default function App() {
                                 <span className="text-white/20 italic">No phone</span>
                               )}
                             </td>
-                            <td className="py-5 text-center">
+                            <td className="px-4 py-4 text-center whitespace-nowrap">
                               <span className="inline-flex items-center justify-center h-7 w-12 rounded-full bg-white/5 font-mono text-white/80 font-semibold group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                                 {customer.orderCount}
                               </span>
                             </td>
-                            <td className="py-5 text-right font-mono text-white/80 font-medium">
+                            <td className="px-4 py-4 text-right font-mono text-white/80 font-medium whitespace-nowrap">
                               ₹{customer.totalSpent.toFixed(2)}
                             </td>
-                            <td className="py-5 text-right font-mono text-white/60">
+                            <td className="px-4 py-4 text-right font-mono text-white/60 whitespace-nowrap">
                               ₹{avgValue.toFixed(2)}
                             </td>
-                            <td className="py-5 pl-6 text-white/60">
+                            <td className="px-4 py-4 text-left text-white/60 whitespace-nowrap">
                               <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] uppercase font-bold tracking-wider text-white/55">
                                 {customer.favoriteItem}
                               </span>
                             </td>
-                            <td className="py-5 text-white/40 max-w-[150px] truncate">
+                            <td className="px-4 py-4 text-left text-white/40 max-w-[150px] truncate whitespace-nowrap">
                               {customer.tablesList}
                             </td>
-                            <td className="py-5 text-center">
+                            <td className="px-4 py-4 text-center whitespace-nowrap">
                               <button
                                 type="button"
                                 onClick={() => handleToggleCustomerVip(customer.phone, customer.loyal_vip, customer.name, customer.discount)}
@@ -1392,7 +1392,7 @@ export default function App() {
                                 {customer.loyal_vip ? "VIP Active" : "Make VIP"}
                               </button>
                             </td>
-                            <td className="py-5 text-right text-white/40 font-mono">
+                            <td className="px-4 py-4 text-right text-white/40 font-mono whitespace-nowrap">
                               {formattedDate}
                             </td>
                           </motion.tr>
