@@ -205,6 +205,7 @@ export default function App() {
       const rawName = (dc.name || 'Guest').trim();
       const normPhone = rawPhone.replace(/\D/g, '') || rawPhone;
       const key = normPhone || rawName.toLowerCase();
+      const isVip = !!dc.loyal_vip;
 
       if (key) {
         customerMap.set(key, {
@@ -214,8 +215,8 @@ export default function App() {
           totalSpent: 0,
           lastOrder: dc.created_at || new Date().toISOString(),
           lastTable: null,
-          loyal_vip: !!dc.loyal_vip,
-          discount: dc.discount != null ? Number(dc.discount) : null,
+          loyal_vip: isVip,
+          discount: isVip ? discountPercentage : (dc.discount != null ? Number(dc.discount) : null),
           favoriteItems: {},
         });
       }
@@ -304,7 +305,7 @@ export default function App() {
         lastOrder: c.lastOrder,
         lastTable: c.lastTable,
         loyal_vip: c.loyal_vip,
-        discount: c.discount,
+        discount: c.loyal_vip ? discountPercentage : c.discount,
         favoriteItem: topItem,
         tablesList: c.lastTable ? `Table ${c.lastTable}` : 'Walk-in'
       };
@@ -316,7 +317,7 @@ export default function App() {
       c.name.toLowerCase().includes(q) || 
       c.phone.toLowerCase().includes(q)
     );
-  }, [allOrders, dbCustomers, customerSearch]);
+  }, [allOrders, dbCustomers, customerSearch, discountPercentage]);
   
   const activeTab = useMemo(() => {
     const path = location.pathname.split('/')[1];
@@ -390,7 +391,7 @@ export default function App() {
     }).length;
     
     if (frequentDiscountEnabled && (isVipInDb || occurrencesCount >= minOrdersForDiscount)) {
-      const activeDiscount = dbDiscountValue ?? discountPercentage;
+      const activeDiscount = discountPercentage;
       const factor = (100 - activeDiscount) / 100;
       const finalTotal = order.total * factor;
       return {
@@ -776,13 +777,13 @@ export default function App() {
     }
   };
 
-  const handleToggleCustomerVip = async (phone: string, currentVipStatus: boolean, customerName: string, currentDiscount: number | null) => {
+  const handleToggleCustomerVip = async (phone: string, currentVipStatus: boolean, customerName: string) => {
     if (!phone) {
       toast.error('Customer phone number is required to assign VIP status');
       return;
     }
     const nextVip = !currentVipStatus;
-    const targetDiscount = nextVip ? (currentDiscount || discountPercentage) : null;
+    const targetDiscount = nextVip ? discountPercentage : null;
 
     try {
       const { error } = await supabase
@@ -1265,7 +1266,12 @@ export default function App() {
                           max="100"
                           className="bg-black border-white/5 rounded-full h-11 w-28 text-center text-xs font-bold font-sans text-primary"
                           value={discountPercentage}
-                          onChange={(e) => setDiscountPercentage(Math.min(100, Math.max(1, parseInt(e.target.value) || 0)))}
+                          onChange={(e) => {
+                            const val = Math.min(100, Math.max(1, parseInt(e.target.value) || 0));
+                            setDiscountPercentage(val);
+                            supabase.from('customers').update({ discount: val }).eq('loyal_vip', true).then();
+                            setDbCustomers(prev => prev.map(c => c.loyal_vip ? { ...c, discount: val } : c));
+                          }}
                           disabled={!frequentDiscountEnabled}
                         />
                       </div>
@@ -1379,7 +1385,7 @@ export default function App() {
                             <td className="px-4 py-4 text-center whitespace-nowrap">
                               <button
                                 type="button"
-                                onClick={() => handleToggleCustomerVip(customer.phone, customer.loyal_vip, customer.name, customer.discount)}
+                                onClick={() => handleToggleCustomerVip(customer.phone, customer.loyal_vip, customer.name)}
                                 disabled={!customer.phone}
                                 className={cn(
                                   "px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border cursor-pointer active:scale-95",
