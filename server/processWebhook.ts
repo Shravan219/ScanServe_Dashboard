@@ -11,6 +11,13 @@ export function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
+function formatIST(dateInput?: string | Date) {
+  if (!dateInput) return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+  return d.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+}
+
 export async function processWebhookPayload(payload: any) {
   if (!payload || typeof payload !== 'object') {
     return {
@@ -86,7 +93,8 @@ export async function processWebhookPayload(payload: any) {
   }
 
   // Timestamp
-  const createdAt = details.created_at || new Date().toISOString();
+  const createdAt = details.created_at || details.order_date || details.placed_at || new Date().toISOString();
+  const placedAtIst = details.placed_at_ist || formatIST(createdAt);
 
   const orderRecord = {
     token,
@@ -96,7 +104,8 @@ export async function processWebhookPayload(payload: any) {
     customer_name: customerName,
     customer_phone: customerPhone,
     table_id: `${sourceUpper} Online`,
-    created_at: createdAt
+    created_at: createdAt,
+    placed_at_ist: placedAtIst
   };
 
   const supabase = getSupabaseClient();
@@ -116,14 +125,20 @@ export async function processWebhookPayload(payload: any) {
     };
   }
 
+  const insertedData = data?.[0] || orderRecord;
+
   return {
     status: 200,
     data: {
       success: "1",
       message: "Order processed successfully",
-      order_id: data?.[0]?.id,
-      token: data?.[0]?.token || token,
-      data: data?.[0]
+      order_id: insertedData.id || orderId,
+      token: insertedData.token || token,
+      placed_at_ist: insertedData.placed_at_ist || placedAtIst,
+      data: {
+        ...insertedData,
+        placed_at_ist: insertedData.placed_at_ist || placedAtIst
+      }
     }
   };
 }

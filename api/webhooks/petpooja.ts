@@ -16,6 +16,13 @@ function getSupabaseClient() {
   }
 }
 
+function formatIST(dateInput?: string | Date) {
+  if (!dateInput) return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+  return d.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+}
+
 export default async function handler(req: any, res: any) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -99,7 +106,8 @@ export default async function handler(req: any, res: any) {
       total = items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
     }
 
-    const createdAt = details.created_at || new Date().toISOString();
+    const createdAt = details.created_at || details.order_date || details.placed_at || new Date().toISOString();
+    const placedAtIst = details.placed_at_ist || formatIST(createdAt);
 
     const orderRecord = {
       token,
@@ -109,7 +117,8 @@ export default async function handler(req: any, res: any) {
       customer_name: customerName,
       customer_phone: customerPhone,
       table_id: `${sourceUpper} Online`,
-      created_at: createdAt
+      created_at: createdAt,
+      placed_at_ist: placedAtIst
     };
 
     const supabase = getSupabaseClient();
@@ -133,12 +142,18 @@ export default async function handler(req: any, res: any) {
       });
     }
 
+    const insertedData = data?.[0] || orderRecord;
+
     return res.status(200).json({
       success: "1",
       message: "Order processed successfully",
-      order_id: data?.[0]?.id,
-      token: data?.[0]?.token || token,
-      data: data?.[0]
+      order_id: insertedData.id || orderId,
+      token: insertedData.token || token,
+      placed_at_ist: insertedData.placed_at_ist || placedAtIst,
+      data: {
+        ...insertedData,
+        placed_at_ist: insertedData.placed_at_ist || placedAtIst
+      }
     });
 
   } catch (err: any) {
