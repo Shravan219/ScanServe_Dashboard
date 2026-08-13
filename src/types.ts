@@ -10,6 +10,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   created_at: string;
+  placed_at_ist?: string;
   token: string;
   status: OrderStatus;
   total: number;
