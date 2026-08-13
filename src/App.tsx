@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
+import { SimulateOrderModal } from '@/src/components/admin/SimulateOrderModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -978,9 +979,12 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-full border border-primary/20 px-5 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(197,160,89,0.8)]" />
-                SYSTEM ONLINE
+              <div className="flex items-center gap-3">
+                <SimulateOrderModal />
+                <div className="flex items-center gap-3 rounded-full border border-primary/20 px-5 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(197,160,89,0.8)]" />
+                  SYSTEM ONLINE
+                </div>
               </div>
             </div>
           </header>
