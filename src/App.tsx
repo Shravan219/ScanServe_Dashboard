@@ -31,10 +31,14 @@ import {
   Users,
   Copy,
   Check,
-  Printer
+  Printer,
+  Utensils,
+  Globe
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
+import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
+import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -319,13 +323,33 @@ export default function App() {
     );
   }, [allOrders, dbCustomers, customerSearch, discountPercentage]);
   
+  const [isKioskLocked, setIsKioskLocked] = useState<boolean>(() => {
+    return localStorage.getItem('scanserve_kiosk_locked') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('scanserve_kiosk_locked', isKioskLocked.toString());
+    if (isKioskLocked && location.pathname !== '/captain') {
+      navigate('/captain', { replace: true });
+    }
+  }, [isKioskLocked, location.pathname, navigate]);
+
   const activeTab = useMemo(() => {
+    if (isKioskLocked) return 'captain';
     const path = location.pathname.split('/')[1];
-    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu', 'customers'];
+    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu', 'customers', 'captain', 'online'];
     return validTabs.includes(path) ? path : 'service';
+  }, [location.pathname, isKioskLocked]);
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
   }, [location.pathname]);
 
   const setActiveTab = (tab: string) => {
+    if (isKioskLocked && tab !== 'captain') return;
+    setMobileMenuOpen(false);
     navigate(`/${tab}`);
   };
 
@@ -538,8 +562,20 @@ export default function App() {
       .on('postgres_changes', { event: '*', table: 'orders', schema: 'public' }, (payload) => {
         if (payload.eventType === 'INSERT') {
           const newOrder = payload.new as Order;
-          setOrders(prev => [...prev, newOrder]);
-          setAllOrders(prev => [newOrder, ...prev]);
+          setOrders(prev => {
+            const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+            if (exists) {
+              return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+            }
+            return [newOrder, ...prev];
+          });
+          setAllOrders(prev => {
+            const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+            if (exists) {
+              return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+            }
+            return [newOrder, ...prev];
+          });
           playPopSound();
           toast.success(`New Order Received! Token: ${newOrder.token}`);
         } else if (payload.eventType === 'UPDATE') {
@@ -549,14 +585,14 @@ export default function App() {
           }
           setOrders(prev => {
             if (updated.status === 'completed' || updated.status === 'cancelled') {
-              return prev.filter(o => o.id !== updated.id);
+              return prev.filter(o => o.id !== updated.id && o.token !== updated.token);
             }
-            return prev.map(o => o.id === updated.id ? updated : o);
+            return prev.map(o => (o.id === updated.id || o.token === updated.token) ? updated : o);
           });
-          setAllOrders(prev => prev.map(o => o.id === updated.id ? updated : o));
+          setAllOrders(prev => prev.map(o => (o.id === updated.id || o.token === updated.token) ? updated : o));
         } else if (payload.eventType === 'DELETE') {
-          setOrders(prev => prev.filter(o => o.id !== payload.old.id));
-          setAllOrders(prev => prev.filter(o => o.id !== payload.old.id));
+          setOrders(prev => prev.filter(o => o.id !== payload.old.id && o.token !== payload.old.token));
+          setAllOrders(prev => prev.filter(o => o.id !== payload.old.id && o.token !== payload.old.token));
         }
       })
       .subscribe();
@@ -813,13 +849,27 @@ export default function App() {
     }
   };
 
+  const dineInOrders = useMemo(() => {
+    return orders.filter(o => getOrderPlatform(o) === 'dine_in');
+  }, [orders]);
+
   const filteredOrders = useMemo(() => {
-    let base = orders;
+    let base = dineInOrders;
     if (searchToken) {
       base = base.filter(o => o.token.toLowerCase().includes(searchToken.toLowerCase()));
     }
-    return base;
-  }, [orders, searchToken]);
+    // Deduplicate by ID and Token to guarantee unique order cards in UI
+    const seen = new Set<string>();
+    const uniqueBase: Order[] = [];
+    for (const item of base) {
+      const key = item.id || item.token;
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        uniqueBase.push(item);
+      }
+    }
+    return uniqueBase;
+  }, [dineInOrders, searchToken]);
 
   const serviceRailOrders = useMemo(() => {
     return filteredOrders.filter(o => o.status === 'pending');
@@ -899,8 +949,8 @@ export default function App() {
     <div className="flex h-screen w-full overflow-hidden bg-black font-sans text-white selection:bg-primary selection:text-black">
       <Toaster position="top-right" theme="dark" richColors />
       
-      {/* Sidebar */}
-      <aside className="flex w-20 flex-col items-center border-r border-white/5 bg-[#0A0A0A] py-10 md:w-64">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-20 flex-col items-center border-r border-white/5 bg-[#0A0A0A] py-10 md:w-64">
         <div className="mb-16 flex items-center gap-3 px-8">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-transparent shadow-[0_0_15px_rgba(197,160,89,0.1)]">
             <Coffee size={20} strokeWidth={1.5} className="text-primary" />
@@ -909,56 +959,271 @@ export default function App() {
         </div>
 
         <nav className="flex w-full flex-1 flex-col gap-2 px-4">
+          {!isKioskLocked && (
+            <>
+              <NavItem 
+                icon={<RefreshCcw size={18} strokeWidth={1.5} />} 
+                label="Service Rail" 
+                active={activeTab === 'service'} 
+                onClick={() => setActiveTab('service')}
+              />
+              <NavItem 
+                icon={<LayoutDashboard size={18} strokeWidth={1.5} />} 
+                label="Counter" 
+                active={activeTab === 'counter'} 
+                onClick={() => setActiveTab('counter')}
+              />
+              <NavItem 
+                icon={<ChefHat size={18} strokeWidth={1.5} />} 
+                label="Kitchen" 
+                active={activeTab === 'kitchen'} 
+                onClick={() => setActiveTab('kitchen')}
+              />
+              <NavItem 
+                icon={<PackageCheck size={18} strokeWidth={1.5} />} 
+                label="Pickup" 
+                active={activeTab === 'pickup'} 
+                onClick={() => setActiveTab('pickup')}
+              />
+              <NavItem 
+                icon={<MenuIcon size={18} strokeWidth={1.5} />} 
+                label="Menu" 
+                active={activeTab === 'menu'} 
+                onClick={() => setActiveTab('menu')}
+              />
+              <NavItem 
+                icon={<Users size={18} strokeWidth={1.5} />} 
+                label="Customers" 
+                active={activeTab === 'customers'} 
+                onClick={() => setActiveTab('customers')}
+              />
+              <NavItem 
+                icon={<Globe size={18} strokeWidth={1.5} />} 
+                label="Online Orders" 
+                active={activeTab === 'online'} 
+                onClick={() => setActiveTab('online')}
+              />
+            </>
+          )}
+
           <NavItem 
-            icon={<RefreshCcw size={18} strokeWidth={1.5} />} 
-            label="Service Rail" 
-            active={activeTab === 'service'} 
-            onClick={() => setActiveTab('service')}
+            icon={<Utensils size={18} strokeWidth={1.5} />} 
+            label="Captain" 
+            active={activeTab === 'captain'} 
+            onClick={() => setActiveTab('captain')}
           />
-          <NavItem 
-            icon={<LayoutDashboard size={18} strokeWidth={1.5} />} 
-            label="Counter" 
-            active={activeTab === 'counter'} 
-            onClick={() => setActiveTab('counter')}
-          />
-          <NavItem 
-            icon={<ChefHat size={18} strokeWidth={1.5} />} 
-            label="Kitchen" 
-            active={activeTab === 'kitchen'} 
-            onClick={() => setActiveTab('kitchen')}
-          />
-          <NavItem 
-            icon={<PackageCheck size={18} strokeWidth={1.5} />} 
-            label="Pickup" 
-            active={activeTab === 'pickup'} 
-            onClick={() => setActiveTab('pickup')}
-          />
-          <NavItem 
-            icon={<MenuIcon size={18} strokeWidth={1.5} />} 
-            label="Menu" 
-            active={activeTab === 'menu'} 
-            onClick={() => setActiveTab('menu')}
-          />
-          <NavItem 
-            icon={<Users size={18} strokeWidth={1.5} />} 
-            label="Customers" 
-            active={activeTab === 'customers'} 
-            onClick={() => setActiveTab('customers')}
-          />
+
+          {isKioskLocked && (
+            <div className="mt-auto hidden md:flex flex-col items-center gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-center">
+              <Lock size={18} className="text-red-400 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">Kiosk Mode Locked</span>
+              <p className="text-[9px] text-white/30">Staff access restricted to Captain View.</p>
+            </div>
+          )}
         </nav>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <header className="flex h-24 items-center justify-between border-b border-white/5 px-10 backdrop-blur-xl sticky top-0 z-10 animate-fade-in">
+      <main className="flex-1 overflow-hidden flex flex-col">
+        {/* Mobile Top Header */}
+        <header className="flex md:hidden h-14 items-center justify-between border-b border-white/10 bg-[#0A0A0A] px-4 z-20 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+              <Coffee size={16} className="text-primary" />
+            </div>
+            <span className="font-serif text-lg font-bold tracking-tight">Scan<span className="italic text-primary opacity-80">Serve</span></span>
+            <span className="ml-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+              {activeTab}
+            </span>
+          </div>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <X size={18} /> : <MenuIcon size={18} />}
+          </button>
+        </header>
+
+        {/* Mobile Quick Tab Bar */}
+        <div className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2 gap-2 custom-scrollbar shrink-0">
+          <button
+            onClick={() => setActiveTab('captain')}
+            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+              activeTab === 'captain'
+                ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                : 'bg-white/5 text-white/60 hover:text-white'
+            }`}
+          >
+            Captain
+          </button>
+          {!isKioskLocked && (
+            <>
+              <button
+                onClick={() => setActiveTab('counter')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'counter'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Counter
+              </button>
+              <button
+                onClick={() => setActiveTab('service')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'service'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Service Rail
+              </button>
+              <button
+                onClick={() => setActiveTab('kitchen')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'kitchen'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Kitchen
+              </button>
+              <button
+                onClick={() => setActiveTab('pickup')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'pickup'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Pickup
+              </button>
+              <button
+                onClick={() => setActiveTab('menu')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'menu'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Menu
+              </button>
+              <button
+                onClick={() => setActiveTab('customers')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'customers'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Customers
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Slide-Out Drawer Navigation */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-b border-white/10 bg-[#0A0A0A] px-4 py-4 flex flex-col gap-2 z-30 shrink-0"
+            >
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 px-2 mb-1">
+                Navigation Menu
+              </span>
+              <button
+                onClick={() => setActiveTab('captain')}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                  activeTab === 'captain' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                }`}
+              >
+                <Utensils size={16} /> Captain Service Desk
+              </button>
+              {!isKioskLocked && (
+                <>
+                  <button
+                    onClick={() => setActiveTab('service')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'service' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <RefreshCcw size={16} /> Service Rail
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('counter')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'counter' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <LayoutDashboard size={16} /> Counter
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('kitchen')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'kitchen' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <ChefHat size={16} /> Kitchen KDS
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('pickup')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'pickup' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <PackageCheck size={16} /> Pickup Station
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('menu')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'menu' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <MenuIcon size={16} /> Menu Inventory
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('customers')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'customers' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <Users size={16} /> Customer Database
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('online')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'online' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <Globe size={16} /> Online Orders
+                  </button>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col min-h-0 flex-1">
+          {/* Desktop Header */}
+          <header className="hidden md:flex h-24 items-center justify-between border-b border-white/5 px-10 backdrop-blur-xl sticky top-0 z-10 animate-fade-in shrink-0">
             <TabsList className="bg-transparent p-0 gap-10">
-              <TabsTrigger value="service" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
-              <TabsTrigger value="counter" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
-              <TabsTrigger value="kitchen" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
-              <TabsTrigger value="pickup" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
-              <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
-              <TabsTrigger value="customers" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
+              <TabsTrigger value="captain" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Captain</TabsTrigger>
+              {!isKioskLocked && (
+                <>
+                  <TabsTrigger value="service" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
+                  <TabsTrigger value="counter" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
+                  <TabsTrigger value="kitchen" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
+                  <TabsTrigger value="pickup" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
+                  <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
+                  <TabsTrigger value="customers" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
+                  <TabsTrigger value="online" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
+                </>
+              )}
             </TabsList>
 
             <div className="flex items-center gap-12">
@@ -988,25 +1253,25 @@ export default function App() {
           </header>
 
           <div className="flex-1 min-h-0">
-            <TabsContent value="counter" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden">
-              <div className="flex items-center justify-between">
+            <TabsContent value="counter" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-4xl font-serif tracking-tight">Counter</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold">Incoming orders & Verification</p>
+                  <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Counter</h2>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Incoming orders & Verification</p>
                 </div>
-                <div className="relative w-80">
-                  <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+                <div className="relative w-full sm:w-80">
+                  <Search className="absolute left-4 sm:left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
                   <Input 
                     placeholder="Search Token ID..." 
-                    className="pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+                    className="pl-12 sm:pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-11 sm:h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
                     value={searchToken}
                     onChange={(e) => setSearchToken(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
+              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-6 sm:gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
                     {serviceRailOrders.map((order, index) => (
                       <OrderCard 
@@ -1022,8 +1287,8 @@ export default function App() {
                     ))}
                   </AnimatePresence>
                   {serviceRailOrders.length === 0 && (
-                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
-                      <Clock size={48} strokeWidth={1} className="mb-6 text-primary/20" />
+                    <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
+                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No new orders</p>
                     </div>
                   )}
@@ -1031,16 +1296,16 @@ export default function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="service" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden">
+            <TabsContent value="service" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-4xl font-serif tracking-tight">Service Rail</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold">Full Order Lifecycle</p>
+                  <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Service Rail</h2>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Full Order Lifecycle</p>
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
+              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-6 sm:gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
                     {filteredOrders.map((order, index) => {
                       let actionLabel = "Start Crafting";
@@ -1069,8 +1334,8 @@ export default function App() {
                     })}
                   </AnimatePresence>
                   {filteredOrders.length === 0 && (
-                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
-                      <Clock size={48} strokeWidth={1} className="mb-6 text-primary/20" />
+                    <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
+                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No active orders</p>
                     </div>
                   )}
@@ -1078,16 +1343,16 @@ export default function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="kitchen" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden">
+            <TabsContent value="kitchen" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
               <div>
-                <h2 className="text-4xl font-serif tracking-tight">Kitchen</h2>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold">Active Preparations</p>
+                <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Kitchen</h2>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Active Preparations</p>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
+              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-6 sm:gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
-                    {orders.filter(o => o.status === 'preparing').map((order, index) => (
+                    {dineInOrders.filter(o => o.status === 'preparing').map((order, index) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
@@ -1100,9 +1365,9 @@ export default function App() {
                       />
                     ))}
                   </AnimatePresence>
-                  {orders.filter(o => o.status === 'preparing').length === 0 && (
-                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
-                      <ChefHat size={48} strokeWidth={1} className="mb-6 text-primary/20" />
+                  {dineInOrders.filter(o => o.status === 'preparing').length === 0 && (
+                    <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
+                      <ChefHat size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">Kitchen is clear</p>
                     </div>
                   )}
@@ -1110,16 +1375,16 @@ export default function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="pickup" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden">
+            <TabsContent value="pickup" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
               <div>
-                <h2 className="text-4xl font-serif tracking-tight">Pickup</h2>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold">Awaiting Collection</p>
+                <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Pickup</h2>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Awaiting Collection</p>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="flex flex-col gap-8 pb-10 max-w-4xl mx-auto">
+              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-6 sm:gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
-                    {orders.filter(o => o.status === 'ready').map((order, index) => (
+                    {dineInOrders.filter(o => o.status === 'ready').map((order, index) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
@@ -1132,9 +1397,9 @@ export default function App() {
                       />
                     ))}
                   </AnimatePresence>
-                  {orders.filter(o => o.status === 'ready').length === 0 && (
-                    <div className="flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
-                      <PackageCheck size={48} strokeWidth={1} className="mb-6 text-primary/20" />
+                  {dineInOrders.filter(o => o.status === 'ready').length === 0 && (
+                    <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
+                      <PackageCheck size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
                       <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No orders waiting</p>
                     </div>
                   )}
@@ -1142,28 +1407,28 @@ export default function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="menu" className="m-0 h-full flex flex-col gap-10 p-10 outline-none data-[state=inactive]:hidden">
-              <div className="flex items-center justify-between">
+            <TabsContent value="menu" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-4xl font-serif tracking-tight">Menu</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold">Inventory & Availability</p>
+                  <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Menu</h2>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Inventory & Availability</p>
                 </div>
-                <div className="relative w-80">
-                  <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+                <div className="relative w-full sm:w-80">
+                  <Search className="absolute left-4 sm:left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
                   <Input 
                     placeholder="Search Menu..." 
-                    className="pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+                    className="pl-12 sm:pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-11 sm:h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
                     value={menuSearch}
                     onChange={(e) => setMenuSearch(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3 pb-10">
+              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+                <div className="grid grid-cols-1 gap-4 sm:gap-8 md:grid-cols-2 xl:grid-cols-3 pb-10">
                   {filteredMenuItems.map((item) => (
-                    <Card key={item.id} className="relative bg-[#0A0A0A] border border-white/5 rounded-[2rem] overflow-hidden group hover:border-primary/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(197,160,89,0.03)]">
-                      <div className="flex items-stretch p-8 gap-8">
+                    <Card key={item.id} className="relative bg-[#0A0A0A] border border-white/5 rounded-2xl sm:rounded-[2rem] overflow-hidden group hover:border-primary/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(197,160,89,0.03)]">
+                      <div className="flex items-stretch p-4 sm:p-8 gap-4 sm:gap-8">
                         <div className="h-24 w-24 flex-shrink-0 rounded-full bg-black flex items-center justify-center overflow-hidden border border-white/5 group-hover:border-primary/20 transition-all duration-700 self-center">
                           <MenuItemImage src={item.image} name={item.name} category={item.category} />
                         </div>
@@ -1419,6 +1684,71 @@ export default function App() {
                   </table>
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="captain" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+              <CaptainDashboard
+                menuItems={menuItems}
+                isKioskLocked={isKioskLocked}
+                setIsKioskLocked={setIsKioskLocked}
+                onOrderCreated={(newOrder) => {
+                  setOrders(prev => {
+                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                    if (exists) {
+                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                    }
+                    return [newOrder, ...prev];
+                  });
+                  setAllOrders(prev => {
+                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                    if (exists) {
+                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                    }
+                    return [newOrder, ...prev];
+                  });
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="online" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+              <OnlineOrdersView
+                orders={orders}
+                allOrders={allOrders}
+                menuItems={menuItems}
+                onUpdateStatus={updateOrderStatus}
+                onOrderCreated={(newOrder) => {
+                  setOrders(prev => [newOrder, ...prev]);
+                  setAllOrders(prev => [newOrder, ...prev]);
+                }}
+                renderOrderCard={(order, index) => {
+                  let actionLabel = "Start Crafting";
+                  let nextStatus: OrderStatus = "preparing";
+                  
+                  if (order.status === 'preparing') {
+                    actionLabel = "Mark Ready";
+                    nextStatus = "ready";
+                  } else if (order.status === 'ready') {
+                    actionLabel = "Complete & Paid";
+                    nextStatus = "completed";
+                  } else if (order.status === 'completed') {
+                    actionLabel = "Order Completed";
+                    nextStatus = "completed";
+                  }
+
+                  return (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      actionLabel={actionLabel} 
+                      actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
+                      onAction={() => updateOrderStatus(order.id, nextStatus)}
+                      variant={order.status as any}
+                      index={index}
+                      discountInfo={getOrderDiscountInfo(order)}
+                    />
+                  );
+                }}
+              />
             </TabsContent>
           </div>
         </Tabs>
@@ -1705,83 +2035,133 @@ function OrderCard({
       className="w-full"
     >
       <Card className={cn(
-        "border border-white/5 bg-[#0A0A0A] overflow-hidden relative group transition-all duration-700 rounded-[2.5rem]",
+        "border border-white/5 bg-[#0A0A0A] overflow-hidden relative group transition-all duration-700 rounded-2xl sm:rounded-[1.5rem]",
         variant === 'pending' && "animate-pulse-subtle",
         isOldReady ? "border-primary/40 shadow-[0_0_50px_rgba(197,160,89,0.15)]" : "hover:border-primary/30 hover:shadow-[0_0_40px_rgba(197,160,89,0.05)]"
       )}>
-        <div className="flex flex-col md:flex-row">
-          {/* Token Section - Most Prominent */}
-          <div className="flex flex-col items-center justify-center bg-black/40 p-8 border-b md:border-b-0 md:border-r border-white/5 min-w-[200px]">
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/20 mb-2">Token</span>
-            <span className="text-5xl font-serif text-primary tracking-tighter">{order.token}</span>
-            {order.table_id && (
-              <div className="mt-4 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-                Table {order.table_id}
-              </div>
-            )}
-          </div>
-
-          {/* Info Section */}
-          <div className="flex-1 p-8 flex flex-col justify-between">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
-                  <span className={cn(
-                    "h-2 w-2 rounded-full",
-                    variant === 'pending' ? "bg-blue-500" : variant === 'preparing' ? "bg-amber-500" : "bg-green-500"
-                  )} />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">{variant}</span>
+        <div className="flex flex-col">
+          {/* Top Header Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 bg-black/60 px-4 py-3 border-b border-white/5">
+            <div className="flex items-center gap-2.5">
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">TOKEN</span>
+              <span className="text-xl sm:text-2xl font-serif text-primary tracking-widest font-bold">{order.token}</span>
+              {order.table_id && (
+                <div className="px-2 py-0.5 rounded-full border border-primary/20 bg-primary/5 text-[9px] font-bold uppercase tracking-[0.15em] text-primary whitespace-nowrap">
+                  Table {String(order.table_id).replace(/^table\s*/i, '')}
                 </div>
-                <span className="text-xl font-serif text-white/90">{order.customer_name || 'Guest Order'}</span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {(() => {
+                const platform = getOrderPlatform(order);
+                if (platform === 'swiggy') {
+                  return (
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#FC8019] text-white text-[9px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(252,128,25,0.3)]">
+                      SWIGGY
+                    </span>
+                  );
+                }
+                if (platform === 'zomato') {
+                  return (
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#E23744] text-white text-[9px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(226,55,68,0.3)]">
+                      ZOMATO
+                    </span>
+                  );
+                }
+                if (platform === 'other_online') {
+                  return (
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-[9px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+                      ONLINE
+                    </span>
+                  );
+                }
+                return null;
+              })()}
+
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                <span className={cn(
+                  "h-2 w-2 rounded-full shrink-0",
+                  variant === 'pending' ? "bg-blue-500" : variant === 'preparing' ? "bg-amber-500" : "bg-green-500"
+                )} />
+                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/60">{variant}</span>
               </div>
-              <div className="flex items-center gap-2 text-[10px] text-white/20 font-bold uppercase tracking-[0.2em]">
-                <Clock size={12} strokeWidth={2} className="text-primary/40" />
+
+              <div className="flex items-center gap-1 text-[10px] text-white/30 font-bold uppercase tracking-[0.15em] ml-1">
+                <Clock size={11} strokeWidth={2} className="text-primary/50" />
                 {timeAgo(order.created_at)}
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-              <div className="space-y-3">
+          {/* Info Section */}
+          <div className="p-4 sm:p-5 flex flex-col justify-between min-w-0 flex-1">
+            <div>
+              <div className="mb-3">
+                <span className="text-lg font-serif text-white/90 block font-semibold">{order.customer_name || 'Guest Order'}</span>
+                {order.customer_phone && (
+                  <span className="text-[10px] text-white/40 tracking-wider font-mono block mt-0.5">{order.customer_phone}</span>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-2 bg-white/[0.02] p-3 rounded-xl border border-white/5 my-2">
                 {order.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-4 text-xs group/item">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/10 bg-primary/5 text-[9px] font-bold text-primary/60">
-                      {item.quantity}
-                    </span>
-                    <span className="text-white/60 group-hover/item:text-white transition-colors tracking-tight">{item.name}</span>
+                  <div key={idx} className="flex items-center justify-between text-xs group/item">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-[9px] font-bold text-primary">
+                        {item.quantity}
+                      </span>
+                      <span className="text-white/80 group-hover/item:text-white transition-colors tracking-tight font-medium truncate">
+                        {item.name}
+                      </span>
+                    </div>
+                    {item.price > 0 && (
+                      <span className="text-[10px] font-mono text-white/40 shrink-0 ml-2">₹{(item.price * item.quantity).toFixed(0)}</span>
+                    )}
                   </div>
                 ))}
               </div>
 
-              <div className="flex flex-col items-end gap-4">
-                <div className="text-right">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 block mb-1">Total Amount</span>
-                  {discountInfo && discountInfo.isDiscounted ? (
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xs text-white/20 line-through">₹{(discountInfo.originalTotal || 0).toFixed(2)}</span>
-                        <span className="text-2xl font-serif text-primary">₹{(discountInfo.finalTotal || 0).toFixed(2)}</span>
-                      </div>
-                      <span className="text-[8px] font-bold uppercase text-green-500 tracking-wider mt-1">
-                        {discountInfo.discountPercentage}% Loyalty Discount ({discountInfo.orderCount} Orders)
-                      </span>
+              {order.notes && (
+                <p className="text-[10px] italic text-amber-400/80 bg-amber-400/5 border border-amber-400/10 p-2.5 rounded-lg mt-2">
+                  Note: {order.notes}
+                </p>
+              )}
+            </div>
+
+            {/* Bottom Bar: Total Amount & Action Buttons in a clean, non-overlapping row */}
+            <div className="border-t border-white/5 pt-4 mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-col">
+                <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 block mb-0.5">Total Amount</span>
+                {discountInfo && discountInfo.isDiscounted ? (
+                  <div className="flex flex-col">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs text-white/20 line-through">₹{(discountInfo.originalTotal || 0).toFixed(2)}</span>
+                      <span className="text-2xl font-serif text-primary font-bold">₹{(discountInfo.finalTotal || 0).toFixed(2)}</span>
                     </div>
-                  ) : (
-                    <span className="text-2xl font-serif text-primary">₹{(order.total || 0).toFixed(2)}</span>
-                  )}
-                </div>
-                <div className="flex items-center">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline"
-                        className="border border-white/10 text-white/60 hover:text-primary hover:border-primary/40 rounded-full px-6 h-12 text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:scale-105 mr-3"
-                      >
-                        <span className="flex items-center gap-3">
-                          <Printer size={14} strokeWidth={1.5} />
-                          Receipt
-                        </span>
-                      </Button>
-                    </DialogTrigger>
+                    <span className="text-[8px] font-bold uppercase text-green-500 tracking-wider mt-0.5">
+                      {discountInfo.discountPercentage}% Loyalty Discount ({discountInfo.orderCount} Orders)
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-2xl font-serif text-primary font-bold">₹{(order.total || 0).toFixed(2)}</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2.5 flex-wrap justify-end">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="border border-white/10 text-white/70 hover:text-primary hover:border-primary/40 rounded-full px-5 h-11 text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-300 hover:scale-105"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Printer size={14} strokeWidth={1.5} />
+                        Receipt
+                      </span>
+                    </Button>
+                  </DialogTrigger>
                     <DialogContent className="bg-[#0A0A0A] border border-white/5 text-white max-w-[450px] w-full rounded-[2rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col">
                       <DialogHeader>
                         <DialogTitle className="text-3xl font-serif tracking-tight text-white">Receipt Terminal</DialogTitle>
@@ -1883,8 +2263,7 @@ function OrderCard({
               </div>
             </div>
           </div>
-        </div>
-      </Card>
-    </motion.div>
+        </Card>
+      </motion.div>
   );
 }

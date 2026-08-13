@@ -74,10 +74,15 @@ export default async function handler(req: any, res: any) {
         ? 'ZOMATO' 
         : rawSource.toUpperCase();
 
-    // Extract Order ID & Token
+    // Extract Order ID & Token (strictly 4-digit pure numeric token)
     const orderId = (details.order_id || details.id || details.order_number || Math.floor(1000 + Math.random() * 9000)).toString();
-    const tokenPrefix = sourceUpper.startsWith('SWI') ? 'SWI' : sourceUpper.startsWith('ZOM') ? 'ZOM' : sourceUpper.slice(0, 3);
-    const token = details.token || `${tokenPrefix}-${orderId.replace(/[^a-zA-Z0-9]/g, '').slice(-4) || Math.floor(1000 + Math.random() * 9000)}`;
+    let token = details.token ? details.token.toString().replace(/[^0-9]/g, '') : '';
+    if (token.length !== 4) {
+      token = orderId.replace(/[^0-9]/g, '').slice(-4);
+    }
+    if (token.length !== 4) {
+      token = Math.floor(1000 + Math.random() * 9000).toString();
+    }
 
     // Customer info
     const customerName = details.customer_name || details.customer?.name || details.client_name || `${sourceUpper} Customer`;
