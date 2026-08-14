@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RestaurantTable, TableStatus, MenuItem, Order } from '@/src/types';
+import { RestaurantTable, TableStatus, MenuItem, Order, OrderStatus } from '@/src/types';
 import { TableStatusGrid } from './TableStatusGrid';
 import { OrderBuilderSheet } from './OrderBuilderSheet';
+import { ReadyOrdersBanner } from './ReadyOrdersBanner';
 import { supabase } from '@/src/lib/supabase';
 import { 
   Lock, 
@@ -14,14 +15,17 @@ import {
   KeyRound, 
   X,
   Users,
-  Sparkles
+  Sparkles,
+  BellRing
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 
 interface CaptainDashboardProps {
   menuItems: MenuItem[];
+  orders?: Order[];
   onOrderCreated?: (order: Order, tableNumber: string) => void;
+  onUpdateStatus?: (orderId: string, status: OrderStatus) => void;
   isKioskLocked: boolean;
   setIsKioskLocked: (locked: boolean) => void;
 }
@@ -43,7 +47,9 @@ const ADMIN_PASSWORD_DEFAULT = 'admin123';
 
 export function CaptainDashboard({
   menuItems,
+  orders = [],
   onOrderCreated,
+  onUpdateStatus,
   isKioskLocked,
   setIsKioskLocked
 }: CaptainDashboardProps) {
@@ -260,6 +266,8 @@ export function CaptainDashboard({
   const totalTables = tables.length;
   const occupiedCount = tables.filter(t => t.status === 'occupied').length;
   const availableCount = tables.filter(t => t.status === 'available').length;
+  const readyOrders = orders.filter(o => o.status === 'ready');
+  const readyCount = readyOrders.length;
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 p-3 sm:p-6 md:p-10 max-w-7xl mx-auto w-full">
@@ -286,6 +294,11 @@ export function CaptainDashboard({
                   <Unlock size={10} className="sm:w-3 sm:h-3" /> Dashboard Unlocked
                 </span>
               )}
+              {readyCount > 0 && (
+                <span className="flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-amber-300 animate-pulse">
+                  <BellRing size={10} className="animate-bounce" /> {readyCount} Ready to Serve
+                </span>
+              )}
             </div>
             <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 sm:mt-1">Live table layout, order taking & kitchen dispatch</p>
           </div>
@@ -309,6 +322,15 @@ export function CaptainDashboard({
               <span className="text-[9px] font-bold uppercase tracking-widest text-amber-400">Occupied</span>
               <span className="text-xs sm:text-sm font-serif font-bold text-amber-400">{occupiedCount}</span>
             </div>
+            {readyCount > 0 && (
+              <>
+                <div className="h-5 w-px bg-white/10" />
+                <div className="flex flex-col items-center">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-300">Ready</span>
+                  <span className="text-xs sm:text-sm font-serif font-bold text-amber-300 animate-pulse">{readyCount}</span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Place Dine-in Order Button */}
@@ -343,13 +365,21 @@ export function CaptainDashboard({
         </div>
       </div>
 
+      {/* Real-time Ready Orders Service Notification Alert Bar */}
+      <ReadyOrdersBanner
+        orders={orders}
+        onUpdateStatus={onUpdateStatus}
+      />
+
       {/* Table Layout & Management Grid */}
       <TableStatusGrid
         tables={tables}
+        readyOrders={readyOrders}
         onTableSelect={handleOpenOrderSheet}
         onTableStatusChange={handleTableStatusChange}
         onTableCapacityChange={handleTableCapacityChange}
         onNewOrderClick={handleOpenOrderSheet}
+        onUpdateStatus={onUpdateStatus}
         onRefreshTables={fetchTablesFromSupabase}
         onSeedSupabaseTables={seedSupabaseTables}
         isSyncing={isSyncing}
