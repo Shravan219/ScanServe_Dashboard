@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RestaurantTable, TableStatus } from '@/src/types';
+import { RestaurantTable, TableStatus, Order, OrderStatus } from '@/src/types';
 import { 
   Users, 
   Utensils, 
@@ -9,16 +9,21 @@ import {
   Plus,
   Minus,
   Database,
-  Check
+  Check,
+  BellRing,
+  CheckCircle2
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 
 interface TableStatusGridProps {
   tables: RestaurantTable[];
+  readyOrders?: Order[];
   onTableSelect: (table: RestaurantTable) => void;
   onTableStatusChange: (tableId: string | number, newStatus: TableStatus) => void;
   onTableCapacityChange?: (tableId: string | number, newCapacity: number) => void;
   onNewOrderClick: (table?: RestaurantTable) => void;
+  onUpdateStatus?: (orderId: string, status: OrderStatus) => void;
   onRefreshTables?: () => void;
   onSeedSupabaseTables?: () => void;
   isSyncing?: boolean;
@@ -26,10 +31,12 @@ interface TableStatusGridProps {
 
 export function TableStatusGrid({
   tables,
+  readyOrders = [],
   onTableSelect,
   onTableStatusChange,
   onTableCapacityChange,
   onNewOrderClick,
+  onUpdateStatus,
   onRefreshTables,
   onSeedSupabaseTables,
   isSyncing = false
@@ -161,6 +168,17 @@ export function TableStatusGrid({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {filteredTables.map((table) => {
           const isOccupied = table.status === 'occupied';
+          
+          // Match ready orders for this specific table
+          const tableReadyOrders = readyOrders.filter(o => {
+            if (!o.table_id) return false;
+            const tId = String(table.id).toLowerCase();
+            const tNum = table.table_number.toLowerCase();
+            const oTable = String(o.table_id).toLowerCase().trim();
+            const tNumPlain = tNum.replace(/^table\s*/, '').trim();
+            return oTable === tId || oTable === tNum || oTable === tNumPlain || tNum.includes(oTable);
+          });
+          const hasReadyFood = tableReadyOrders.length > 0;
 
           return (
             <motion.div
@@ -168,13 +186,28 @@ export function TableStatusGrid({
               whileHover={{ y: -2 }}
               transition={{ duration: 0.2 }}
               className={`group relative flex flex-col justify-between rounded-2xl border p-5 transition-all shadow-lg ${
-                isOccupied
+                hasReadyFood
+                  ? 'border-amber-400 bg-gradient-to-b from-[#1E180E] to-[#121118] shadow-[0_0_30px_rgba(245,158,11,0.2)] ring-1 ring-amber-400/50'
+                  : isOccupied
                   ? 'border-amber-500/30 bg-[#121118] shadow-[0_0_20px_rgba(245,158,11,0.05)]'
                   : table.status === 'available'
                   ? 'border-emerald-500/20 bg-[#0C1210] hover:border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.03)]'
                   : 'border-white/10 bg-[#0F1014]'
               }`}
             >
+              {/* Ready Food Notification Tag on Table Card */}
+              {hasReadyFood && (
+                <div className="mb-3 -mt-1 flex items-center justify-between gap-1.5 rounded-xl bg-amber-400/20 border border-amber-400/40 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-300 animate-pulse">
+                  <div className="flex items-center gap-1.5">
+                    <BellRing size={12} className="text-amber-300 animate-bounce" />
+                    <span>Food Ready to Serve!</span>
+                  </div>
+                  <span className="bg-amber-400 text-black px-1.5 py-0.2 rounded-md text-[9px] font-black">
+                    {tableReadyOrders.length} {tableReadyOrders.length === 1 ? 'Order' : 'Orders'}
+                  </span>
+                </div>
+              )}
+
               {/* Header: Number & Capacity (Seats) Adjustment */}
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -222,7 +255,7 @@ export function TableStatusGrid({
               </div>
 
               {/* Occupant / Active Info */}
-              <div className="my-4 py-3 border-y border-white/5 min-h-[52px] flex flex-col justify-center">
+              <div className="my-3 py-2.5 border-y border-white/5 min-h-[50px] flex flex-col justify-center">
                 {isOccupied ? (
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between text-xs">
@@ -244,26 +277,44 @@ export function TableStatusGrid({
               </div>
 
               {/* Quick Actions */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onNewOrderClick(table)}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer"
-                >
-                  <PlusCircle size={12} />
-                  Take Order
-                </button>
+              <div className="flex flex-col gap-2">
+                {/* Fast action to serve ready food */}
+                {hasReadyFood && tableReadyOrders[0] && (
+                  <button
+                    onClick={() => {
+                      if (onUpdateStatus) {
+                        onUpdateStatus(tableReadyOrders[0].id, 'completed');
+                        toast.success(`Served Order ${tableReadyOrders[0].token} for ${table.table_number}!`);
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black py-2 px-3 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                  >
+                    <CheckCircle2 size={13} />
+                    <span>Serve Ready Food (#{tableReadyOrders[0].token})</span>
+                  </button>
+                )}
 
-                <button
-                  onClick={() => onTableStatusChange(table.id, isOccupied ? 'available' : 'occupied')}
-                  className={`flex h-8 px-2.5 items-center justify-center rounded-xl border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    isOccupied
-                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                      : 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                  }`}
-                  title={isOccupied ? 'Mark as Available' : 'Mark as Occupied'}
-                >
-                  {isOccupied ? 'Free' : 'Occupy'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onNewOrderClick(table)}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer"
+                  >
+                    <PlusCircle size={12} />
+                    Take Order
+                  </button>
+
+                  <button
+                    onClick={() => onTableStatusChange(table.id, isOccupied ? 'available' : 'occupied')}
+                    className={`flex h-8 px-2.5 items-center justify-center rounded-xl border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      isOccupied
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                        : 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                    }`}
+                    title={isOccupied ? 'Mark as Available' : 'Mark as Occupied'}
+                  >
+                    {isOccupied ? 'Free' : 'Occupy'}
+                  </button>
+                </div>
               </div>
             </motion.div>
           );

@@ -39,6 +39,7 @@ import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
+import { soundService } from '@/src/lib/sound';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -484,9 +485,7 @@ export default function App() {
   };
 
   const playPopSound = () => {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-    audio.volume = 0.8;
-    audio.play().catch(e => console.log('Audio play failed:', e));
+    soundService.playNewOrderSound();
   };
 
   // ... (rest of the useEffect and handlers)
@@ -576,11 +575,19 @@ export default function App() {
             }
             return [newOrder, ...prev];
           });
-          playPopSound();
+          soundService.playNewOrderSound();
           toast.success(`New Order Received! Token: ${newOrder.token}`);
         } else if (payload.eventType === 'UPDATE') {
           const updated = payload.new as Order;
-          if (updated.status === 'completed') {
+          if (updated.status === 'ready') {
+            soundService.playReadyChime();
+            soundService.triggerVibration([200, 100, 200, 100, 300]);
+            const targetTable = updated.table_id ? `Table ${String(updated.table_id).replace(/^table\s*/i, '')}` : (updated.order_type === 'takeaway' ? 'Takeaway Counter' : 'Pickup Desk');
+            toast.warning(`🛎️ Food Ready to Serve! Order #${updated.token} for ${targetTable}`, {
+              description: 'The kitchen has marked this order ready for waiter pickup.',
+              duration: 8000
+            });
+          } else if (updated.status === 'completed') {
             setStats(prev => ({ ...prev, preparedToday: prev.preparedToday + 1 }));
           }
           setOrders(prev => {
@@ -1689,6 +1696,8 @@ export default function App() {
             <TabsContent value="captain" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
               <CaptainDashboard
                 menuItems={menuItems}
+                orders={orders}
+                onUpdateStatus={updateOrderStatus}
                 isKioskLocked={isKioskLocked}
                 setIsKioskLocked={setIsKioskLocked}
                 onOrderCreated={(newOrder) => {
