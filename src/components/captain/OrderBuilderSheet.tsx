@@ -353,13 +353,100 @@ export function OrderBuilderSheet({
 
           {/* Drawer Body - Responsive stacked layout on mobile via tabs, side-by-side on desktop */}
           <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-0">
-            {/* Left Column: Customer details, Kitchen Instructions & Cart */}
-            <div className={`w-full md:w-80 flex-shrink-0 border-b md:border-b-0 md:border-r border-white/10 bg-[#090A0D] p-4 sm:p-5 flex-col gap-4 sm:gap-5 overflow-y-auto custom-scrollbar ${
+            {/* Left/Cart Column: Selected Items, Table/Customer Details & Kitchen Instructions */}
+            <div className={`w-full md:w-96 flex-shrink-0 border-b md:border-b-0 md:border-r border-white/10 bg-[#090A0D] p-4 sm:p-5 flex-col gap-4 sm:gap-5 overflow-y-auto custom-scrollbar ${
               mobileTab === 'cart' ? 'flex flex-1 md:flex-none' : 'hidden md:flex'
             }`}>
               
-              {/* Table & Customer Details Card */}
-              <div className="rounded-2xl border border-white/10 bg-[#0F1014] p-4 flex flex-col gap-3.5">
+              {/* 1. Order Cart Summary - PLACED FIRST for immediate visibility and item review */}
+              <div className="flex flex-col rounded-2xl border border-primary/20 bg-[#0F1014] p-4 gap-3 shadow-[0_0_25px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary">
+                      <ShoppingBag size={12} />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-white">
+                        Selected Items
+                      </span>
+                      <span className="ml-1.5 text-[10px] font-bold text-primary px-1.5 py-0.5 rounded-full bg-primary/10">
+                        {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
+                      </span>
+                    </div>
+                  </div>
+                  {cartEntries.length > 0 && (
+                    <button
+                      onClick={() => setCart({})}
+                      className="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider transition-colors px-2 py-1 rounded-lg hover:bg-red-400/10"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2.5 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                  {cartEntries.length === 0 ? (
+                    <div className="flex h-32 flex-col items-center justify-center text-center p-4 text-white/40">
+                      <ShoppingBag size={28} className="mb-2 stroke-1 text-white/20" />
+                      <p className="text-xs font-medium">Cart is empty</p>
+                      <button
+                        onClick={() => setMobileTab('menu')}
+                        className="mt-2 text-[10px] text-primary underline underline-offset-2 font-bold uppercase tracking-wider"
+                      >
+                        Browse Menu Items
+                      </button>
+                    </div>
+                  ) : (
+                    cartEntries.map(({ item, quantity }) => (
+                      <div key={item.id} className="flex items-center justify-between rounded-xl bg-[#14161C] p-3 border border-white/5 hover:border-white/10 transition-all">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <p className="text-xs font-bold text-white leading-tight">{item.name}</p>
+                          <p className="text-[10px] text-primary/90 font-mono mt-0.5">
+                            ₹{item.price} × {quantity} = <span className="font-bold text-primary">₹{item.price * quantity}</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-black/60 rounded-lg p-1 border border-white/10 shrink-0">
+                          <button
+                            onClick={() => handleQuantityChange(item, -1)}
+                            className="h-6 w-6 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                            title="Decrease quantity"
+                          >
+                            <Minus size={11} />
+                          </button>
+                          <span className="w-6 text-center text-xs font-bold text-primary font-mono">{quantity}</span>
+                          <button
+                            onClick={() => handleQuantityChange(item, 1)}
+                            className="h-6 w-6 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+                            title="Increase quantity"
+                          >
+                            <Plus size={11} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Subtotal & Action in Cart Card */}
+                <div className="pt-3 border-t border-white/10 flex flex-col gap-3">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Grand Total</span>
+                    <span className="text-xl font-serif font-bold text-primary">₹{totalAmount}</span>
+                  </div>
+
+                  <button
+                    onClick={handleSendToCounter}
+                    disabled={isSubmitting || cartEntries.length === 0}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  >
+                    <Send size={14} className={isSubmitting ? 'animate-bounce' : ''} />
+                    {isSubmitting ? 'Sending to Kitchen...' : 'Send to Counter / Kitchen'}
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Table & Customer Details Card */}
+              <div className="rounded-2xl border border-white/10 bg-[#0F1014] p-4 flex flex-col gap-3">
                 {/* Order Channel Selector */}
                 <div className="flex flex-col gap-1.5 pb-2 border-b border-white/5">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-1.5">
@@ -415,19 +502,15 @@ export function OrderBuilderSheet({
 
                 {orderChannel === 'dine_in' && (
                   <>
-                    <div className="flex items-center justify-between pb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-1.5">
-                        <TableIcon size={12} /> Table Selection
-                      </span>
-                    </div>
-
                     {/* Table Dropdown / Number */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider">Target Table</label>
+                      <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider flex items-center gap-1.5">
+                        <TableIcon size={11} className="text-primary" /> Target Table
+                      </label>
                       <select
                         value={tableNumber}
                         onChange={(e) => setTableNumber(e.target.value)}
-                        className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-primary/50 transition-all"
+                        className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 transition-all"
                       >
                         {tables.map(t => (
                           <option key={t.id} value={t.table_number} className="bg-[#14161C] text-white">
@@ -442,39 +525,40 @@ export function OrderBuilderSheet({
                   </>
                 )}
 
-                {/* Customer Name */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider flex items-center gap-1">
-                    <User size={10} /> Customer Name
-                  </label>
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="e.g. Rahul Sharma or Guest"
-                    className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
-                  />
-                </div>
+                {/* Customer Name & Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider flex items-center gap-1">
+                      <User size={10} /> Customer Name
+                    </label>
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Rahul (Optional)"
+                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
 
-                {/* Customer Phone */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider flex items-center gap-1">
-                    <Phone size={10} /> Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider flex items-center gap-1">
+                      <Phone size={10} /> Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="+91 98765..."
+                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Custom Instructions / Kitchen Notes */}
-              <div className="rounded-2xl border border-white/10 bg-[#0F1014] p-4 flex flex-col gap-3">
+              {/* 3. Custom Instructions / Kitchen Notes */}
+              <div className="rounded-2xl border border-white/10 bg-[#0F1014] p-4 flex flex-col gap-2.5">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-1.5">
-                  <MessageSquare size={12} /> Custom Instructions
+                  <MessageSquare size={12} /> Kitchen Notes & Special Instructions
                 </span>
 
                 <textarea
@@ -482,7 +566,7 @@ export function OrderBuilderSheet({
                   onChange={(e) => setCustomInstructions(e.target.value)}
                   placeholder="e.g. Less spicy, extra napkins, serve beverages first..."
                   rows={2}
-                  className="w-full rounded-xl bg-[#14161C] border border-white/10 p-3 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 resize-none transition-all"
+                  className="w-full rounded-xl bg-[#14161C] border border-white/10 p-2.5 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 resize-none transition-all"
                 />
 
                 {/* Quick Instruction Tags */}
@@ -504,74 +588,6 @@ export function OrderBuilderSheet({
                       </button>
                     );
                   })}
-                </div>
-              </div>
-
-              {/* Order Cart Summary */}
-              <div className="flex-1 flex flex-col rounded-2xl border border-white/10 bg-[#0F1014] p-4 gap-3 min-h-[200px]">
-                <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 flex items-center gap-1.5">
-                    <ShoppingBag size={12} className="text-primary" /> Selected Items ({totalItemCount})
-                  </span>
-                  {cartEntries.length > 0 && (
-                    <button
-                      onClick={() => setCart({})}
-                      className="text-[10px] text-red-400 hover:text-red-300 font-semibold transition-colors"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 pr-1">
-                  {cartEntries.length === 0 ? (
-                    <div className="flex h-36 flex-col items-center justify-center text-center p-4 text-white/30">
-                      <ShoppingBag size={28} className="mb-2 stroke-1 text-white/20" />
-                      <p className="text-xs">Cart is empty</p>
-                      <p className="text-[10px] text-white/20">Select items from menu grid to add</p>
-                    </div>
-                  ) : (
-                    cartEntries.map(({ item, quantity }) => (
-                      <div key={item.id} className="flex items-center justify-between rounded-xl bg-[#14161C] p-2.5 border border-white/5">
-                        <div className="flex-1 min-w-0 pr-2">
-                          <p className="text-xs font-bold text-white truncate">{item.name}</p>
-                          <p className="text-[10px] text-primary/80 font-medium">₹{item.price} × {quantity} = <span className="font-bold text-primary">₹{item.price * quantity}</span></p>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-black/40 rounded-lg p-1 border border-white/10">
-                          <button
-                            onClick={() => handleQuantityChange(item, -1)}
-                            className="h-5 w-5 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
-                          >
-                            <Minus size={10} />
-                          </button>
-                          <span className="w-5 text-center text-xs font-bold text-white">{quantity}</span>
-                          <button
-                            onClick={() => handleQuantityChange(item, 1)}
-                            className="h-5 w-5 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 transition-all cursor-pointer"
-                          >
-                            <Plus size={10} />
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Subtotal Footer */}
-                <div className="pt-3 border-t border-white/10 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-white/60 uppercase tracking-wider">Grand Total</span>
-                    <span className="text-lg font-serif font-bold text-primary">₹{totalAmount}</span>
-                  </div>
-
-                  <button
-                    onClick={handleSendToCounter}
-                    disabled={isSubmitting || cartEntries.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-                  >
-                    <Send size={14} className={isSubmitting ? 'animate-bounce' : ''} />
-                    {isSubmitting ? 'Sending to Kitchen...' : 'Send to Counter / Kitchen'}
-                  </button>
                 </div>
               </div>
 
