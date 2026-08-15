@@ -948,7 +948,7 @@ export default function App() {
       <div className="flex h-screen w-full items-center justify-center bg-black text-white">
         <div className="flex flex-col items-center gap-6">
           <RefreshCcw className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="font-serif text-2xl tracking-tight text-primary">Scan<span className="italic opacity-60">Serve</span></p>
+          <p className="font-serif text-2xl tracking-tight text-primary">Vyo<span className="italic opacity-60">ma</span></p>
         </div>
       </div>
     );
@@ -964,7 +964,7 @@ export default function App() {
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-transparent shadow-[0_0_15px_rgba(197,160,89,0.1)]">
             <Coffee size={20} strokeWidth={1.5} className="text-primary" />
           </div>
-          <h1 className="hidden text-2xl font-serif tracking-tight md:block">Scan<span className="italic opacity-60 text-primary">Serve</span></h1>
+          <h1 className="hidden text-2xl font-serif tracking-tight md:block">Vyo<span className="italic opacity-60 text-primary">ma</span></h1>
         </div>
 
         <nav className="flex w-full flex-1 flex-col gap-2 px-4">
@@ -1040,7 +1040,7 @@ export default function App() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
               <Coffee size={16} className="text-primary" />
             </div>
-            <span className="font-serif text-lg font-bold tracking-tight">Scan<span className="italic text-primary opacity-80">Serve</span></span>
+            <span className="font-serif text-lg font-bold tracking-tight">Vyo<span className="italic text-primary opacity-80">ma</span></span>
             <span className="ml-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
               {activeTab}
             </span>
