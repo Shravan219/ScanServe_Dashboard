@@ -170,7 +170,7 @@ export function SimulateOrderModal({ trigger }: SimulateOrderModalProps) {
                 </Badge>
               </DialogTitle>
               <DialogDescription className="text-xs text-white/40">
-                Simulate real-time online order injection from Zomato and Swiggy into ScanServe.
+                Simulate real-time online order injection from Zomato and Swiggy into Vyoma.
               </DialogDescription>
             </div>
           </div>

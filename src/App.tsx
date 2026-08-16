@@ -143,15 +143,15 @@ export default function App() {
   };
 
   const [frequentDiscountEnabled, setFrequentDiscountEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('scanserve_frequent_discount_enabled');
+    const saved = localStorage.getItem('vyoma_frequent_discount_enabled');
     return saved === 'true';
   });
   const [minOrdersForDiscount, setMinOrdersForDiscount] = useState<number>(() => {
-    const saved = localStorage.getItem('scanserve_min_orders_discount');
+    const saved = localStorage.getItem('vyoma_min_orders_discount');
     return saved ? parseInt(saved) : 3;
   });
   const [discountPercentage, setDiscountPercentage] = useState<number>(() => {
-    const saved = localStorage.getItem('scanserve_discount_percentage');
+    const saved = localStorage.getItem('vyoma_discount_percentage');
     return saved ? parseInt(saved) : 10;
   });
 
@@ -325,11 +325,11 @@ export default function App() {
   }, [allOrders, dbCustomers, customerSearch, discountPercentage]);
   
   const [isKioskLocked, setIsKioskLocked] = useState<boolean>(() => {
-    return localStorage.getItem('scanserve_kiosk_locked') === 'true';
+    return localStorage.getItem('vyoma_kiosk_locked') === 'true';
   });
 
   useEffect(() => {
-    localStorage.setItem('scanserve_kiosk_locked', isKioskLocked.toString());
+    localStorage.setItem('vyoma_kiosk_locked', isKioskLocked.toString());
     if (isKioskLocked && location.pathname !== '/captain') {
       navigate('/captain', { replace: true });
     }
@@ -360,15 +360,15 @@ export default function App() {
   const [authError, setAuthError] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('scanserve_frequent_discount_enabled', frequentDiscountEnabled.toString());
+    localStorage.setItem('vyoma_frequent_discount_enabled', frequentDiscountEnabled.toString());
   }, [frequentDiscountEnabled]);
 
   useEffect(() => {
-    localStorage.setItem('scanserve_min_orders_discount', minOrdersForDiscount.toString());
+    localStorage.setItem('vyoma_min_orders_discount', minOrdersForDiscount.toString());
   }, [minOrdersForDiscount]);
 
   useEffect(() => {
-    localStorage.setItem('scanserve_discount_percentage', discountPercentage.toString());
+    localStorage.setItem('vyoma_discount_percentage', discountPercentage.toString());
   }, [discountPercentage]);
 
   const getOrderDiscountInfo = (order: Order) => {
@@ -439,17 +439,17 @@ export default function App() {
 
   useEffect(() => {
     const checkAuth = () => {
-      const authData = localStorage.getItem('scanserve_staff_auth');
+      const authData = localStorage.getItem('vyoma_staff_auth');
       if (authData) {
         try {
           const { expiry } = JSON.parse(authData);
           if (new Date().getTime() < expiry) {
             setIsAuthenticated(true);
           } else {
-            localStorage.removeItem('scanserve_staff_auth');
+            localStorage.removeItem('vyoma_staff_auth');
           }
         } catch (e) {
-          localStorage.removeItem('scanserve_staff_auth');
+          localStorage.removeItem('vyoma_staff_auth');
         }
       }
     };
@@ -459,7 +459,7 @@ export default function App() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Default password for staff access
-    if (password === 'ScanServe2026') {
+    if (password === 'Vyoma2026') {
       // Calculate expiry: End of the day in IST
       // IST is UTC+5:30
       const now = new Date();
@@ -471,7 +471,7 @@ export default function App() {
       
       const expiryUtc = istEndOfDay.getTime() - istOffset;
       
-      localStorage.setItem('scanserve_staff_auth', JSON.stringify({
+      localStorage.setItem('vyoma_staff_auth', JSON.stringify({
         authenticated: true,
         expiry: expiryUtc
       }));
@@ -946,7 +946,7 @@ export default function App() {
       <div className="flex h-screen w-full items-center justify-center bg-black text-white">
         <div className="flex flex-col items-center gap-6">
           <RefreshCcw className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="font-serif text-2xl tracking-tight text-primary">Scan<span className="italic opacity-60">Serve</span></p>
+          <p className="font-serif text-2xl tracking-tight text-primary">Vy<span className="italic opacity-60">oma</span></p>
         </div>
       </div>
     );
@@ -962,7 +962,7 @@ export default function App() {
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-transparent shadow-[0_0_15px_rgba(197,160,89,0.1)]">
             <Coffee size={20} strokeWidth={1.5} className="text-primary" />
           </div>
-          <h1 className="hidden text-2xl font-serif tracking-tight md:block">Scan<span className="italic opacity-60 text-primary">Serve</span></h1>
+          <h1 className="hidden text-2xl font-serif tracking-tight md:block">Vy<span className="italic opacity-60 text-primary">oma</span></h1>
         </div>
 
         <nav className="flex w-full flex-1 flex-col gap-2 px-4">
@@ -1038,7 +1038,7 @@ export default function App() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
               <Coffee size={16} className="text-primary" />
             </div>
-            <span className="font-serif text-lg font-bold tracking-tight">Scan<span className="italic text-primary opacity-80">Serve</span></span>
+            <span className="font-serif text-lg font-bold tracking-tight">Vy<span className="italic text-primary opacity-80">oma</span></span>
             <span className="ml-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
               {activeTab}
             </span>
@@ -1957,19 +1957,19 @@ function OrderCard({
 }) {
   const [isOldReady, setIsOldReady] = useState(false);
   const [receiptGstin, setReceiptGstin] = useState(() => {
-    return order.gstin || localStorage.getItem('scanserve_default_gstin') || '';
+    return order.gstin || localStorage.getItem('vyoma_default_gstin') || '';
   });
   const [receiptTaxRate, setReceiptTaxRate] = useState(() => {
-    const saved = localStorage.getItem('scanserve_default_tax_rate');
+    const saved = localStorage.getItem('vyoma_default_tax_rate');
     return saved ? Number(saved) : 5;
   });
 
   useEffect(() => {
-    localStorage.setItem('scanserve_default_gstin', receiptGstin);
+    localStorage.setItem('vyoma_default_gstin', receiptGstin);
   }, [receiptGstin]);
 
   useEffect(() => {
-    localStorage.setItem('scanserve_default_tax_rate', receiptTaxRate.toString());
+    localStorage.setItem('vyoma_default_tax_rate', receiptTaxRate.toString());
   }, [receiptTaxRate]);
 
   const [isSavingGstin, setIsSavingGstin] = useState(false);

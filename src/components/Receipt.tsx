@@ -120,7 +120,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({
 
       {/* Brand Header */}
       <div className="text-center mb-4">
-        <h1 className="text-lg font-bold tracking-tight uppercase">ScanServe</h1>
+        <h1 className="text-lg font-bold tracking-tight uppercase">Xtra Rooftop Lounge and Cafe</h1>
         <p className="text-[9px] uppercase tracking-wider text-gray-500">Contactless Table Ordering</p>
         <p className="text-[10px] text-gray-600 font-bold mt-1">
           {hasGstin ? 'TAX INVOICE' : 'RETAIL BILL'}
@@ -219,7 +219,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({
       {/* Receipt Footer */}
       <div className="text-center text-[9px] text-gray-600 space-y-1 border-t border-dashed border-black/40 pt-3">
         <p className="font-semibold uppercase tracking-wider">Thank you for dining with us!</p>
-        <p className="italic">Powered by ScanServe SaaS</p>
+        <p className="italic">Powered by Vyoma SaaS</p>
         {hasGstin && (
           <p className="font-bold text-[8px] tracking-[0.1em] uppercase mt-1 text-gray-500">
             *** TAX INVOICE ***

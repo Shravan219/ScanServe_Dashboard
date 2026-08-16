@@ -1,4 +1,4 @@
-# ScanServe - Dashboard
+# Vyoma - Dashboard
 
 A high-end, luxury-themed staff dashboard for real-time order management and menu control.
 
