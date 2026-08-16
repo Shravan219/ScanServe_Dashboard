@@ -1,5 +1,5 @@
 -- ====================================================================
--- Vyoma SaaS Database Schema
+-- ScanServe SaaS Database Schema
 -- Compatible with PostgreSQL / Supabase
 -- Contains: tables, indexes, RLS policies, and dynamic order triggers.
 --
