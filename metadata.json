@@ -1,6 +1,6 @@
 {
   "name": "Vyoma - Dashboard",
   "description": "Luxury Noir Staff Dashboard and KDS for Vyoma featuring real-time Service Rail, table management, POS billing, and artisanal tech aesthetic.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

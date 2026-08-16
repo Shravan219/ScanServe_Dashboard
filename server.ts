@@ -42,10 +42,10 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`ScanServe Express Server listening on http://0.0.0.0:${PORT}`);
+    console.log(`Vyoma Express Server listening on http://0.0.0.0:${PORT}`);
   });
 }
 
 startServer().catch((err) => {
-  console.error('Failed to start ScanServe server:', err);
+  console.error('Failed to start Vyoma server:', err);
 });

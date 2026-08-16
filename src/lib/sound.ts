@@ -25,14 +25,14 @@ class SoundService {
   public setMuted(muted: boolean) {
     this.isMuted = muted;
     try {
-      localStorage.setItem('scanserve_sound_muted', muted ? 'true' : 'false');
+      localStorage.setItem('vyoma_sound_muted', muted ? 'true' : 'false');
     } catch {}
   }
 
   public getMuted(): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      return localStorage.getItem('scanserve_sound_muted') === 'true';
+      return localStorage.getItem('vyoma_sound_muted') === 'true';
     } catch {
       return false;
     }
