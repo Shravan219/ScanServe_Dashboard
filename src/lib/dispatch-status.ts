@@ -1,9 +1,3 @@
-/**
- * Environment-Aware Outbound Status Dispatcher
- * Automatically routes order status updates to Petpooja Open API in production
- * or to local/remote Webhook Tester in development.
- */
-
 export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
 export type PetpoojaMappedStatus = 'ACCEPTED' | 'IN_KITCHEN' | 'READY' | 'DISPATCHED' | 'CANCELLED';
@@ -25,14 +19,6 @@ export interface DispatchResult {
   error?: string;
 }
 
-/**
- * Status mapping to standard Petpooja integration specification:
- * - 'pending'   -> 'ACCEPTED'
- * - 'preparing' -> 'IN_KITCHEN'
- * - 'ready'     -> 'READY'
- * - 'completed' -> 'DISPATCHED'
- * - 'cancelled' -> 'CANCELLED'
- */
 export function mapStatusToPetpooja(status: OrderStatus): PetpoojaMappedStatus {
   switch (status) {
     case 'pending':
@@ -66,10 +52,6 @@ function getEnvVar(key: string, viteKey?: string): string {
   return '';
 }
 
-/**
- * Dispatches order status updates to either Petpooja Open API (PROD) or Tester callback (MOCK)
- * without breaking database state or blocking UI operations.
- */
 export async function dispatchOrderStatus({
   orderId,
   nextStatus,
@@ -78,7 +60,6 @@ export async function dispatchOrderStatus({
 }: DispatchOrderStatusParams): Promise<DispatchResult> {
   const mappedStatus = mapStatusToPetpooja(nextStatus);
 
-  // Environment credentials detection
   const appKey = getEnvVar('PETPOOJA_APP_KEY');
   const appSecret = getEnvVar('PETPOOJA_APP_SECRET');
   const accessToken = getEnvVar('PETPOOJA_ACCESS_TOKEN');
@@ -86,7 +67,6 @@ export async function dispatchOrderStatus({
   const isProduction = Boolean(appKey && appSecret && accessToken);
   const mode: 'PROD' | 'MOCK' = isProduction ? 'PROD' : 'MOCK';
 
-  // Restaurant & Client configuration
   const resolvedRestId = 
     restId ||
     getEnvVar('PETPOOJA_REST_ID') ||
@@ -105,7 +85,6 @@ export async function dispatchOrderStatus({
     updated_at: new Date().toISOString()
   };
 
-  // Endpoint and headers determination
   let endpoint = '';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
@@ -124,10 +103,9 @@ export async function dispatchOrderStatus({
       callbackUrl ||
       getEnvVar('TESTER_CALLBACK_URL') ||
       getEnvVar('PETPOOJA_OUTBOUND_WEBHOOK_URL') ||
-      'http://localhost:3001/api/mock-callback';
+      'https://vyomapos-t.vercel.app/api/webhooks/receiver';
   }
 
-  // 5-second timeout via AbortController
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
