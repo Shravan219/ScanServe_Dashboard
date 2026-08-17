@@ -20,16 +20,27 @@ export default async function handler(req: any, res: any) {
 
   if (req.method === 'GET' || req.method === 'HEAD') {
     try {
-      const memoryOrders = getAllMemoryOrders();
+      let memoryOrders: any[] = [];
+      try {
+        memoryOrders = getAllMemoryOrders() || [];
+      } catch {
+        memoryOrders = [];
+      }
+
       let dbOrders: any[] = [];
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        try {
-          const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-          if (data) dbOrders = data;
-        } catch {
-          // ignore
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!error && data) {
+            dbOrders = data;
+          }
         }
+      } catch {
+        // Supabase unreachable or table not set up yet
       }
 
       const orderMap = new Map<string, any>();
@@ -43,7 +54,7 @@ export default async function handler(req: any, res: any) {
       }
 
       const merged = Array.from(orderMap.values()).sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
       );
 
       return res.status(200).json({
@@ -52,6 +63,7 @@ export default async function handler(req: any, res: any) {
         orders: merged
       });
     } catch (e: any) {
+      console.warn('[API /orders GET Warning]', e?.message);
       return res.status(200).json({ success: true, count: 0, orders: [] });
     }
   }
@@ -77,5 +89,5 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  return res.status(200).json({ success: true });
+  return res.status(200).json({ success: true, orders: [] });
 }

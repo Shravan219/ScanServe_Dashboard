@@ -158,6 +158,7 @@ export function OnlineOrdersView({
 
     // Listen to real-time webhook logs via EventSource
     let es: EventSource | null = null;
+    let errorCount = 0;
     try {
       es = new EventSource('/api/orders/events');
       es.addEventListener('webhook_log', (event: MessageEvent) => {
@@ -176,6 +177,13 @@ export function OnlineOrdersView({
           // ignore
         }
       });
+      es.onerror = () => {
+        errorCount++;
+        if (errorCount > 3 && es) {
+          // If SSE is unavailable (e.g. static host/Vercel without SSE streaming), close gracefully to avoid reconnect loops
+          es.close();
+        }
+      };
     } catch {
       // ignore
     }

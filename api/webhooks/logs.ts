@@ -9,11 +9,23 @@ export default function handler(req: any, res: any) {
     return res.status(200).end();
   }
 
-  if (req.method === 'DELETE') {
-    clearInboundLogs();
-    return res.status(200).json({ success: true, message: 'Inbound logs cleared' });
-  }
+  try {
+    if (req.method === 'DELETE') {
+      try {
+        clearInboundLogs();
+      } catch {}
+      return res.status(200).json({ success: true, message: 'Inbound logs cleared' });
+    }
 
-  const logs = getInboundLogs();
-  return res.status(200).json({ success: true, count: logs.length, logs });
+    let logs: any[] = [];
+    try {
+      logs = getInboundLogs() || [];
+    } catch {
+      logs = [];
+    }
+
+    return res.status(200).json({ success: true, count: logs.length, logs });
+  } catch (err: any) {
+    return res.status(200).json({ success: true, count: 0, logs: [] });
+  }
 }
