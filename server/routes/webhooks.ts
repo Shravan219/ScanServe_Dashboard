@@ -1,22 +1,106 @@
 import { Router, Request, Response } from 'express';
 import { processWebhookPayload } from '../processWebhook';
+import { getInboundLogs, clearInboundLogs } from '../orderStore';
 
 const router = Router();
 
 /**
- * Express router handler for Cloud Run / Express Server environment
+ * GET /api/webhooks/logs
+ * Returns live inbound webhook inspection logs
  */
-router.post(['/petpooja', '/aggregator'], async (req: Request, res: Response) => {
+router.get('/logs', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    logs: getInboundLogs()
+  });
+});
+
+router.get('/inbound-logs', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    logs: getInboundLogs()
+  });
+});
+
+/**
+ * DELETE /api/webhooks/logs
+ * Clears inbound webhook logs
+ */
+router.delete('/logs', (req: Request, res: Response) => {
+  clearInboundLogs();
+  res.json({
+    success: true,
+    message: 'Inbound webhook logs cleared'
+  });
+});
+
+/**
+ * POST /api/webhooks/simulate
+ * Simulates an order directly from UI / testing
+ */
+router.post('/simulate', async (req: Request, res: Response) => {
   try {
-    const result = await processWebhookPayload(req.body, req.headers);
+    const result = await processWebhookPayload(req.body, req.headers, {
+      method: 'POST',
+      path: '/api/webhooks/simulate',
+      ip: req.ip || req.socket.remoteAddress
+    });
     return res.status(result.status).json(result.data);
   } catch (err: any) {
-    console.error('Express Webhook Route Error:', err);
     return res.status(500).json({
-      success: false,
-      message: err?.message || 'Internal server error processing webhook'
+      success: '0',
+      status: 'error',
+      message: err?.message || 'Error simulating order'
     });
   }
 });
+
+/**
+ * Universal Webhook Handler for Petpooja, Deliverect, Zomato, Swiggy, and generic testers.
+ * Catches all common paths (/petpooja, /aggregator, /zomato, /swiggy, /orders, /saveorder, /, etc.)
+ */
+const webhookHandler = async (req: Request, res: Response) => {
+  // If GET request, return health / ping confirmation
+  if (req.method === 'GET') {
+    return res.json({
+      success: '1',
+      status: 'online',
+      message: 'Vyoma Webhook Endpoint is ACTIVE and ready to receive POST order payloads.',
+      endpoint: req.originalUrl,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  try {
+    const result = await processWebhookPayload(req.body, req.headers, {
+      method: req.method,
+      path: req.originalUrl || req.path,
+      ip: req.ip || req.socket.remoteAddress
+    });
+    return res.status(result.status).json(result.data);
+  } catch (err: any) {
+    console.error('Express Webhook Handler Error:', err);
+    return res.status(500).json({
+      success: '0',
+      status: 'error',
+      message: err?.message || 'Internal server error processing webhook'
+    });
+  }
+};
+
+// Mount universal handler on all specific routes & wildcard
+router.all([
+  '/',
+  '/petpooja',
+  '/aggregator',
+  '/zomato',
+  '/swiggy',
+  '/deliverect',
+  '/order',
+  '/orders',
+  '/saveorder',
+  '/push',
+  '*'
+], webhookHandler);
 
 export default router;
