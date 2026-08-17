@@ -55,8 +55,8 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({
         success: '1',
         status: 'online',
-        message: 'Vyoma Aggregator Webhook Endpoint is active and ready for POST order payloads.',
-        service: 'vyoma-aggregator-webhook',
+        message: 'Vyoma Webhook Endpoint is active and ready for POST order payloads.',
+        service: 'vyoma-webhooks-index',
         timestamp: new Date().toISOString()
       });
     }
@@ -65,7 +65,7 @@ export default async function handler(req: any, res: any) {
 
     const result = await processWebhookPayload(body, req.headers, {
       method: req.method || 'POST',
-      path: '/api/webhooks/aggregator',
+      path: '/api/webhooks',
       ip: req.headers?.['x-forwarded-for'] || req.socket?.remoteAddress
     });
 
