@@ -57,8 +57,8 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
       : rawSource.toUpperCase();
 
   // Extract Order ID & Token
-  const rawOrderId = (details.order_id || details.id || details.order_number || payload.order_id || '').toString();
-  const fallbackOrderId = rawOrderId || `PP_ONLINE_${Date.now()}`;
+  const rawOrderId = (details.order_id || details.id || details.order_number || '').toString();
+  const fallbackOrderId = rawOrderId || `PP_${Math.floor(100000 + Math.random() * 900000)}`;
   const orderId = rawOrderId || fallbackOrderId;
 
   let token = details.token ? details.token.toString().replace(/[^0-9]/g, '') : '';
@@ -71,7 +71,7 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
 
   // Map incoming status to internal format ('pending' | 'preparing' | 'ready' | 'completed' | 'cancelled')
   const rawStatus = (details.status || payload.status || 'pending').toString().toLowerCase();
-  let mappedStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled' = 'pending';
+  let mappedStatus = 'pending';
   if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted') {
     mappedStatus = 'preparing';
   } else if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup' || rawStatus === 'food_ready') {
@@ -105,8 +105,8 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
   if (items.length === 0) {
     items.push({
       id: 'item-1',
-      name: details.item_name || 'Chef Special Item',
-      price: parseFloat(details.price || details.total || 350),
+      name: details.item_name || 'Special Delicacy',
+      price: parseFloat(details.price || details.total || 450),
       quantity: 1
     });
   }
@@ -124,10 +124,10 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
   const supabase = getSupabaseClient();
 
   // 1. IDEMPOTENCY CHECK (UPSERT)
-  // Check if an order already exists by orderId or token
+  // Check if an order already exists by order_id/token/table or within recent window
   let existingOrder: any = null;
 
-  // Search by token or check matching recent records
+  // Search by token first
   if (token) {
     const { data: tokenMatches } = await supabase
       .from('orders')
@@ -141,7 +141,7 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
     }
   }
 
-  // Fallback: check by table_id (e.g. "SWIGGY #108")
+  // If not found by token, check by table_id (e.g. "ZOMATO #412" or "SWIGGY #108") or customer phone within the last 2 hours
   if (!existingOrder && details.table_id) {
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     const { data: tableMatches } = await supabase
@@ -159,12 +159,26 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
 
   // If order exists, perform an UPDATE instead of creating a duplicate row
   if (existingOrder) {
-    console.log(`[Webhook Upsert] Updating existing order: ID ${existingOrder.id}, Token ${existingOrder.token}`);
+    console.log(`[Webhook Idempotency] Existing order detected (ID: ${existingOrder.id}, Token: ${existingOrder.token}, Status: ${existingOrder.status} vs Incoming: ${mappedStatus}).`);
     
+    // Check if status is identical -> DO NOT UPDATE, just return 200 OK immediately
+    if (existingOrder.status === mappedStatus) {
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Order already up-to-date (no-op)",
+          order_id: existingOrder.id,
+          token: existingOrder.token,
+          status: existingOrder.status,
+          is_duplicate_ignored: true
+        }
+      };
+    }
+
     const updateData: any = {
       status: mappedStatus
     };
-
     if (items.length > 0 && (!existingOrder.items || existingOrder.items.length === 0)) {
       updateData.items = items;
     }
@@ -189,7 +203,7 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
       data: {
         success: true,
         message: "Order processed successfully (updated existing record)",
-        order_id: orderId,
+        order_id: existingOrder.id,
         token: existingOrder.token,
         status: existingOrder.status,
         is_update: true
@@ -197,7 +211,7 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
     };
   }
 
-  // 2. CREATE NEW ORDER IF NOT FOUND (Status: mappedStatus || "pending")
+  // 2. CREATE NEW ORDER IF NOT FOUND
   const orderRecord = {
     token,
     status: mappedStatus,
@@ -205,7 +219,7 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
     items,
     customer_name: customerName,
     customer_phone: customerPhone,
-    table_id: details.table_id || `${sourceUpper} Online`,
+    table_id: `${sourceUpper} Online`,
     created_at: createdAt,
     placed_at_ist: placedAtIst
   };
@@ -232,12 +246,14 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
     status: 200,
     data: {
       success: true,
-      message: "Order processed",
-      order_id: orderId,
+      message: "Order processed successfully",
+      order_id: insertedData.id || orderId,
       token: insertedData.token || token,
       placed_at_ist: insertedData.placed_at_ist || placedAtIst,
-      status: insertedData.status || mappedStatus,
-      data: insertedData
+      data: {
+        ...insertedData,
+        placed_at_ist: insertedData.placed_at_ist || placedAtIst
+      }
     }
   };
 }

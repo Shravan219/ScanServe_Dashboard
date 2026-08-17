@@ -1744,15 +1744,16 @@ export default function App() {
                 renderOrderCard={(order, index) => {
                   let actionLabel = "Start Crafting";
                   let nextStatus: OrderStatus = "preparing";
-                  let isFinished = false;
                   
                   if (order.status === 'preparing') {
                     actionLabel = "Mark Ready";
                     nextStatus = "ready";
-                  } else if (order.status === 'ready' || order.status === 'completed') {
-                    actionLabel = "Ready for Pickup";
-                    nextStatus = "ready";
-                    isFinished = true;
+                  } else if (order.status === 'ready') {
+                    actionLabel = "Complete & Paid";
+                    nextStatus = "completed";
+                  } else if (order.status === 'completed') {
+                    actionLabel = "Order Completed";
+                    nextStatus = "completed";
                   }
 
                   return (
@@ -1760,8 +1761,8 @@ export default function App() {
                       key={order.id} 
                       order={order} 
                       actionLabel={actionLabel} 
-                      actionIcon={isFinished ? <CheckCircle2 size={14} strokeWidth={1.5} className="text-emerald-400" /> : <CheckCircle2 size={14} strokeWidth={1.5} />}
-                      onAction={isFinished ? () => {} : () => updateOrderStatus(order.id, nextStatus)}
+                      actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
+                      onAction={() => updateOrderStatus(order.id, nextStatus)}
                       variant={order.status as any}
                       index={index}
                       discountInfo={getOrderDiscountInfo(order)}
