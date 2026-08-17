@@ -42,6 +42,7 @@ import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrder
 import { soundService } from '@/src/lib/sound';
 import { syncOrderStatusToPetpooja } from '@/src/lib/orderSync';
 import { sendPetpoojaStatusUpdate, isPetpoojaOrAggregatorOrder } from '@lib/webhooks/petpooja-dispatcher';
+import { dispatchOrderStatus } from '@/lib/dispatch-status';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -947,28 +948,18 @@ export default function App() {
       });
 
       // 4. Trigger Outbound Webhook to Petpooja / Aggregator Dispatcher (Optimistic & Asynchronous)
+      dispatchOrderStatus({
+        orderId: orderToUpdate.id,
+        nextStatus: newStatus,
+        restId: 'REST_XTRA_01',
+        callbackUrl: orderToUpdate.callback_url
+      }).catch(err => {
+        console.warn('[Outbound Dispatcher Warning]', err);
+      });
+
       const platform = getOrderPlatform(orderToUpdate);
       const sourceUpper = platform === 'swiggy' ? 'SWIGGY' : (platform === 'zomato' ? 'ZOMATO' : (orderToUpdate.source || 'DINE_IN'));
       
-      // Map status explicitly according to Petpooja dispatcher requirement:
-      // 'COOKING' -> 'IN_KITCHEN', 'COMPLETED' -> 'READY', 'CANCELLED' -> 'CANCELLED'
-      const petpoojaStatus = 
-        newStatus === 'preparing' ? 'COOKING' :
-        newStatus === 'ready' ? 'COMPLETED' :
-        newStatus === 'completed' ? 'COMPLETED' :
-        newStatus === 'cancelled' ? 'CANCELLED' : newStatus;
-
-      // Check if order originated from Petpooja/Aggregator/Tester or has callback_url / source
-      if (isPetpoojaOrAggregatorOrder(orderToUpdate) || orderToUpdate.callback_url || orderToUpdate.source) {
-        sendPetpoojaStatusUpdate({
-          orderId: orderToUpdate.id,
-          status: petpoojaStatus,
-          callbackUrl: orderToUpdate.callback_url
-        }).catch(err => {
-          console.warn('[Petpooja Dispatcher Warning]', err);
-        });
-      }
-
       // Also dispatch through server sync bridge for centralized telemetry
       syncOrderStatusToPetpooja({
         orderId: orderToUpdate.id,
