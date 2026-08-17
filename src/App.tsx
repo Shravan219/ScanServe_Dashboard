@@ -40,6 +40,7 @@ import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { soundService } from '@/src/lib/sound';
+import { syncOrderStatusToPetpooja } from '@/src/lib/orderSync';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -763,6 +764,17 @@ export default function App() {
           }
           return o;
         });
+      });
+
+      // 4. Trigger Outbound Webhook to Petpooja / Aggregator (Optimistic / Asynchronous)
+      const platform = getOrderPlatform(orderToUpdate);
+      const sourceUpper = platform === 'swiggy' ? 'SWIGGY' : (platform === 'zomato' ? 'ZOMATO' : 'DINE_IN');
+      syncOrderStatusToPetpooja({
+        orderId: orderToUpdate.id,
+        token: orderToUpdate.token,
+        status: newStatus,
+        source: sourceUpper,
+        restaurantId: 'REST_XTRA_01'
       });
     } catch (error) {
       console.error('Error updating order:', error);
@@ -1732,16 +1744,15 @@ export default function App() {
                 renderOrderCard={(order, index) => {
                   let actionLabel = "Start Crafting";
                   let nextStatus: OrderStatus = "preparing";
+                  let isFinished = false;
                   
                   if (order.status === 'preparing') {
                     actionLabel = "Mark Ready";
                     nextStatus = "ready";
-                  } else if (order.status === 'ready') {
-                    actionLabel = "Complete & Paid";
-                    nextStatus = "completed";
-                  } else if (order.status === 'completed') {
-                    actionLabel = "Order Completed";
-                    nextStatus = "completed";
+                  } else if (order.status === 'ready' || order.status === 'completed') {
+                    actionLabel = "Ready for Pickup";
+                    nextStatus = "ready";
+                    isFinished = true;
                   }
 
                   return (
@@ -1749,8 +1760,8 @@ export default function App() {
                       key={order.id} 
                       order={order} 
                       actionLabel={actionLabel} 
-                      actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
-                      onAction={() => updateOrderStatus(order.id, nextStatus)}
+                      actionIcon={isFinished ? <CheckCircle2 size={14} strokeWidth={1.5} className="text-emerald-400" /> : <CheckCircle2 size={14} strokeWidth={1.5} />}
+                      onAction={isFinished ? () => {} : () => updateOrderStatus(order.id, nextStatus)}
                       variant={order.status as any}
                       index={index}
                       discountInfo={getOrderDiscountInfo(order)}

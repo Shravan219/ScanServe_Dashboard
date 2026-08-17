@@ -129,8 +129,43 @@ export default async function handler(req: any, res: any) {
     const supabase = getSupabaseClient();
     if (!supabase) {
       return res.status(500).json({
-        success: "0",
-        message: "Server Configuration Error: Missing or invalid Supabase Environment Variables (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY) in Vercel settings."
+        success: false,
+        message: "Server Configuration Error: Missing or invalid Supabase Environment Variables."
+      });
+    }
+
+    // Idempotency Check (Upsert)
+    let existingOrder: any = null;
+    if (token) {
+      const { data: tokenMatches } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('token', token)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (tokenMatches && tokenMatches.length > 0) {
+        existingOrder = tokenMatches[0];
+      }
+    }
+
+    if (existingOrder) {
+      console.log(`[Vercel API Webhook] Updating existing order: ${existingOrder.id}`);
+      await supabase
+        .from('orders')
+        .update({
+          status: 'pending',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingOrder.id);
+
+      return res.status(200).json({
+        success: true,
+        message: "Order processed",
+        order_id: orderId,
+        token: existingOrder.token,
+        status: 'pending',
+        is_update: true
       });
     }
 
@@ -142,7 +177,7 @@ export default async function handler(req: any, res: any) {
     if (error) {
       console.error('Supabase error inserting webhook order:', error);
       return res.status(500).json({
-        success: "0",
+        success: false,
         message: `Database error inserting order: ${error.message}`
       });
     }
@@ -150,11 +185,12 @@ export default async function handler(req: any, res: any) {
     const insertedData = data?.[0] || orderRecord;
 
     return res.status(200).json({
-      success: "1",
-      message: "Order processed successfully",
-      order_id: insertedData.id || orderId,
+      success: true,
+      message: "Order processed",
+      order_id: orderId,
       token: insertedData.token || token,
       placed_at_ist: insertedData.placed_at_ist || placedAtIst,
+      status: insertedData.status || 'pending',
       data: {
         ...insertedData,
         placed_at_ist: insertedData.placed_at_ist || placedAtIst

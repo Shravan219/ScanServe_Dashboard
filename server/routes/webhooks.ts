@@ -8,12 +8,12 @@ const router = Router();
  */
 router.post(['/petpooja', '/aggregator'], async (req: Request, res: Response) => {
   try {
-    const result = await processWebhookPayload(req.body);
+    const result = await processWebhookPayload(req.body, req.headers);
     return res.status(result.status).json(result.data);
   } catch (err: any) {
     console.error('Express Webhook Route Error:', err);
     return res.status(500).json({
-      success: "0",
+      success: false,
       message: err?.message || 'Internal server error processing webhook'
     });
   }
