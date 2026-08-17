@@ -31,9 +31,11 @@ export async function syncOrderStatusToPetpooja(params: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        order_id: params.token || params.orderId,
+        order_id: params.orderId || params.token,
+        token: params.token || params.orderId,
         status: mappedStatus,
         source: params.source || 'DINE_IN',
+        order_from: params.source || 'DINE_IN',
         restaurant_id: params.restaurantId || 'REST_XTRA_01'
       })
     });

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Order, MenuItem, OrderStatus } from '@/src/types';
 import { 
   Globe, 
@@ -11,7 +11,15 @@ import {
   TrendingUp, 
   Filter,
   PackageCheck,
-  ChefHat
+  ChefHat,
+  Radio,
+  Send,
+  RefreshCw,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  ExternalLink
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -71,6 +79,101 @@ export function OnlineOrdersView({
   const [platformFilter, setPlatformFilter] = useState<'all' | 'swiggy' | 'zomato' | 'other'>('all');
   const [statusFilter, setStatusFilter] = useState<'active' | 'all_history' | 'pending' | 'preparing' | 'ready' | 'completed'>('active');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [showConfig, setShowConfig] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [restaurantId, setRestaurantId] = useState('REST_XTRA_01');
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [isTestingPing, setIsTestingPing] = useState(false);
+  const [pingResult, setPingResult] = useState<any>(null);
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+
+  // Fetch active webhook configuration on load
+  const fetchWebhookConfig = async () => {
+    try {
+      const res = await fetch('/api/orders/webhook-config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.outbound_webhook_url) {
+          setWebhookUrl(data.outbound_webhook_url);
+        }
+        if (data.restaurant_id) {
+          setRestaurantId(data.restaurant_id);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load webhook config:', e);
+    }
+  };
+
+  const fetchLogs = async () => {
+    try {
+      const res = await fetch('/api/orders/webhook-logs');
+      if (res.ok) {
+        const data = await res.json();
+        setRecentLogs(data.logs || []);
+      }
+    } catch (e) {
+      console.warn('Could not load webhook logs:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchWebhookConfig();
+    fetchLogs();
+  }, []);
+
+  const handleSaveConfig = async () => {
+    setIsSavingConfig(true);
+    try {
+      const res = await fetch('/api/orders/webhook-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          outbound_webhook_url: webhookUrl,
+          restaurant_id: restaurantId
+        })
+      });
+      if (res.ok) {
+        toast.success('Outbound Webhook URL saved successfully!');
+      } else {
+        toast.error('Failed to save Webhook configuration');
+      }
+    } catch (err: any) {
+      toast.error(`Error saving config: ${err.message}`);
+    } finally {
+      setIsSavingConfig(false);
+    }
+  };
+
+  const handleSendTestPing = async () => {
+    setIsTestingPing(true);
+    setPingResult(null);
+    try {
+      const res = await fetch('/api/orders/test-ping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target_url: webhookUrl || undefined,
+          status: 'IN_KITCHEN',
+          source: 'SWIGGY'
+        })
+      });
+      const data = await res.json();
+      setPingResult(data);
+      if (data.success) {
+        toast.success(`Ping delivered successfully (HTTP ${data.details?.http_status})`);
+      } else {
+        toast.error(`Ping failed: ${data.details?.error || data.message}`);
+      }
+      fetchLogs();
+    } catch (err: any) {
+      toast.error(`Failed to send ping: ${err.message}`);
+      setPingResult({ success: false, message: err.message });
+    } finally {
+      setIsTestingPing(false);
+    }
+  };
 
   // Filter online orders
   const onlineOrdersList = useMemo(() => {
@@ -140,7 +243,192 @@ export function OnlineOrdersView({
             Aggregator integration & dispatch desk
           </p>
         </div>
+
+        {/* Webhook & Tester Control Action */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowConfig(!showConfig);
+              fetchLogs();
+            }}
+            className={`rounded-full h-10 px-4 text-[10px] font-bold uppercase tracking-widest transition-all border ${
+              showConfig 
+                ? 'bg-primary text-black border-primary' 
+                : 'bg-black/60 text-white/80 border-white/10 hover:border-primary/40 hover:text-white'
+            }`}
+          >
+            <Radio size={14} className={`mr-2 ${showConfig ? 'animate-pulse text-black' : 'text-primary'}`} />
+            Tester & Webhook Setup
+            {showConfig ? <ChevronUp size={14} className="ml-2" /> : <ChevronDown size={14} className="ml-2" />}
+          </Button>
+        </div>
       </div>
+
+      {/* Webhook & Tester Setup Drawer Panel */}
+      <AnimatePresence>
+        {showConfig && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <Card className="bg-[#0D0D0D] border border-primary/30 rounded-3xl p-6 shadow-2xl relative">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-white/5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-white">
+                      Outbound Webhook & Tester Connection
+                    </h3>
+                  </div>
+                  <p className="text-xs text-white/40 mt-1">
+                    When order statuses change in Vyoma POS, updates are sent directly to your tester or aggregator callback URL.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={fetchLogs}
+                    className="h-8 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 border-white/10 text-white/70 hover:text-white"
+                  >
+                    <RefreshCw size={12} className="mr-1.5" /> Refresh Logs
+                  </Button>
+                </div>
+              </div>
+
+              {/* URL Input & Test Ping Controls */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-5">
+                <div className="lg:col-span-8 flex flex-col gap-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                    Target Tester Callback URL (PETPOOJA_OUTBOUND_WEBHOOK_URL)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="e.g. https://your-tester-app.run.app/api/pos-callback"
+                      value={webhookUrl}
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      className="bg-black border-white/10 rounded-xl h-11 text-xs text-white font-mono focus-visible:ring-primary/20"
+                    />
+                    <Button
+                      onClick={handleSaveConfig}
+                      disabled={isSavingConfig}
+                      className="bg-primary text-black hover:bg-primary/90 font-bold text-[10px] uppercase tracking-wider h-11 px-5 rounded-xl shrink-0"
+                    >
+                      {isSavingConfig ? 'Saving...' : 'Save URL'}
+                    </Button>
+                  </div>
+                  <span className="text-[10px] text-white/30">
+                    Tip: If running your tester app, paste its receiver URL here and click "Save URL".
+                  </span>
+                </div>
+
+                <div className="lg:col-span-4 flex flex-col justify-end gap-2">
+                  <Button
+                    onClick={handleSendTestPing}
+                    disabled={isTestingPing || !webhookUrl}
+                    variant="outline"
+                    className="h-11 rounded-xl border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-black text-[10px] font-bold uppercase tracking-wider transition-all"
+                  >
+                    <Send size={14} className={`mr-2 ${isTestingPing ? 'animate-spin' : ''}`} />
+                    {isTestingPing ? 'Dispatching Ping...' : 'Send Live Test Ping'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Ping Result Banner */}
+              {pingResult && (
+                <div className={`mt-4 p-3.5 rounded-xl border text-xs font-mono flex items-center justify-between gap-3 ${
+                  pingResult.success 
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' 
+                    : 'bg-red-500/10 border-red-500/30 text-red-300'
+                }`}>
+                  <div className="flex items-center gap-2 overflow-hidden text-ellipsis">
+                    {pingResult.success ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertCircle size={16} className="shrink-0" />}
+                    <span>{pingResult.message}</span>
+                  </div>
+                  {pingResult.details?.duration_ms && (
+                    <span className="text-[10px] opacity-70 shrink-0 font-sans">
+                      Latency: {pingResult.details.duration_ms}ms
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Recent Dispatches Log Table */}
+              <div className="mt-6 pt-5 border-t border-white/5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+                    Recent Outbound Dispatches (Last {recentLogs.length})
+                  </span>
+                  <span className="text-[10px] text-white/30">
+                    Automatically sent on status changes
+                  </span>
+                </div>
+
+                {recentLogs.length > 0 ? (
+                  <div className="max-h-48 overflow-y-auto custom-scrollbar border border-white/5 rounded-xl bg-black/40">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-white/5 text-[9px] uppercase tracking-wider text-white/40 sticky top-0">
+                        <tr>
+                          <th className="py-2 px-3">Time</th>
+                          <th className="py-2 px-3">Order ID</th>
+                          <th className="py-2 px-3">Platform</th>
+                          <th className="py-2 px-3">Status Sent</th>
+                          <th className="py-2 px-3">HTTP Result</th>
+                          <th className="py-2 px-3 text-right">Latency</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                        {recentLogs.map((log) => (
+                          <tr key={log.id} className="hover:bg-white/[0.02]">
+                            <td className="py-2 px-3 text-white/40 text-[10px]">
+                              {new Date(log.timestamp).toLocaleTimeString()}
+                            </td>
+                            <td className="py-2 px-3 font-bold text-white">
+                              {log.order_id}
+                            </td>
+                            <td className="py-2 px-3">
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold font-sans ${
+                                log.source === 'SWIGGY' ? 'bg-[#FC8019]/20 text-[#FC8019]' :
+                                log.source === 'ZOMATO' ? 'bg-[#E23744]/20 text-[#E23744]' :
+                                'bg-primary/20 text-primary'
+                              }`}>
+                                {log.source}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-white/80">
+                              {log.status}
+                            </td>
+                            <td className="py-2 px-3">
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                                log.success 
+                                  ? 'bg-emerald-500/20 text-emerald-400' 
+                                  : 'bg-red-500/20 text-red-400'
+                              }`}>
+                                {log.http_status}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-right text-white/40 text-[10px]">
+                              {log.duration_ms}ms
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="py-6 text-center text-xs text-white/30 border border-white/5 rounded-xl bg-black/20">
+                    No status updates dispatched yet. Click "Send Live Test Ping" or transition an order status to test.
+                  </div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Platform Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
