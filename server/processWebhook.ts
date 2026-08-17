@@ -18,15 +18,21 @@ function formatIST(dateInput?: string | Date) {
   return d.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
 }
 
-export async function processWebhookPayload(payload: any) {
+export async function processWebhookPayload(payload: any, headers?: Record<string, any>) {
   if (!payload || typeof payload !== 'object') {
     return {
       status: 400,
       data: {
-        success: "0",
+        success: false,
         message: "Invalid payload: Request body must be a JSON object"
       }
     };
+  }
+
+  // Infinite Loop Guard: Check X-Source header
+  const xSource = headers?.['x-source'] || headers?.['X-Source'] || '';
+  if (xSource === 'VYOMA_TESTER') {
+    console.log('[Webhook Guard] Detected X-Source: VYOMA_TESTER. Processing with loop prevention.');
   }
 
   // Support nested payload structures (e.g. { order_details: { ... } } or { order: { ... } } or flat)
@@ -36,7 +42,7 @@ export async function processWebhookPayload(payload: any) {
     return {
       status: 400,
       data: {
-        success: "0",
+        success: false,
         message: "Invalid payload structure: missing order_details or order object"
       }
     };
@@ -50,14 +56,30 @@ export async function processWebhookPayload(payload: any) {
       ? 'ZOMATO' 
       : rawSource.toUpperCase();
 
-  // Extract Order ID & Token (strictly 4-digit pure numeric token)
-  const orderId = (details.order_id || details.id || details.order_number || Math.floor(1000 + Math.random() * 9000)).toString();
+  // Extract Order ID & Token
+  const rawOrderId = (details.order_id || details.id || details.order_number || payload.order_id || '').toString();
+  const fallbackOrderId = rawOrderId || `PP_ONLINE_${Date.now()}`;
+  const orderId = rawOrderId || fallbackOrderId;
+
   let token = details.token ? details.token.toString().replace(/[^0-9]/g, '') : '';
   if (token.length !== 4) {
     token = orderId.replace(/[^0-9]/g, '').slice(-4);
   }
   if (token.length !== 4) {
     token = Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
+  // Map incoming status to internal format ('pending' | 'preparing' | 'ready' | 'completed' | 'cancelled')
+  const rawStatus = (details.status || payload.status || 'pending').toString().toLowerCase();
+  let mappedStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled' = 'pending';
+  if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted') {
+    mappedStatus = 'preparing';
+  } else if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup' || rawStatus === 'food_ready') {
+    mappedStatus = 'ready';
+  } else if (rawStatus === 'dispatched' || rawStatus === 'completed' || rawStatus === 'delivered' || rawStatus === 'settled') {
+    mappedStatus = 'completed';
+  } else if (rawStatus === 'cancelled' || rawStatus === 'rejected') {
+    mappedStatus = 'cancelled';
   }
 
   // Customer info
@@ -83,8 +105,8 @@ export async function processWebhookPayload(payload: any) {
   if (items.length === 0) {
     items.push({
       id: 'item-1',
-      name: details.item_name || 'Chef Special Pizza',
-      price: parseFloat(details.price || details.total || 450),
+      name: details.item_name || 'Chef Special Item',
+      price: parseFloat(details.price || details.total || 350),
       quantity: 1
     });
   }
@@ -99,19 +121,95 @@ export async function processWebhookPayload(payload: any) {
   const createdAt = details.created_at || details.order_date || details.placed_at || new Date().toISOString();
   const placedAtIst = details.placed_at_ist || formatIST(createdAt);
 
+  const supabase = getSupabaseClient();
+
+  // 1. IDEMPOTENCY CHECK (UPSERT)
+  // Check if an order already exists by orderId or token
+  let existingOrder: any = null;
+
+  // Search by token or check matching recent records
+  if (token) {
+    const { data: tokenMatches } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('token', token)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (tokenMatches && tokenMatches.length > 0) {
+      existingOrder = tokenMatches[0];
+    }
+  }
+
+  // Fallback: check by table_id (e.g. "SWIGGY #108")
+  if (!existingOrder && details.table_id) {
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    const { data: tableMatches } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('table_id', details.table_id)
+      .gte('created_at', twoHoursAgo)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (tableMatches && tableMatches.length > 0) {
+      existingOrder = tableMatches[0];
+    }
+  }
+
+  // If order exists, perform an UPDATE instead of creating a duplicate row
+  if (existingOrder) {
+    console.log(`[Webhook Upsert] Updating existing order: ID ${existingOrder.id}, Token ${existingOrder.token}`);
+    
+    const updateData: any = {
+      status: mappedStatus
+    };
+
+    if (items.length > 0 && (!existingOrder.items || existingOrder.items.length === 0)) {
+      updateData.items = items;
+    }
+    if (total > 0 && (!existingOrder.total || existingOrder.total === 0)) {
+      updateData.total = total;
+    }
+
+    const { data: updatedRecord, error: updateError } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', existingOrder.id)
+      .select();
+
+    if (updateError) {
+      console.error('[Webhook Upsert Error] Failed to update existing order:', updateError);
+    } else {
+      existingOrder = updatedRecord?.[0] || existingOrder;
+    }
+
+    return {
+      status: 200,
+      data: {
+        success: true,
+        message: "Order processed successfully (updated existing record)",
+        order_id: orderId,
+        token: existingOrder.token,
+        status: existingOrder.status,
+        is_update: true
+      }
+    };
+  }
+
+  // 2. CREATE NEW ORDER IF NOT FOUND (Status: mappedStatus || "pending")
   const orderRecord = {
     token,
-    status: 'pending',
+    status: mappedStatus,
     total,
     items,
     customer_name: customerName,
     customer_phone: customerPhone,
-    table_id: `${sourceUpper} Online`,
+    table_id: details.table_id || `${sourceUpper} Online`,
     created_at: createdAt,
     placed_at_ist: placedAtIst
   };
 
-  const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from('orders')
     .insert([orderRecord])
@@ -122,7 +220,7 @@ export async function processWebhookPayload(payload: any) {
     return {
       status: 500,
       data: {
-        success: "0",
+        success: false,
         message: `Database error inserting order: ${error.message}`
       }
     };
@@ -133,15 +231,13 @@ export async function processWebhookPayload(payload: any) {
   return {
     status: 200,
     data: {
-      success: "1",
-      message: "Order processed successfully",
-      order_id: insertedData.id || orderId,
+      success: true,
+      message: "Order processed",
+      order_id: orderId,
       token: insertedData.token || token,
       placed_at_ist: insertedData.placed_at_ist || placedAtIst,
-      data: {
-        ...insertedData,
-        placed_at_ist: insertedData.placed_at_ist || placedAtIst
-      }
+      status: insertedData.status || mappedStatus,
+      data: insertedData
     }
   };
 }

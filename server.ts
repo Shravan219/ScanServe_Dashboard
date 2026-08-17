@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import webhookRouter from './server/routes/webhooks';
+import ordersRouter from './server/routes/orders';
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ async function startServer() {
 
   // API Webhook Routes for Petpooja / Deliverect / Zomato / Swiggy
   app.use('/api/webhooks', webhookRouter);
+
+  // API Order Status Outbound & Management Routes
+  app.use('/api/orders', ordersRouter);
 
   // Health check endpoint
   app.get('/api/health', (req, res) => {
