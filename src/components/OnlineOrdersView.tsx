@@ -21,17 +21,21 @@ import { toast } from 'sonner';
 import { supabase } from '@/src/lib/supabase';
 
 export function getOrderPlatform(order: Order): 'swiggy' | 'zomato' | 'other_online' | 'dine_in' {
+  if (order.aggregator_platform === 'swiggy') return 'swiggy';
+  if (order.aggregator_platform === 'zomato') return 'zomato';
+
   const tokenUpper = (order.token || '').toUpperCase();
   if (tokenUpper.startsWith('SWI') || tokenUpper.startsWith('SW') || tokenUpper.includes('SWI') || tokenUpper.includes('SWIGGY')) return 'swiggy';
   if (tokenUpper.startsWith('ZOM') || tokenUpper.startsWith('ZM') || tokenUpper.includes('ZOM') || tokenUpper.includes('ZOMATO')) return 'zomato';
 
-  if (order.aggregator_platform === 'swiggy') return 'swiggy';
-  if (order.aggregator_platform === 'zomato') return 'zomato';
+  const tableStr = (order.table_id || '').toString().toLowerCase();
+  if (tableStr.includes('swiggy') || tableStr.includes('sw_')) return 'swiggy';
+  if (tableStr.includes('zomato') || tableStr.includes('zom_')) return 'zomato';
 
   const name = (order.customer_name || '').toLowerCase();
   const notes = (order.notes || '').toLowerCase();
   const instructions = (order.custom_instructions || '').toLowerCase();
-  const fullText = `${name} ${notes} ${instructions}`;
+  const fullText = `${name} ${notes} ${instructions} ${tableStr}`;
 
   if (fullText.includes('swiggy')) return 'swiggy';
   if (fullText.includes('zomato')) return 'zomato';

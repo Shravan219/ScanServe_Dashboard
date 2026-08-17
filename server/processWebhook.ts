@@ -48,13 +48,51 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
     };
   }
 
-  // Extract Order Source (Zomato / Swiggy / Petpooja / Deliverect)
-  const rawSource = (details.order_from || details.source || details.order_source || details.aggregator || 'zomato').toString().toLowerCase();
-  const sourceUpper = rawSource.includes('swiggy') 
-    ? 'SWIGGY' 
-    : rawSource.includes('zomato') 
-      ? 'ZOMATO' 
-      : rawSource.toUpperCase();
+  // Extract Order Source / Platform with priority on 'order_from'
+  const rawOrderFrom = (
+    details.order_from || 
+    payload.order_from || 
+    details.order_source || 
+    payload.order_source || 
+    details.source || 
+    payload.source || 
+    details.aggregator || 
+    payload.aggregator || 
+    details.aggregator_platform ||
+    payload.aggregator_platform ||
+    details.channel ||
+    payload.channel ||
+    ''
+  ).toString().trim().toLowerCase();
+
+  let detectedPlatform: 'swiggy' | 'zomato' | 'other_online' = 'other_online';
+  let sourceUpper = 'ONLINE';
+
+  if (rawOrderFrom.includes('swiggy') || rawOrderFrom === 'sw') {
+    detectedPlatform = 'swiggy';
+    sourceUpper = 'SWIGGY';
+  } else if (rawOrderFrom.includes('zomato') || rawOrderFrom === 'zm') {
+    detectedPlatform = 'zomato';
+    sourceUpper = 'ZOMATO';
+  } else if (rawOrderFrom.includes('magicpin')) {
+    detectedPlatform = 'other_online';
+    sourceUpper = 'MAGICPIN';
+  } else if (rawOrderFrom.includes('ubereats') || rawOrderFrom.includes('uber')) {
+    detectedPlatform = 'other_online';
+    sourceUpper = 'UBEREATS';
+  } else if (rawOrderFrom) {
+    sourceUpper = rawOrderFrom.toUpperCase();
+  } else {
+    // Check if table_id or order_id or notes provides platform hints
+    const combinedHints = `${details.table_id || ''} ${details.order_id || ''} ${details.notes || ''}`.toLowerCase();
+    if (combinedHints.includes('swiggy')) {
+      detectedPlatform = 'swiggy';
+      sourceUpper = 'SWIGGY';
+    } else if (combinedHints.includes('zomato')) {
+      detectedPlatform = 'zomato';
+      sourceUpper = 'ZOMATO';
+    }
+  }
 
   // Extract Order ID & Token
   const rawOrderId = (details.order_id || details.id || details.order_number || '').toString();
@@ -206,23 +244,31 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
         order_id: existingOrder.id,
         token: existingOrder.token,
         status: existingOrder.status,
+        order_from: sourceUpper,
+        platform: detectedPlatform,
         is_update: true
       }
     };
   }
 
   // 2. CREATE NEW ORDER IF NOT FOUND
-  const orderRecord = {
+  const orderRecord: any = {
     token,
     status: mappedStatus,
     total,
     items,
     customer_name: customerName,
     customer_phone: customerPhone,
-    table_id: `${sourceUpper} Online`,
+    table_id: details.table_id || `${sourceUpper} Online`,
+    order_type: 'aggregator',
+    aggregator_platform: detectedPlatform,
     created_at: createdAt,
     placed_at_ist: placedAtIst
   };
+
+  if (details.notes) {
+    orderRecord.notes = details.notes;
+  }
 
   const { data, error } = await supabase
     .from('orders')
@@ -249,9 +295,13 @@ export async function processWebhookPayload(payload: any, headers?: Record<strin
       message: "Order processed successfully",
       order_id: insertedData.id || orderId,
       token: insertedData.token || token,
+      order_from: sourceUpper,
+      platform: detectedPlatform,
       placed_at_ist: insertedData.placed_at_ist || placedAtIst,
       data: {
         ...insertedData,
+        order_from: sourceUpper,
+        platform: detectedPlatform,
         placed_at_ist: insertedData.placed_at_ist || placedAtIst
       }
     }
