@@ -137,9 +137,11 @@ export async function sendPetpoojaStatusUpdate({
     (typeof localStorage !== 'undefined' && localStorage.getItem('vyoma_petpooja_client_id')) ||
     "petpooja_client_9812";
 
-  // Determine Target Callback URL
+  // Determine Target Callback URL prioritizing PETPOOJA_OUTBOUND_WEBHOOK_URL
   const targetUrl = 
     (callbackUrl && callbackUrl.trim()) ||
+    (typeof process !== 'undefined' && process.env?.PETPOOJA_OUTBOUND_WEBHOOK_URL) ||
+    (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_PETPOOJA_OUTBOUND_WEBHOOK_URL) ||
     (typeof localStorage !== 'undefined' && localStorage.getItem('vyoma_outbound_webhook_url')) ||
     (typeof process !== 'undefined' && process.env?.PETPOOJA_CALLBACK_URL) ||
     (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_PETPOOJA_CALLBACK_URL) ||
