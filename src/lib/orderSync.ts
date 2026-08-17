@@ -2,39 +2,27 @@ import { processWebhookPayload } from '@/server/processWebhook';
 import { triggerOutboundWebhook } from '@/server/routes/orders';
 
 // Standardized status mapping for outbound POS integration
-// Strictly 2 outbound events: "IN_KITCHEN" and "READY_FOR_PICKUP"
 export const POS_STATUS_MAP = {
   preparing: 'IN_KITCHEN',
-  ready: 'READY_FOR_PICKUP'
+  ready: 'READY',
+  completed: 'DISPATCHED',
+  cancelled: 'CANCELLED'
 } as const;
 
-export type MappedPosStatus = 'IN_KITCHEN' | 'READY_FOR_PICKUP';
+export type MappedPosStatus = 'IN_KITCHEN' | 'READY' | 'DISPATCHED' | 'CANCELLED';
 
 /**
  * Dispatches an outbound status change notification to Petpooja/Aggregators via our backend API.
- * Only fires for SWIGGY, ZOMATO, and ONLINE aggregator orders.
- * Strictly triggers for 'preparing' (IN_KITCHEN) and 'ready' (READY_FOR_PICKUP).
+ * Uses optimistic execution and error tolerance.
  */
 export async function syncOrderStatusToPetpooja(params: {
   orderId: string;
   token?: string;
-  status: 'preparing' | 'ready' | string;
-  source?: 'ZOMATO' | 'SWIGGY' | 'ONLINE' | string;
+  status: 'preparing' | 'ready' | 'completed' | 'cancelled' | string;
+  source?: 'ZOMATO' | 'SWIGGY' | 'DINE_IN' | string;
   restaurantId?: string;
 }) {
-  const sourceUpper = (params.source || '').toUpperCase();
-  const isOnline = sourceUpper === 'SWIGGY' || sourceUpper === 'ZOMATO' || sourceUpper === 'ONLINE';
-
-  // Ignore Dine-In/Captain table orders
-  if (!isOnline) {
-    return;
-  }
-
-  // Only trigger for preparing and ready states
-  const mappedStatus = (POS_STATUS_MAP as any)[params.status];
-  if (!mappedStatus) {
-    return;
-  }
+  const mappedStatus = (POS_STATUS_MAP as any)[params.status] || params.status.toUpperCase();
 
   try {
     const response = await fetch('/api/orders/update-status', {
@@ -45,7 +33,7 @@ export async function syncOrderStatusToPetpooja(params: {
       body: JSON.stringify({
         order_id: params.token || params.orderId,
         status: mappedStatus,
-        source: sourceUpper,
+        source: params.source || 'DINE_IN',
         restaurant_id: params.restaurantId || 'REST_XTRA_01'
       })
     });
@@ -54,11 +42,10 @@ export async function syncOrderStatusToPetpooja(params: {
       console.warn(`[Petpooja Sync] HTTP ${response.status} when updating order ${params.orderId}`);
     } else {
       const data = await response.json();
-      console.log(`[Petpooja Sync] Outbound status sync (${mappedStatus}):`, data);
-      return data;
+      console.log(`[Petpooja Sync] Outbound status sync successful:`, data);
     }
   } catch (error) {
-    // Non-blocking: optimistic UI continues normally
+    // Non-blocking: optimistic UI continues normally even with offline or network latency
     console.warn(`[Petpooja Sync Error] Could not reach status sync endpoint:`, error);
   }
 }

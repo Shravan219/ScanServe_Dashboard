@@ -11,9 +11,7 @@ import {
   TrendingUp, 
   Filter,
   PackageCheck,
-  ChefHat,
-  Terminal,
-  Layers
+  ChefHat
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,7 +19,6 @@ import { Card } from '@/components/ui/card';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
 import { supabase } from '@/src/lib/supabase';
-import { AdminOnlineOrdersTestBench } from '@/src/components/admin/AdminOnlineOrdersTestBench';
 
 export function getOrderPlatform(order: Order): 'swiggy' | 'zomato' | 'other_online' | 'dine_in' {
   const tokenUpper = (order.token || '').toUpperCase();
@@ -67,7 +64,6 @@ export function OnlineOrdersView({
   onOrderCreated,
   renderOrderCard
 }: OnlineOrdersViewProps) {
-  const [activeSubView, setActiveSubView] = useState<'live_deck' | 'admin_testbench'>('admin_testbench');
   const [platformFilter, setPlatformFilter] = useState<'all' | 'swiggy' | 'zomato' | 'other'>('all');
   const [statusFilter, setStatusFilter] = useState<'active' | 'all_history' | 'pending' | 'preparing' | 'ready' | 'completed'>('active');
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,49 +121,6 @@ export function OnlineOrdersView({
     };
   }, [orders, allOrders]);
 
-  if (activeSubView === 'admin_testbench') {
-    return (
-      <div className="h-full flex flex-col overflow-hidden">
-        <div className="p-3 bg-[#0B0C0E] border-b border-white/10 flex items-center justify-between px-6 shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-white/50">View Mode:</span>
-            <div className="flex items-center bg-black/60 p-1 rounded-xl border border-white/5 gap-1">
-              <button
-                type="button"
-                onClick={() => setActiveSubView('admin_testbench')}
-                className="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-primary text-black flex items-center gap-1.5 cursor-pointer shadow-[0_0_10px_rgba(197,160,89,0.2)]"
-              >
-                <Terminal size={13} />
-                <span>Admin Test Suite & Simulator</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveSubView('live_deck')}
-                className="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
-              >
-                <Layers size={13} />
-                <span>Standard Dispatch Grid</span>
-              </button>
-            </div>
-          </div>
-
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-            ● Status Hook: IN_KITCHEN | READY_FOR_PICKUP
-          </span>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          <AdminOnlineOrdersTestBench
-            orders={orders}
-            allOrders={allOrders}
-            onUpdateStatus={onUpdateStatus}
-            onOrderCreated={onOrderCreated}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full flex flex-col gap-4 sm:gap-6 md:gap-8 p-3.5 sm:p-6 md:p-10 overflow-y-auto custom-scrollbar">
       {/* Header */}
@@ -182,17 +135,6 @@ export function OnlineOrdersView({
           <p className="text-[10px] uppercase tracking-[0.25em] text-white/30 mt-1 sm:mt-2 font-bold">
             Aggregator integration & dispatch desk
           </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            onClick={() => setActiveSubView('admin_testbench')}
-            className="bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary font-bold text-xs uppercase tracking-wider rounded-xl h-10 px-4 flex items-center gap-2 cursor-pointer transition-all"
-          >
-            <Terminal size={14} />
-            <span>Open Admin Test Suite</span>
-          </Button>
         </div>
       </div>
 

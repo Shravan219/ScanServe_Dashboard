@@ -9,44 +9,32 @@ export async function triggerOutboundWebhook(orderData: {
   restaurant_id?: string;
   status: string;
   updated_at?: string;
-  source?: 'ZOMATO' | 'SWIGGY' | 'ONLINE' | string;
+  source?: 'ZOMATO' | 'SWIGGY' | 'DINE_IN' | string;
 }) {
-  // CRITICAL: Outbound webhook applies ONLY to SWIGGY, ZOMATO, and ONLINE aggregator orders
-  let source = (orderData.source || '').toUpperCase();
-  if (source.includes('ZOMATO')) source = 'ZOMATO';
-  else if (source.includes('SWIGGY')) source = 'SWIGGY';
-  else if (source.includes('ONLINE')) source = 'ONLINE';
-  else {
-    console.log(`[Outbound Webhook Skipped] Order ${orderData.order_id} source is ${source || 'DINE_IN'}. Skipping outbound sync.`);
-    return {
-      success: true,
-      skipped: true,
-      reason: 'Dine-In/Table order ignored for outbound webhook'
-    };
-  }
-
-  // Strictly TWO outbound statuses: "IN_KITCHEN" and "READY_FOR_PICKUP"
-  let mappedStatus: string | null = null;
-  const sUpper = (orderData.status || '').toUpperCase();
-  if (sUpper === 'PREPARING' || sUpper === 'IN_KITCHEN') {
-    mappedStatus = 'IN_KITCHEN';
-  } else if (sUpper === 'READY' || sUpper === 'READY_FOR_PICKUP') {
-    mappedStatus = 'READY_FOR_PICKUP';
-  } else {
-    // Ignore DISPATCHED, DELIVERED, COMPLETED or others
-    console.log(`[Outbound Webhook Skipped] Status ${orderData.status} is outside active trigger scope (IN_KITCHEN | READY_FOR_PICKUP).`);
-    return {
-      success: true,
-      skipped: true,
-      reason: `Status ${orderData.status} is not an outbound trigger`
-    };
-  }
-
   const targetUrl = process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL || 'https://api.petpooja.com/v1/orders/status_update';
   const restaurantId = process.env.PETPOOJA_RESTAURANT_ID || orderData.restaurant_id || 'REST_XTRA_01';
   const apiSecret = process.env.PETPOOJA_WEBHOOK_SECRET || 'vyoma_live_sec_882194ad7c10b';
   const posVersion = 'v2.19.4';
   const updatedAt = orderData.updated_at || new Date().toISOString();
+
+  // Normalize mapping for status
+  let mappedStatus = orderData.status;
+  const sUpper = (orderData.status || '').toUpperCase();
+  if (sUpper === 'PREPARING' || sUpper === 'IN_KITCHEN') {
+    mappedStatus = 'IN_KITCHEN';
+  } else if (sUpper === 'READY' || sUpper === 'READY_FOR_PICKUP') {
+    mappedStatus = 'READY';
+  } else if (sUpper === 'COMPLETED' || sUpper === 'DISPATCHED' || sUpper === 'DELIVERED') {
+    mappedStatus = 'DISPATCHED';
+  } else if (sUpper === 'CANCELLED') {
+    mappedStatus = 'CANCELLED';
+  }
+
+  // Determine Source (ZOMATO, SWIGGY, DINE_IN)
+  let source = (orderData.source || 'DINE_IN').toUpperCase();
+  if (source.includes('ZOMATO')) source = 'ZOMATO';
+  else if (source.includes('SWIGGY')) source = 'SWIGGY';
+  else if (source.includes('DINE') || source.includes('TABLE')) source = 'DINE_IN';
 
   const payload = {
     order_id: orderData.order_id,
