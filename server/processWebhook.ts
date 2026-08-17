@@ -95,6 +95,54 @@ export async function processWebhookPayload(
   const reqMethod = meta?.method || 'POST';
   const reqPath = meta?.path || '/api/webhooks/petpooja';
 
+  // 0. Handle Ping / Healthcheck Probes from Testers, Petpooja, Zomato, Swiggy
+  const isExplicitPing =
+    !rawBody ||
+    rawBody === 'ping' ||
+    rawBody?.ping !== undefined ||
+    rawBody?.action === 'ping' ||
+    rawBody?.event === 'ping' ||
+    rawBody?.type === 'ping' ||
+    rawBody?.status === 'ping' ||
+    rawBody?.event_type === 'ping' ||
+    rawBody?.healthcheck !== undefined ||
+    rawBody?.test === true ||
+    (typeof rawBody === 'object' && Object.keys(rawBody).length === 0);
+
+  if (isExplicitPing && (!rawBody?.order_details && !rawBody?.order && !rawBody?.order_id && !rawBody?.items)) {
+    const logEntry: InboundWebhookLog = {
+      id: `in_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      method: reqMethod,
+      path: reqPath,
+      ip: meta?.ip,
+      headers: headers || {},
+      raw_body: rawBody || { ping: true },
+      detected_platform: 'ping',
+      detected_source: 'PING_CHECK',
+      item_count: 0,
+      total_amount: 0,
+      status_code: 200,
+      success: true,
+      message: 'Ping / Healthcheck probe acknowledged successfully',
+      duration_ms: Date.now() - startTime
+    };
+    recordInboundLog(logEntry);
+
+    return {
+      status: 200,
+      data: {
+        success: '1',
+        status: 'success',
+        success_bool: true,
+        http_code: 200,
+        message: 'Ping acknowledged successfully. Vyoma Webhook Endpoint is online.',
+        pong: true,
+        timestamp: new Date().toISOString()
+      }
+    };
+  }
+
   const details = extractOrderObject(rawBody);
 
   if (!details || typeof details !== 'object') {
