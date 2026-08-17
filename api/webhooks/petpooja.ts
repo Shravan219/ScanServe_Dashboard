@@ -173,7 +173,7 @@ export default async function handler(req: any, res: any) {
       sourceUpper = rawOrderFrom.toUpperCase();
     }
 
-    // 4. Token & Order ID
+    // 4. Token & Raw Petpooja Order ID
     const rawOrderId = (
       details.order_id ||
       details.orderId ||
@@ -231,28 +231,27 @@ export default async function handler(req: any, res: any) {
       total = items.reduce((acc, it) => acc + it.price * it.quantity, 0);
     }
 
-    // 7. Status Mapping
+    // 7. Status Mapping (Constrained strictly to postgres array ['pending', 'preparing', 'ready', 'completed'])
     const rawStatus = (details.status || details.Status || 'pending').toString().toLowerCase();
-    let mappedStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled' = 'pending';
+    let safeStatus: 'pending' | 'preparing' | 'ready' | 'completed' = 'pending';
+    
     if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted' || rawStatus === '1') {
-      mappedStatus = 'preparing';
+      safeStatus = 'preparing';
     } else if (rawStatus === 'ready' || rawStatus === '2') {
-      mappedStatus = 'ready';
+      safeStatus = 'ready';
     } else if (rawStatus === 'completed' || rawStatus === 'dispatched' || rawStatus === '3') {
-      mappedStatus = 'completed';
-    } else if (rawStatus === 'cancelled' || rawStatus === '-1') {
-      mappedStatus = 'cancelled';
+      safeStatus = 'completed';
     }
 
     const createdAt = details.created_at || details.order_date || new Date().toISOString();
     const placedAtIst = details.placed_at_ist || formatIST(createdAt);
 
+    // Omit 'id' field so Postgres generates a valid UUID automatically
     const orderRecord = {
-      id: rawOrderId,
       token,
-      status: mappedStatus,
+      status: safeStatus,
       total,
-      items,
+      items, // Passed directly into jsonb column
       customer_name: details.customer_name || details.customerName || `${sourceUpper} Customer`,
       customer_phone: details.customer_phone || details.phone || '+919876543210',
       table_id: details.table_id || `${sourceUpper} Online`,
@@ -260,39 +259,56 @@ export default async function handler(req: any, res: any) {
       aggregator_platform: detectedPlatform,
       created_at: createdAt,
       placed_at_ist: placedAtIst,
-      notes: details.notes || details.special_instructions || undefined
+      notes: details.notes || details.special_instructions || `Petpooja Ref: ${rawOrderId}`
     };
 
-    // 8. Persist to Supabase if credentials exist
+    // 8. Persist to Supabase
     const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        await supabase.from('orders').upsert([orderRecord]);
-      } catch (dbErr: any) {
-        console.warn('Supabase upsert note:', dbErr?.message);
-      }
+    if (!supabase) {
+      console.error('[WEBHOOK ERROR] Supabase credentials missing from environment variables.');
+      return res.status(500).json({
+        success: '0',
+        status: 'error',
+        message: 'Database configuration missing on server. Check env variables.'
+      });
     }
+
+    const { data: dbData, error: dbError } = await supabase
+      .from('orders')
+      .insert([orderRecord])
+      .select();
+
+    if (dbError) {
+      console.error('[SUPABASE INSERT FAILED]:', dbError);
+      return res.status(500).json({
+        success: '0',
+        status: 'db_error',
+        message: dbError.message,
+        code: dbError.code,
+        details: dbError.details
+      });
+    }
+
+    console.log('[SUCCESS] Order persisted to Supabase:', dbData);
 
     return res.status(200).json({
       success: '1',
       status: 'success',
-      success_bool: true,
-      http_code: 200,
-      message: 'Order processed successfully',
-      order_id: orderRecord.id,
+      message: 'Order processed and persisted successfully',
+      generated_id: dbData[0]?.id,
       token: orderRecord.token,
       order_from: sourceUpper,
       platform: detectedPlatform,
       placed_at_ist: placedAtIst,
-      data: orderRecord
+      data: dbData[0]
     });
+
   } catch (err: any) {
     console.error('Webhook execution caught error:', err);
-    return res.status(200).json({
-      success: '1',
-      status: 'success',
-      message: 'Request processed with fallback handler',
-      note: err?.message
+    return res.status(500).json({
+      success: '0',
+      status: 'error',
+      message: err?.message || 'Internal server error processing payload'
     });
   }
 }
