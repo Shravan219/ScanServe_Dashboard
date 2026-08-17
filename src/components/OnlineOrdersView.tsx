@@ -19,14 +19,20 @@ import {
   ChevronDown,
   ChevronUp,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Check,
+  Code,
+  ArrowDownToLine,
+  ArrowUpRight,
+  Zap,
+  Trash2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
-import { supabase } from '@/src/lib/supabase';
 
 export function getOrderPlatform(order: Order): 'swiggy' | 'zomato' | 'other_online' | 'dine_in' {
   if (order.aggregator_platform === 'swiggy') return 'swiggy';
@@ -81,14 +87,25 @@ export function OnlineOrdersView({
   const [searchQuery, setSearchQuery] = useState('');
 
   const [showConfig, setShowConfig] = useState(false);
+  const [activeTab, setActiveTab] = useState<'inbound' | 'outbound'>('inbound');
+  
+  // Outbound Config State
   const [webhookUrl, setWebhookUrl] = useState('');
   const [restaurantId, setRestaurantId] = useState('REST_XTRA_01');
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [isTestingPing, setIsTestingPing] = useState(false);
   const [pingResult, setPingResult] = useState<any>(null);
-  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const [recentOutboundLogs, setRecentOutboundLogs] = useState<any[]>([]);
 
-  // Fetch active webhook configuration on load
+  // Inbound Inspection Logs State
+  const [recentInboundLogs, setRecentInboundLogs] = useState<any[]>([]);
+  const [selectedInboundLog, setSelectedInboundLog] = useState<any | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  const inboundWebhookUrl = typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/petpooja` : '/api/webhooks/petpooja';
+
+  // Fetch active webhook configuration and logs
   const fetchWebhookConfig = async () => {
     try {
       const res = await fetch('/api/orders/webhook-config');
@@ -106,22 +123,147 @@ export function OnlineOrdersView({
     }
   };
 
-  const fetchLogs = async () => {
+  const fetchOutboundLogs = async () => {
     try {
       const res = await fetch('/api/orders/webhook-logs');
       if (res.ok) {
         const data = await res.json();
-        setRecentLogs(data.logs || []);
+        setRecentOutboundLogs(data.logs || []);
       }
     } catch (e) {
-      console.warn('Could not load webhook logs:', e);
+      console.warn('Could not load outbound webhook logs:', e);
     }
+  };
+
+  const fetchInboundLogs = async () => {
+    try {
+      const res = await fetch('/api/webhooks/logs');
+      if (res.ok) {
+        const data = await res.json();
+        setRecentInboundLogs(data.logs || []);
+      }
+    } catch (e) {
+      console.warn('Could not load inbound webhook logs:', e);
+    }
+  };
+
+  const refreshAllLogs = () => {
+    fetchOutboundLogs();
+    fetchInboundLogs();
   };
 
   useEffect(() => {
     fetchWebhookConfig();
-    fetchLogs();
+    refreshAllLogs();
+
+    // Listen to real-time webhook logs via EventSource
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource('/api/orders/events');
+      es.addEventListener('webhook_log', (event: MessageEvent) => {
+        try {
+          const log = JSON.parse(event.data);
+          setRecentInboundLogs(prev => [log, ...prev.slice(0, 49)]);
+        } catch {
+          // ignore
+        }
+      });
+      es.addEventListener('outbound_log', (event: MessageEvent) => {
+        try {
+          const log = JSON.parse(event.data);
+          setRecentOutboundLogs(prev => [log, ...prev.slice(0, 49)]);
+        } catch {
+          // ignore
+        }
+      });
+    } catch {
+      // ignore
+    }
+
+    return () => {
+      if (es) es.close();
+    };
   }, []);
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(inboundWebhookUrl);
+    setCopiedUrl(true);
+    toast.success('Inbound Webhook URL copied to clipboard!');
+    setTimeout(() => setCopiedUrl(false), 2500);
+  };
+
+  const handleClearInboundLogs = async () => {
+    try {
+      await fetch('/api/webhooks/logs', { method: 'DELETE' });
+      setRecentInboundLogs([]);
+      setSelectedInboundLog(null);
+      toast.success('Inbound inspection logs cleared');
+    } catch (e: any) {
+      toast.error('Failed to clear logs: ' + e.message);
+    }
+  };
+
+  const handleSimulateQuickOrder = async (platform: 'swiggy' | 'zomato') => {
+    setIsSimulating(true);
+    const token = Math.floor(1000 + Math.random() * 9000).toString();
+    const isSwiggy = platform === 'swiggy';
+    
+    const testPayload = {
+      order_details: {
+        order_id: isSwiggy ? `SWIGGY_${token}` : `ZOMATO_${token}`,
+        token,
+        order_from: platform.toUpperCase(),
+        status: 'in_kitchen',
+        customer_name: isSwiggy ? 'Swiggy Express Customer' : 'Zomato Gold Member',
+        customer_phone: '+919876543210',
+        table_id: `${platform.toUpperCase()} Online`,
+        total: isSwiggy ? 540 : 680,
+        items: [
+          {
+            item_id: 'item-101',
+            item_name: isSwiggy ? 'Paneer Butter Masala Combo' : 'Chicken Tikka Biryani Box',
+            price: isSwiggy ? 320 : 420,
+            quantity: 1,
+            notes: 'Extra spicy, cutlery included'
+          },
+          {
+            item_id: 'item-102',
+            item_name: 'Garlic Butter Naan (2 pcs)',
+            price: isSwiggy ? 120 : 160,
+            quantity: 1
+          },
+          {
+            item_id: 'item-103',
+            item_name: 'Gulab Jamun Dessert',
+            price: 100,
+            quantity: 1
+          }
+        ],
+        notes: `Simulated live ${platform.toUpperCase()} test order`
+      }
+    };
+
+    try {
+      const res = await fetch('/api/webhooks/petpooja', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testPayload)
+      });
+      const data = await res.json();
+      if (res.ok && (data.success === '1' || data.success === true || data.status === 'success')) {
+        toast.success(`🎉 Test ${platform.toUpperCase()} Order #${token} Ingested Successfully!`, {
+          description: `Order verified and active in kitchen queue.`
+        });
+        refreshAllLogs();
+      } else {
+        toast.error(`Simulation failed: ${data.message || 'Unknown error'}`);
+      }
+    } catch (e: any) {
+      toast.error(`Simulation error: ${e.message}`);
+    } finally {
+      setIsSimulating(false);
+    }
+  };
 
   const handleSaveConfig = async () => {
     setIsSavingConfig(true);
@@ -166,7 +308,7 @@ export function OnlineOrdersView({
       } else {
         toast.error(`Ping failed: ${data.details?.error || data.message}`);
       }
-      fetchLogs();
+      fetchOutboundLogs();
     } catch (err: any) {
       toast.error(`Failed to send ping: ${err.message}`);
       setPingResult({ success: false, message: err.message });
@@ -236,7 +378,7 @@ export function OnlineOrdersView({
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Online Orders</h2>
             <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">
-              Swiggy & Zomato
+              Swiggy & Zomato Live
             </span>
           </div>
           <p className="text-[10px] uppercase tracking-[0.25em] text-white/30 mt-1 sm:mt-2 font-bold">
@@ -250,7 +392,7 @@ export function OnlineOrdersView({
             variant="outline"
             onClick={() => {
               setShowConfig(!showConfig);
-              fetchLogs();
+              refreshAllLogs();
             }}
             className={`rounded-full h-10 px-4 text-[10px] font-bold uppercase tracking-widest transition-all border ${
               showConfig 
@@ -259,7 +401,7 @@ export function OnlineOrdersView({
             }`}
           >
             <Radio size={14} className={`mr-2 ${showConfig ? 'animate-pulse text-black' : 'text-primary'}`} />
-            Tester & Webhook Setup
+            Tester & Webhook Inspector
             {showConfig ? <ChevronUp size={14} className="ml-2" /> : <ChevronDown size={14} className="ml-2" />}
           </Button>
         </div>
@@ -274,157 +416,360 @@ export function OnlineOrdersView({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <Card className="bg-[#0D0D0D] border border-primary/30 rounded-3xl p-6 shadow-2xl relative">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-white/5">
+            <Card className="bg-[#0D0D0D] border border-primary/30 rounded-3xl p-4 sm:p-6 shadow-2xl relative">
+              {/* Header with Tabs */}
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-white/5">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
                     <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-                      Outbound Webhook & Tester Connection
+                      Aggregator & Tester Webhook Center
                     </h3>
                   </div>
                   <p className="text-xs text-white/40 mt-1">
-                    When order statuses change in Vyoma POS, updates are sent directly to your tester or aggregator callback URL.
+                    Inspect incoming order webhooks from your tester or configure status updates dispatch.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={fetchLogs}
-                    className="h-8 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 border-white/10 text-white/70 hover:text-white"
+                
+                {/* Tab Switcher */}
+                <div className="flex items-center bg-black/60 p-1 rounded-2xl border border-white/10 gap-1 self-stretch md:self-auto">
+                  <button
+                    onClick={() => setActiveTab('inbound')}
+                    className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'inbound'
+                        ? 'bg-primary text-black shadow-[0_0_15px_rgba(197,160,89,0.25)]'
+                        : 'text-white/60 hover:text-white'
+                    }`}
                   >
-                    <RefreshCw size={12} className="mr-1.5" /> Refresh Logs
-                  </Button>
+                    <ArrowDownToLine size={14} />
+                    <span>Inbound Webhooks ({recentInboundLogs.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('outbound')}
+                    className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'outbound'
+                        ? 'bg-primary text-black shadow-[0_0_15px_rgba(197,160,89,0.25)]'
+                        : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    <ArrowUpRight size={14} />
+                    <span>Outbound Callbacks ({recentOutboundLogs.length})</span>
+                  </button>
                 </div>
               </div>
 
-              {/* URL Input & Test Ping Controls */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-5">
-                <div className="lg:col-span-8 flex flex-col gap-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
-                    Target Tester Callback URL (PETPOOJA_OUTBOUND_WEBHOOK_URL)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="e.g. https://your-tester-app.run.app/api/pos-callback"
-                      value={webhookUrl}
-                      onChange={(e) => setWebhookUrl(e.target.value)}
-                      className="bg-black border-white/10 rounded-xl h-11 text-xs text-white font-mono focus-visible:ring-primary/20"
-                    />
-                    <Button
-                      onClick={handleSaveConfig}
-                      disabled={isSavingConfig}
-                      className="bg-primary text-black hover:bg-primary/90 font-bold text-[10px] uppercase tracking-wider h-11 px-5 rounded-xl shrink-0"
-                    >
-                      {isSavingConfig ? 'Saving...' : 'Save URL'}
-                    </Button>
-                  </div>
-                  <span className="text-[10px] text-white/30">
-                    Tip: If running your tester app, paste its receiver URL here and click "Save URL".
-                  </span>
-                </div>
+              {/* TAB 1: INBOUND WEBHOOKS & TESTER RECEIVER */}
+              {activeTab === 'inbound' && (
+                <div className="mt-5 flex flex-col gap-5">
+                  {/* Webhook Endpoint Banner */}
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
+                          Live Inbound Webhook URL (Paste into Tester App)
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] font-bold">
+                          HTTP 200 Ready
+                        </span>
+                      </div>
+                      <code className="text-xs sm:text-sm font-mono text-white bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 select-all break-all">
+                        {inboundWebhookUrl}
+                      </code>
+                      <span className="text-[10px] text-white/40 mt-0.5">
+                        Accepts POST requests formatted as Petpooja, Zomato, Swiggy, or generic JSON payloads.
+                      </span>
+                    </div>
 
-                <div className="lg:col-span-4 flex flex-col justify-end gap-2">
-                  <Button
-                    onClick={handleSendTestPing}
-                    disabled={isTestingPing || !webhookUrl}
-                    variant="outline"
-                    className="h-11 rounded-xl border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-black text-[10px] font-bold uppercase tracking-wider transition-all"
-                  >
-                    <Send size={14} className={`mr-2 ${isTestingPing ? 'animate-spin' : ''}`} />
-                    {isTestingPing ? 'Dispatching Ping...' : 'Send Live Test Ping'}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Ping Result Banner */}
-              {pingResult && (
-                <div className={`mt-4 p-3.5 rounded-xl border text-xs font-mono flex items-center justify-between gap-3 ${
-                  pingResult.success 
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' 
-                    : 'bg-red-500/10 border-red-500/30 text-red-300'
-                }`}>
-                  <div className="flex items-center gap-2 overflow-hidden text-ellipsis">
-                    {pingResult.success ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertCircle size={16} className="shrink-0" />}
-                    <span>{pingResult.message}</span>
+                    <div className="flex items-center gap-2 flex-wrap shrink-0">
+                      <Button
+                        onClick={handleCopyUrl}
+                        className="bg-primary text-black hover:bg-primary/90 font-bold text-xs uppercase tracking-wider h-10 px-4 rounded-xl"
+                      >
+                        {copiedUrl ? <Check size={14} className="mr-1.5" /> : <Copy size={14} className="mr-1.5" />}
+                        {copiedUrl ? 'Copied URL!' : 'Copy Webhook URL'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={fetchInboundLogs}
+                        className="h-10 px-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/5 border-white/10 text-white/70 hover:text-white"
+                      >
+                        <RefreshCw size={12} className="mr-1.5" /> Refresh
+                      </Button>
+                    </div>
                   </div>
-                  {pingResult.details?.duration_ms && (
-                    <span className="text-[10px] opacity-70 shrink-0 font-sans">
-                      Latency: {pingResult.details.duration_ms}ms
-                    </span>
-                  )}
+
+                  {/* Quick Simulation Buttons */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-white/[0.02] border border-white/5">
+                    <div className="flex items-center gap-2 text-xs text-white/60">
+                      <Zap size={14} className="text-amber-400" />
+                      <span>Need instant test orders? Click to simulate direct webhook payload:</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => handleSimulateQuickOrder('swiggy')}
+                        disabled={isSimulating}
+                        size="sm"
+                        className="h-8 rounded-xl bg-[#FC8019] hover:bg-[#FC8019]/90 text-white text-[10px] font-bold uppercase tracking-wider px-3"
+                      >
+                        + Test Swiggy Order
+                      </Button>
+                      <Button
+                        onClick={() => handleSimulateQuickOrder('zomato')}
+                        disabled={isSimulating}
+                        size="sm"
+                        className="h-8 rounded-xl bg-[#E23744] hover:bg-[#E23744]/90 text-white text-[10px] font-bold uppercase tracking-wider px-3"
+                      >
+                        + Test Zomato Order
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Inbound Logs Table & Inspector */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+                        Inbound Webhook Requests Stream (Last {recentInboundLogs.length})
+                      </span>
+                      {recentInboundLogs.length > 0 && (
+                        <button
+                          onClick={handleClearInboundLogs}
+                          className="flex items-center gap-1 text-[10px] text-red-400/80 hover:text-red-400 cursor-pointer font-bold uppercase tracking-wider"
+                        >
+                          <Trash2 size={12} /> Clear Logs
+                        </button>
+                      )}
+                    </div>
+
+                    {recentInboundLogs.length > 0 ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        {/* Table */}
+                        <div className="lg:col-span-7 max-h-64 overflow-y-auto custom-scrollbar border border-white/5 rounded-2xl bg-black/40">
+                          <table className="w-full text-left text-xs">
+                            <thead className="bg-white/5 text-[9px] uppercase tracking-wider text-white/40 sticky top-0">
+                              <tr>
+                                <th className="py-2.5 px-3">Time</th>
+                                <th className="py-2.5 px-3">Source</th>
+                                <th className="py-2.5 px-3">Token</th>
+                                <th className="py-2.5 px-3">Items</th>
+                                <th className="py-2.5 px-3">Status</th>
+                                <th className="py-2.5 px-3 text-right">Inspect</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                              {recentInboundLogs.map((log) => (
+                                <tr
+                                  key={log.id}
+                                  onClick={() => setSelectedInboundLog(log)}
+                                  className={`hover:bg-white/[0.03] cursor-pointer transition-colors ${
+                                    selectedInboundLog?.id === log.id ? 'bg-primary/10 border-l-2 border-primary' : ''
+                                  }`}
+                                >
+                                  <td className="py-2.5 px-3 text-white/40 text-[10px]">
+                                    {new Date(log.timestamp).toLocaleTimeString()}
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold font-sans ${
+                                      log.detected_source === 'SWIGGY' ? 'bg-[#FC8019]/20 text-[#FC8019]' :
+                                      log.detected_source === 'ZOMATO' ? 'bg-[#E23744]/20 text-[#E23744]' :
+                                      'bg-primary/20 text-primary'
+                                    }`}>
+                                      {log.detected_source}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3 font-bold text-white">
+                                    #{log.token || log.order_id || 'N/A'}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-white/70">
+                                    {log.item_count} items (₹{log.total_amount})
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                                      log.success 
+                                        ? 'bg-emerald-500/20 text-emerald-400' 
+                                        : 'bg-red-500/20 text-red-400'
+                                    }`}>
+                                      HTTP {log.status_code}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right">
+                                    <button className="text-[10px] text-primary hover:underline font-bold">
+                                      View JSON
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Payload Viewer Drawer */}
+                        <div className="lg:col-span-5 max-h-64 overflow-y-auto custom-scrollbar border border-white/10 rounded-2xl bg-black p-3.5 text-xs">
+                          {selectedInboundLog ? (
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                                <div className="flex items-center gap-2">
+                                  <Code size={14} className="text-primary" />
+                                  <span className="font-bold text-white text-[11px]">
+                                    Payload #{selectedInboundLog.token || selectedInboundLog.order_id}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] text-white/40">
+                                  {selectedInboundLog.duration_ms}ms latency
+                                </span>
+                              </div>
+                              <pre className="font-mono text-[10px] text-white/80 bg-white/[0.02] p-2.5 rounded-xl overflow-x-auto whitespace-pre-wrap">
+                                {JSON.stringify(selectedInboundLog.raw_body, null, 2)}
+                              </pre>
+                            </div>
+                          ) : (
+                            <div className="flex h-full min-h-[140px] items-center justify-center text-center text-white/30 text-xs">
+                              Click any inbound webhook entry on the left to inspect its complete JSON payload.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-8 text-center text-xs text-white/30 border border-white/5 rounded-2xl bg-black/20 flex flex-col items-center justify-center gap-2">
+                        <ArrowDownToLine size={24} className="text-white/20" />
+                        <span>No inbound webhook requests received yet. Send orders from your tester app to the URL above.</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Recent Dispatches Log Table */}
-              <div className="mt-6 pt-5 border-t border-white/5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
-                    Recent Outbound Dispatches (Last {recentLogs.length})
-                  </span>
-                  <span className="text-[10px] text-white/30">
-                    Automatically sent on status changes
-                  </span>
-                </div>
+              {/* TAB 2: OUTBOUND STATUS CALLBACKS */}
+              {activeTab === 'outbound' && (
+                <div className="mt-5 flex flex-col gap-5">
+                  {/* URL Input & Test Ping Controls */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <div className="lg:col-span-8 flex flex-col gap-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                        Target Tester Callback URL (PETPOOJA_OUTBOUND_WEBHOOK_URL)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="e.g. https://your-tester-app.run.app/api/pos-callback"
+                          value={webhookUrl}
+                          onChange={(e) => setWebhookUrl(e.target.value)}
+                          className="bg-black border-white/10 rounded-xl h-11 text-xs text-white font-mono focus-visible:ring-primary/20"
+                        />
+                        <Button
+                          onClick={handleSaveConfig}
+                          disabled={isSavingConfig}
+                          className="bg-primary text-black hover:bg-primary/90 font-bold text-[10px] uppercase tracking-wider h-11 px-5 rounded-xl shrink-0"
+                        >
+                          {isSavingConfig ? 'Saving...' : 'Save URL'}
+                        </Button>
+                      </div>
+                      <span className="text-[10px] text-white/30">
+                        Tip: When kitchen/captain changes order status in Vyoma POS, status updates are signed with HMAC-SHA256 and sent here.
+                      </span>
+                    </div>
 
-                {recentLogs.length > 0 ? (
-                  <div className="max-h-48 overflow-y-auto custom-scrollbar border border-white/5 rounded-xl bg-black/40">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-white/5 text-[9px] uppercase tracking-wider text-white/40 sticky top-0">
-                        <tr>
-                          <th className="py-2 px-3">Time</th>
-                          <th className="py-2 px-3">Order ID</th>
-                          <th className="py-2 px-3">Platform</th>
-                          <th className="py-2 px-3">Status Sent</th>
-                          <th className="py-2 px-3">HTTP Result</th>
-                          <th className="py-2 px-3 text-right">Latency</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5 font-mono text-[11px]">
-                        {recentLogs.map((log) => (
-                          <tr key={log.id} className="hover:bg-white/[0.02]">
-                            <td className="py-2 px-3 text-white/40 text-[10px]">
-                              {new Date(log.timestamp).toLocaleTimeString()}
-                            </td>
-                            <td className="py-2 px-3 font-bold text-white">
-                              {log.order_id}
-                            </td>
-                            <td className="py-2 px-3">
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold font-sans ${
-                                log.source === 'SWIGGY' ? 'bg-[#FC8019]/20 text-[#FC8019]' :
-                                log.source === 'ZOMATO' ? 'bg-[#E23744]/20 text-[#E23744]' :
-                                'bg-primary/20 text-primary'
-                              }`}>
-                                {log.source}
-                              </span>
-                            </td>
-                            <td className="py-2 px-3 text-white/80">
-                              {log.status}
-                            </td>
-                            <td className="py-2 px-3">
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                                log.success 
-                                  ? 'bg-emerald-500/20 text-emerald-400' 
-                                  : 'bg-red-500/20 text-red-400'
-                              }`}>
-                                {log.http_status}
-                              </span>
-                            </td>
-                            <td className="py-2 px-3 text-right text-white/40 text-[10px]">
-                              {log.duration_ms}ms
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <div className="lg:col-span-4 flex flex-col justify-end gap-2">
+                      <Button
+                        onClick={handleSendTestPing}
+                        disabled={isTestingPing || !webhookUrl}
+                        variant="outline"
+                        className="h-11 rounded-xl border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-black text-[10px] font-bold uppercase tracking-wider transition-all"
+                      >
+                        <Send size={14} className={`mr-2 ${isTestingPing ? 'animate-spin' : ''}`} />
+                        {isTestingPing ? 'Dispatching Ping...' : 'Send Live Test Ping'}
+                      </Button>
+                    </div>
                   </div>
-                ) : (
-                  <div className="py-6 text-center text-xs text-white/30 border border-white/5 rounded-xl bg-black/20">
-                    No status updates dispatched yet. Click "Send Live Test Ping" or transition an order status to test.
+
+                  {/* Ping Result Banner */}
+                  {pingResult && (
+                    <div className={`p-3.5 rounded-xl border text-xs font-mono flex items-center justify-between gap-3 ${
+                      pingResult.success 
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' 
+                        : 'bg-red-500/10 border-red-500/30 text-red-300'
+                    }`}>
+                      <div className="flex items-center gap-2 overflow-hidden text-ellipsis">
+                        {pingResult.success ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertCircle size={16} className="shrink-0" />}
+                        <span>{pingResult.message}</span>
+                      </div>
+                      {pingResult.details?.duration_ms && (
+                        <span className="text-[10px] opacity-70 shrink-0 font-sans">
+                          Latency: {pingResult.details.duration_ms}ms
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Recent Dispatches Log Table */}
+                  <div className="pt-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+                        Recent Outbound Dispatches (Last {recentOutboundLogs.length})
+                      </span>
+                      <span className="text-[10px] text-white/30">
+                        Automatically sent on status changes
+                      </span>
+                    </div>
+
+                    {recentOutboundLogs.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto custom-scrollbar border border-white/5 rounded-xl bg-black/40">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-white/5 text-[9px] uppercase tracking-wider text-white/40 sticky top-0">
+                            <tr>
+                              <th className="py-2 px-3">Time</th>
+                              <th className="py-2 px-3">Order ID</th>
+                              <th className="py-2 px-3">Platform</th>
+                              <th className="py-2 px-3">Status Sent</th>
+                              <th className="py-2 px-3">HTTP Result</th>
+                              <th className="py-2 px-3 text-right">Latency</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                            {recentOutboundLogs.map((log) => (
+                              <tr key={log.id} className="hover:bg-white/[0.02]">
+                                <td className="py-2 px-3 text-white/40 text-[10px]">
+                                  {new Date(log.timestamp).toLocaleTimeString()}
+                                </td>
+                                <td className="py-2 px-3 font-bold text-white">
+                                  {log.order_id}
+                                </td>
+                                <td className="py-2 px-3">
+                                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold font-sans ${
+                                    log.source === 'SWIGGY' ? 'bg-[#FC8019]/20 text-[#FC8019]' :
+                                    log.source === 'ZOMATO' ? 'bg-[#E23744]/20 text-[#E23744]' :
+                                    'bg-primary/20 text-primary'
+                                  }`}>
+                                    {log.source}
+                                  </span>
+                                </td>
+                                <td className="py-2 px-3 text-white/80">
+                                  {log.status}
+                                </td>
+                                <td className="py-2 px-3">
+                                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                                    log.success 
+                                      ? 'bg-emerald-500/20 text-emerald-400' 
+                                      : 'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    {log.http_status}
+                                  </span>
+                                </td>
+                                <td className="py-2 px-3 text-right text-white/40 text-[10px]">
+                                  {log.duration_ms}ms
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="py-6 text-center text-xs text-white/30 border border-white/5 rounded-xl bg-black/20">
+                        No status updates dispatched yet. Click "Send Live Test Ping" or transition an order status to test.
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </Card>
           </motion.div>
         )}
@@ -573,7 +918,7 @@ export function OnlineOrdersView({
             <Globe size={40} strokeWidth={1} className="mb-4 text-primary/20" />
             <p className="text-[10px] uppercase tracking-[0.4em] text-white/20 font-bold mb-2">No Online Orders Found</p>
             <p className="text-xs text-white/40 max-w-md">
-              Swiggy and Zomato orders placed via Captain POS or online channels will appear here automatically.
+              Swiggy and Zomato orders sent to your webhook URL or placed via the tester will appear here in real-time.
             </p>
           </div>
         )}

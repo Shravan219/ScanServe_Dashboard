@@ -1,6 +1,3 @@
-import { processWebhookPayload } from '@/server/processWebhook';
-import { triggerOutboundWebhook } from '@/server/routes/orders';
-
 // Standardized status mapping for outbound POS integration
 export const POS_STATUS_MAP = {
   preparing: 'IN_KITCHEN',

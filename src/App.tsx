@@ -494,24 +494,64 @@ export default function App() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { data: ordersData, error: ordersError } = await supabase
-          .from('orders')
-          .select('*')
-          .neq('status', 'completed')
-          .neq('status', 'cancelled')
-          .order('created_at', { ascending: true });
+        let dbActiveOrders: Order[] = [];
+        let dbAllOrders: Order[] = [];
 
-        if (ordersError) throw ordersError;
-        setOrders(ordersData || []);
+        // 1. Try fetching from Supabase
+        try {
+          const { data: ordersData, error: ordersError } = await supabase
+            .from('orders')
+            .select('*')
+            .neq('status', 'completed')
+            .neq('status', 'cancelled')
+            .order('created_at', { ascending: true });
 
-        // Fetch all orders for Customer Database statistics
-        const { data: allOrdersData, error: allOrdersError } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (!allOrdersError && allOrdersData) {
-          setAllOrders(allOrdersData);
+          if (!ordersError && ordersData) {
+            dbActiveOrders = ordersData;
+          }
+
+          const { data: allOrdersData, error: allOrdersError } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!allOrdersError && allOrdersData) {
+            dbAllOrders = allOrdersData;
+          }
+        } catch (supabaseErr) {
+          console.warn('Supabase fetch notice, falling back to API server store:', supabaseErr);
         }
+
+        // 2. Fetch from Express API server orders store
+        try {
+          const apiRes = await fetch('/api/orders');
+          if (apiRes.ok) {
+            const apiData = await apiRes.json();
+            if (apiData.orders && Array.isArray(apiData.orders)) {
+              const apiOrders: Order[] = apiData.orders;
+              
+              // Merge with Supabase orders without duplicates
+              const mergedMap = new Map<string, Order>();
+              for (const o of dbAllOrders) {
+                mergedMap.set(o.id || o.token, o);
+              }
+              for (const o of apiOrders) {
+                mergedMap.set(o.id || o.token, o);
+              }
+              
+              dbAllOrders = Array.from(mergedMap.values()).sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              );
+              dbActiveOrders = dbAllOrders.filter(
+                o => o.status !== 'completed' && o.status !== 'cancelled'
+              );
+            }
+          }
+        } catch (apiErr) {
+          console.warn('API orders fetch notice:', apiErr);
+        }
+
+        setOrders(dbActiveOrders);
+        setAllOrders(dbAllOrders);
 
         // Try getting dedicated customer records
         try {
@@ -529,14 +569,18 @@ export default function App() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        const { count, error: statsError } = await supabase
-          .from('orders')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'completed')
-          .gte('created_at', today.toISOString());
+        try {
+          const { count, error: statsError } = await supabase
+            .from('orders')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'completed')
+            .gte('created_at', today.toISOString());
 
-        if (!statsError) {
-          setStats(prev => ({ ...prev, preparedToday: count || 0 }));
+          if (!statsError && count !== null) {
+            setStats(prev => ({ ...prev, preparedToday: count }));
+          }
+        } catch {
+          // ignore
         }
 
         const { data: menuData, error: menuError } = await supabase
@@ -544,11 +588,13 @@ export default function App() {
           .select('*')
           .order('category', { ascending: true });
 
-        if (menuError) throw menuError;
-        setMenuItems(menuData || []);
+        if (menuError) {
+          console.warn('Could not load menu items from Supabase:', menuError.message);
+        } else if (menuData && menuData.length > 0) {
+          setMenuItems(menuData);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
@@ -556,7 +602,138 @@ export default function App() {
 
     fetchData();
 
-    // Subscribe to real-time updates
+    // 1. Server-Sent Events (SSE) listener for instant order delivery from webhooks/testers
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource('/api/orders/events');
+
+      eventSource.addEventListener('order_created', (event: MessageEvent) => {
+        try {
+          const newOrder = JSON.parse(event.data) as Order;
+          console.log('[SSE] New Order Received from Server:', newOrder);
+
+          setOrders(prev => {
+            const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+            if (exists) {
+              return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+            }
+            return [newOrder, ...prev];
+          });
+
+          setAllOrders(prev => {
+            const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+            if (exists) {
+              return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+            }
+            return [newOrder, ...prev];
+          });
+
+          soundService.playNewOrderSound();
+          const platformLabel = (newOrder.aggregator_platform || newOrder.order_type || 'ONLINE').toUpperCase();
+          toast.success(`⚡ New ${platformLabel} Order Received! Token: #${newOrder.token}`, {
+            description: `${newOrder.customer_name || 'Customer'} • ₹${newOrder.total} • ${newOrder.items?.length || 1} items`,
+            duration: 6000
+          });
+        } catch (e) {
+          console.error('[SSE] Error handling order_created event:', e);
+        }
+      });
+
+      eventSource.addEventListener('order_updated', (event: MessageEvent) => {
+        try {
+          const updated = JSON.parse(event.data) as Order;
+          console.log('[SSE] Order Status Update Received:', updated);
+
+          if (updated.status === 'ready') {
+            soundService.playReadyChime();
+            soundService.triggerVibration([200, 100, 200, 100, 300]);
+            const targetTable = updated.table_id ? `Table ${String(updated.table_id).replace(/^table\s*/i, '')}` : (updated.order_type === 'takeaway' ? 'Takeaway Counter' : 'Pickup Desk');
+            toast.warning(`🛎️ Food Ready to Serve! Order #${updated.token} for ${targetTable}`, {
+              description: 'The kitchen has marked this order ready for waiter pickup.',
+              duration: 8000
+            });
+          } else if (updated.status === 'completed') {
+            setStats(prev => ({ ...prev, preparedToday: prev.preparedToday + 1 }));
+          }
+
+          setOrders(prev => {
+            if (updated.status === 'completed' || updated.status === 'cancelled') {
+              return prev.filter(o => o.id !== updated.id && o.token !== updated.token);
+            }
+            return prev.map(o => (o.id === updated.id || o.token === updated.token) ? updated : o);
+          });
+
+          setAllOrders(prev => prev.map(o => (o.id === updated.id || o.token === updated.token) ? updated : o));
+        } catch (e) {
+          console.error('[SSE] Error handling order_updated event:', e);
+        }
+      });
+    } catch (sseErr) {
+      console.warn('SSE connection failed:', sseErr);
+    }
+
+    // 2. Periodic sync polling (every 3.5s) to guarantee zero missed orders
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/orders');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.orders && Array.isArray(data.orders)) {
+            const apiOrders: Order[] = data.orders;
+            setAllOrders(prev => {
+              const map = new Map<string, Order>();
+              for (const o of prev) {
+                map.set(o.id || o.token, o);
+              }
+              let hasNew = false;
+              for (const o of apiOrders) {
+                const key = o.id || o.token;
+                if (!map.has(key)) {
+                  map.set(key, o);
+                  hasNew = true;
+                }
+              }
+              if (!hasNew) return prev;
+              return Array.from(map.values()).sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              );
+            });
+
+            setOrders(prev => {
+              const activeApi = apiOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+              const map = new Map<string, Order>();
+              for (const o of prev) {
+                map.set(o.id || o.token, o);
+              }
+              let hasChanges = false;
+              for (const o of activeApi) {
+                const key = o.id || o.token;
+                if (!map.has(key) || map.get(key)?.status !== o.status) {
+                  map.set(key, o);
+                  hasChanges = true;
+                }
+              }
+              // Also remove completed
+              for (const [key, o] of map.entries()) {
+                const latest = apiOrders.find(ao => (ao.id && ao.id === o.id) || (ao.token && ao.token === o.token));
+                if (latest && (latest.status === 'completed' || latest.status === 'cancelled')) {
+                  map.delete(key);
+                  hasChanges = true;
+                }
+              }
+              if (!hasChanges) return prev;
+              return Array.from(map.values()).sort(
+                (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+              );
+            });
+          }
+        }
+      } catch {
+        // silent poll error
+      }
+    }, 3500);
+
+    // 3. Supabase real-time updates subscription
     const ordersSubscription = supabase
       .channel('orders-realtime')
       .on('postgres_changes', { event: '*', table: 'orders', schema: 'public' }, (payload) => {
@@ -577,7 +754,7 @@ export default function App() {
             return [newOrder, ...prev];
           });
           soundService.playNewOrderSound();
-          toast.success(`New Order Received! Token: ${newOrder.token}`);
+          toast.success(`New Order Received! Token: #${newOrder.token}`);
         } else if (payload.eventType === 'UPDATE') {
           const updated = payload.new as Order;
           if (updated.status === 'ready') {
@@ -613,6 +790,8 @@ export default function App() {
       .subscribe();
 
     return () => {
+      if (eventSource) eventSource.close();
+      clearInterval(pollInterval);
       supabase.removeChannel(ordersSubscription);
       supabase.removeChannel(menuSubscription);
     };

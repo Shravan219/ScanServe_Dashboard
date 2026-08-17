@@ -19,8 +19,11 @@ async function startServer() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // API Webhook Routes for Petpooja / Deliverect / Zomato / Swiggy
+  // API Webhook Routes for Petpooja / Deliverect / Zomato / Swiggy / Testers
   app.use('/api/webhooks', webhookRouter);
+  app.use('/api/webhook', webhookRouter);
+  app.use('/api/petpooja', webhookRouter);
+  app.use('/api/aggregator', webhookRouter);
 
   // API Order Status Outbound & Management Routes
   app.use('/api/orders', ordersRouter);
