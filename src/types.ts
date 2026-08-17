@@ -36,6 +36,8 @@ export interface Order {
   gstin?: string;
   order_type?: 'dine_in' | 'takeaway' | 'delivery' | 'aggregator';
   aggregator_platform?: 'swiggy' | 'zomato' | 'ubereats' | 'magicpin' | string;
+  source?: string;
+  callback_url?: string;
   notes?: string;
   custom_instructions?: string;
 }
