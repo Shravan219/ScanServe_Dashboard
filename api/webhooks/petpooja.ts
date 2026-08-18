@@ -1,4 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import {
+  saveMemoryOrder,
+  broadcastEvent,
+  recordInboundLog,
+  ServerOrder
+} from '../../server/orderStore';
 
 export const config = {
   api: {
@@ -84,6 +90,8 @@ function extractOrderObject(body: any): any {
 }
 
 export default async function handler(req: any, res: any) {
+  const startTime = Date.now();
+
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
@@ -111,6 +119,9 @@ export default async function handler(req: any, res: any) {
         body = JSON.parse(body);
       } catch {}
     }
+
+    // 4. Print console log of the incoming body object right at the start
+    console.log('INCOMING_WEBHOOK_BODY:', JSON.stringify(body, null, 2));
 
     // 2. Explicit or empty Ping Probe acknowledgment
     const isExplicitPing =
@@ -142,6 +153,9 @@ export default async function handler(req: any, res: any) {
 
     // 3. Detect Platform
     const rawOrderFrom = (
+      body.channel ||
+      body.source ||
+      body.platform ||
       details.order_from ||
       details.orderFrom ||
       details.OrderFrom ||
@@ -173,8 +187,11 @@ export default async function handler(req: any, res: any) {
       sourceUpper = rawOrderFrom.toUpperCase();
     }
 
-    // 4. Token & Raw Petpooja Order ID
+    // 4. Token & Raw Order ID
     const rawOrderId = (
+      body.order_id ||
+      body.id ||
+      body.orderId ||
       details.order_id ||
       details.orderId ||
       details.OrderID ||
@@ -184,7 +201,15 @@ export default async function handler(req: any, res: any) {
       `PP_${Math.floor(100000 + Math.random() * 900000)}`
     ).toString();
 
-    let token = (details.token || details.Token || details.token_no || '').toString().replace(/[^0-9]/g, '');
+    let token = (
+      body.token ||
+      body.token_no ||
+      details.token ||
+      details.Token ||
+      details.token_no ||
+      ''
+    ).toString().replace(/[^0-9]/g, '');
+
     if (token.length !== 4) {
       token = rawOrderId.replace(/[^0-9]/g, '').slice(-4);
     }
@@ -192,8 +217,60 @@ export default async function handler(req: any, res: any) {
       token = Math.floor(1000 + Math.random() * 9000).toString();
     }
 
+    // 1. Customer Name fallback parsing:
+    // body.customer?.name || body.customer_name || body.delivery_details?.customer_name || body.user?.name
+    const customerName = (
+      body.customer?.name ||
+      body.customer_name ||
+      body.delivery_details?.customer_name ||
+      body.delivery_details?.name ||
+      body.user?.name ||
+      body.customer?.customer_name ||
+      details.customer?.name ||
+      details.customer_name ||
+      details.customerName ||
+      details.CustomerName ||
+      details.delivery_details?.customer_name ||
+      details.delivery_details?.name ||
+      details.user?.name ||
+      details.customer_details?.name ||
+      details.customer_details?.customer_name ||
+      details.recipient_name ||
+      details.client_name ||
+      details.buyer_name ||
+      `${sourceUpper} Customer`
+    ).toString().trim();
+
+    // 2. Phone Number fallback parsing:
+    // body.customer?.phone || body.phone_number || body.customer_phone || body.delivery_details?.phone
+    const customerPhone = (
+      body.customer?.phone ||
+      body.phone_number ||
+      body.customer_phone ||
+      body.delivery_details?.phone ||
+      body.delivery_details?.phone_number ||
+      body.customer?.phone_number ||
+      body.user?.phone ||
+      details.customer?.phone ||
+      details.phone_number ||
+      details.customer_phone ||
+      details.customerPhone ||
+      details.CustomerPhone ||
+      details.delivery_details?.phone ||
+      details.delivery_details?.phone_number ||
+      details.customer_details?.phone ||
+      details.user?.phone ||
+      details.phone ||
+      details.mobile ||
+      'Masked (Platform Policy)'
+    ).toString().trim();
+
     // 5. Items Extraction
-    const rawItems = Array.isArray(details.items)
+    const rawItems = Array.isArray(body.order_items)
+      ? body.order_items
+      : Array.isArray(body.items)
+      ? body.items
+      : Array.isArray(details.items)
       ? details.items
       : Array.isArray(details.order_items)
       ? details.order_items
@@ -202,21 +279,43 @@ export default async function handler(req: any, res: any) {
       : [];
 
     const items = rawItems.map((item: any, idx: number) => {
-      const name = (item.item_name || item.itemName || item.name || item.title || `Item ${idx + 1}`).toString();
-      const price = parseFloat(item.price || item.item_price || item.rate || 0);
-      const quantity = parseInt(item.quantity || item.qty || 1, 10);
+      const name = (
+        item.item_name ||
+        item.itemName ||
+        item.name ||
+        item.title ||
+        item.item_title ||
+        `Item ${idx + 1}`
+      ).toString();
+      const price = parseFloat(
+        item.price ??
+        item.rate ??
+        item.item_price ??
+        item.final_price ??
+        item.unit_price ??
+        item.amount ??
+        0
+      );
+      const quantity = parseInt(
+        item.quantity ??
+        item.qty ??
+        item.count ??
+        item.item_quantity ??
+        1,
+        10
+      );
       return {
         id: (item.item_id || item.id || `item-${idx + 1}`).toString(),
         name,
         price: isNaN(price) ? 0 : price,
         quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
-        item_notes: item.notes || item.item_notes || undefined
+        item_notes: item.notes || item.item_notes || item.special_instructions || undefined
       };
     });
 
     if (items.length === 0) {
-      const singleName = details.item_name || details.name || `${sourceUpper} Combo Meal`;
-      const singlePrice = parseFloat(details.total || details.amount || 450);
+      const singleName = details.item_name || details.name || body.item_name || `${sourceUpper} Combo Meal`;
+      const singlePrice = parseFloat(details.total || details.amount || body.total || 450);
       items.push({
         id: 'item-1',
         name: singleName,
@@ -225,82 +324,156 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    // 6. Total Calculation
-    let total = parseFloat(details.total || details.order_total || details.amount || details.grand_total || 0);
+    // 3. Total Price / Grand Total fallback parsing:
+    // body.grand_total || body.order_total || body.total_amount || body.bill_amount || body.pricing?.grand_total
+    const calculatedItemsTotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
+    const rawTotalValue =
+      body.grand_total ??
+      body.order_total ??
+      body.total_amount ??
+      body.bill_amount ??
+      body.pricing?.grand_total ??
+      body.pricing?.total ??
+      body.total ??
+      body.final_amount ??
+      body.net_amount ??
+      details.grand_total ??
+      details.order_total ??
+      details.total_amount ??
+      details.bill_amount ??
+      details.pricing?.grand_total ??
+      details.pricing?.total ??
+      details.total ??
+      details.amount ??
+      details.final_total ??
+      details.net_amount;
+
+    let total = parseFloat(rawTotalValue);
     if (isNaN(total) || total <= 0) {
-      total = items.reduce((acc, it) => acc + it.price * it.quantity, 0);
+      total = calculatedItemsTotal;
     }
 
-    // 7. Status Mapping (Constrained strictly to postgres array ['pending', 'preparing', 'ready', 'completed'])
-    const rawStatus = (details.status || details.Status || 'pending').toString().toLowerCase();
+    // 7. Status Mapping
+    const rawStatus = (
+      body.status ||
+      body.order_status ||
+      details.status ||
+      details.Status ||
+      'pending'
+    ).toString().toLowerCase();
+
     let safeStatus: 'pending' | 'preparing' | 'ready' | 'completed' = 'pending';
-    
-    if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted' || rawStatus === '1') {
+    if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted' || rawStatus === 'confirmed' || rawStatus === '1') {
       safeStatus = 'preparing';
-    } else if (rawStatus === 'ready' || rawStatus === '2') {
+    } else if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup' || rawStatus === '2') {
       safeStatus = 'ready';
-    } else if (rawStatus === 'completed' || rawStatus === 'dispatched' || rawStatus === '3') {
+    } else if (rawStatus === 'completed' || rawStatus === 'dispatched' || rawStatus === 'delivered' || rawStatus === '3') {
       safeStatus = 'completed';
     }
 
-    const createdAt = details.created_at || details.order_date || new Date().toISOString();
-    const placedAtIst = details.placed_at_ist || formatIST(createdAt);
+    const createdAt = details.created_at || details.order_date || body.created_at || body.placed_at || new Date().toISOString();
+    const placedAtIst = details.placed_at_ist || body.placed_at_ist || formatIST(createdAt);
 
-    // Omit 'id' field so Postgres generates a valid UUID automatically
-    const orderRecord = {
-      token,
+    const serverOrder: ServerOrder = {
+      id: rawOrderId,
+      token: `#${token}`,
       status: safeStatus,
       total,
-      items, // Passed directly into jsonb column
-      customer_name: details.customer_name || details.customerName || `${sourceUpper} Customer`,
-      customer_phone: details.customer_phone || details.phone || '+919876543210',
-      table_id: details.table_id || `${sourceUpper} Online`,
+      items,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      table_id: body.table_id || details.table_id || `${sourceUpper} Online`,
       order_type: 'aggregator',
       aggregator_platform: detectedPlatform,
       created_at: createdAt,
       placed_at_ist: placedAtIst,
-      notes: details.notes || details.special_instructions || `Petpooja Ref: ${rawOrderId}`
+      notes: body.instructions || body.special_instructions || details.notes || details.special_instructions || `Ref: ${rawOrderId}`
     };
 
-    // 8. Persist to Supabase
+    // Save to memory store
+    try {
+      saveMemoryOrder(serverOrder);
+    } catch (e: any) {
+      console.warn('[Petpooja Webhook] Memory order save warning:', e?.message);
+    }
+
+    // Record Inbound Log for Inspector
+    try {
+      recordInboundLog({
+        id: `petpooja_log_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        path: '/api/webhooks/petpooja',
+        ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown',
+        headers: req.headers,
+        raw_body: body,
+        detected_platform: 'Vyoma Webhook',
+        detected_source: sourceUpper,
+        order_id: rawOrderId,
+        token: serverOrder.token,
+        item_count: items.length,
+        total_amount: total,
+        status_code: 200,
+        success: true,
+        message: `Order ${rawOrderId} received (${sourceUpper}) for ${customerName}`,
+        duration_ms: Date.now() - startTime
+      });
+    } catch (logErr: any) {
+      console.warn('[Petpooja Webhook] Log recording warning:', logErr?.message);
+    }
+
+    // Broadcast SSE
+    try {
+      broadcastEvent('new_order', serverOrder);
+      broadcastEvent('order_created', serverOrder);
+    } catch (sseErr: any) {
+      console.warn('[Petpooja Webhook] SSE broadcast warning:', sseErr?.message);
+    }
+
+    // Persist to Supabase if credentials exist
+    let dbRecord = null;
     const supabase = getSupabaseClient();
-    if (!supabase) {
-      console.error('[WEBHOOK ERROR] Supabase credentials missing from environment variables.');
-      return res.status(500).json({
-        success: '0',
-        status: 'error',
-        message: 'Database configuration missing on server. Check env variables.'
-      });
+    if (supabase) {
+      try {
+        const { data: dbData, error: dbError } = await supabase
+          .from('orders')
+          .insert([{
+            token: serverOrder.token,
+            status: serverOrder.status,
+            total: serverOrder.total,
+            items: serverOrder.items,
+            customer_name: serverOrder.customer_name,
+            customer_phone: serverOrder.customer_phone,
+            table_id: serverOrder.table_id,
+            order_type: serverOrder.order_type,
+            aggregator_platform: serverOrder.aggregator_platform,
+            created_at: serverOrder.created_at,
+            placed_at_ist: serverOrder.placed_at_ist,
+            notes: serverOrder.notes
+          }])
+          .select();
+
+        if (!dbError && dbData && dbData.length > 0) {
+          dbRecord = dbData[0];
+        }
+      } catch (dbEx: any) {
+        console.warn('[Petpooja Webhook] Supabase insert warning:', dbEx?.message);
+      }
     }
-
-    const { data: dbData, error: dbError } = await supabase
-      .from('orders')
-      .insert([orderRecord])
-      .select();
-
-    if (dbError) {
-      console.error('[SUPABASE INSERT FAILED]:', dbError);
-      return res.status(500).json({
-        success: '0',
-        status: 'db_error',
-        message: dbError.message,
-        code: dbError.code,
-        details: dbError.details
-      });
-    }
-
-    console.log('[SUCCESS] Order persisted to Supabase:', dbData);
 
     return res.status(200).json({
       success: '1',
       status: 'success',
       message: 'Order processed and persisted successfully',
-      generated_id: dbData[0]?.id,
-      token: orderRecord.token,
+      generated_id: dbRecord?.id || serverOrder.id,
+      token: serverOrder.token,
       order_from: sourceUpper,
       platform: detectedPlatform,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      total_amount: total,
       placed_at_ist: placedAtIst,
-      data: dbData[0]
+      data: dbRecord || serverOrder
     });
 
   } catch (err: any) {
