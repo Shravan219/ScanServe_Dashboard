@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { processWebhookPayload } from '../processWebhook';
 import { getInboundLogs, clearInboundLogs } from '../orderStore';
+import dynoHandler from '../../api/webhooks/dyno';
 
 const router = Router();
 
@@ -35,6 +36,13 @@ router.delete('/logs', (req: Request, res: Response) => {
 });
 
 /**
+ * Direct Dyno API webhook route
+ */
+router.all('/dyno', async (req: Request, res: Response) => {
+  return dynoHandler(req, res);
+});
+
+/**
  * POST /api/webhooks/simulate
  * Simulates an order directly from UI / testing
  */
@@ -43,7 +51,7 @@ router.post('/simulate', async (req: Request, res: Response) => {
     const result = await processWebhookPayload(req.body, req.headers, {
       method: 'POST',
       path: '/api/webhooks/simulate',
-      ip: req.ip || req.socket.remoteAddress
+      ip: req.ip || req.socket?.remoteAddress
     });
     return res.status(result.status).json(result.data);
   } catch (err: any) {
@@ -75,7 +83,7 @@ const webhookHandler = async (req: Request, res: Response) => {
     const result = await processWebhookPayload(req.body, req.headers, {
       method: req.method,
       path: req.originalUrl || req.path,
-      ip: req.ip || req.socket.remoteAddress
+      ip: req.ip || req.socket?.remoteAddress
     });
     return res.status(result.status).json(result.data);
   } catch (err: any) {
