@@ -9,8 +9,8 @@ import {
   broadcastEvent,
   getSupabaseClient,
   ServerOrder
-} from '../orderStore.js';
-import { processWebhookPayload } from '../processWebhook.js';
+} from '../orderStore';
+import { processWebhookPayload } from '../processWebhook';
 
 const router = Router();
 

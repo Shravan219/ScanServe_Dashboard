@@ -2,8 +2,8 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
-import webhookRouter from './server/routes/webhooks.js';
-import ordersRouter from './server/routes/orders.js';
+import webhookRouter from './server/routes/webhooks';
+import ordersRouter from './server/routes/orders';
 
 dotenv.config();
 

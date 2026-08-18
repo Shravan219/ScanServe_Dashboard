@@ -1,4 +1,4 @@
-import { registerSSEClient, unregisterSSEClient } from '../../server/orderStore.js';
+import { registerSSEClient, unregisterSSEClient } from '../../server/orderStore';
 
 export const config = {
   api: {

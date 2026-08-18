@@ -1,5 +1,5 @@
-import { triggerOutboundWebhook } from '../../server/routes/orders.js';
-import { getMemoryOrder, saveMemoryOrder, broadcastEvent, getSupabaseClient } from '../../server/orderStore.js';
+import { triggerOutboundWebhook } from '../../server/routes/orders';
+import { getMemoryOrder, saveMemoryOrder, broadcastEvent, getSupabaseClient } from '../../server/orderStore';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
