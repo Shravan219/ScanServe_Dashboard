@@ -30,9 +30,7 @@ function extractOrderObject(body: any): any {
         if (orderParam) {
           current = JSON.parse(orderParam);
         }
-      } catch {
-        // failed parse
-      }
+      } catch {}
     }
   }
 
@@ -55,13 +53,10 @@ function extractOrderObject(body: any): any {
     'Order',
     'order_info',
     'OrderInfo',
-    'orderInfo',
     'data',
     'Data',
     'payload',
-    'Payload',
-    'orderData',
-    'OrderData'
+    'Payload'
   ];
 
   for (const key of wrappers) {
@@ -70,9 +65,7 @@ function extractOrderObject(body: any): any {
       if (typeof sub === 'string') {
         try {
           sub = JSON.parse(sub);
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
       if (typeof sub === 'object' && sub !== null) {
         if (Array.isArray(sub) && sub.length > 0) {
@@ -95,10 +88,10 @@ export async function processWebhookPayload(
   const reqMethod = meta?.method || 'POST';
   const reqPath = meta?.path || '/api/webhooks/petpooja';
 
-  // 4. Print console log of incoming body object right at start of handler
-  console.log('INCOMING_WEBHOOK_BODY:', JSON.stringify(rawBody, null, 2));
+  // 1. LOG INCOMING PAYLOAD RIGHT AT START OF HANDLER
+  console.log('RECEIVED_PAYLOAD:', JSON.stringify(rawBody, null, 2));
 
-  // 0. Handle Ping / Healthcheck Probes from Testers, Petpooja, Zomato, Swiggy
+  // 0. Handle Ping / Healthcheck Probes
   const isExplicitPing =
     !rawBody ||
     rawBody === 'ping' ||
@@ -112,7 +105,22 @@ export async function processWebhookPayload(
     rawBody?.test === true ||
     (typeof rawBody === 'object' && Object.keys(rawBody).length === 0);
 
-  if (isExplicitPing && (!rawBody?.order_details && !rawBody?.order && !rawBody?.order_id && !rawBody?.items)) {
+  const hasOrderData = Boolean(
+    rawBody?.order_details ||
+    rawBody?.order ||
+    rawBody?.orders ||
+    rawBody?.order_id ||
+    rawBody?.orderId ||
+    rawBody?.Order_ID ||
+    rawBody?.Customer ||
+    rawBody?.customer ||
+    rawBody?.Item ||
+    rawBody?.items ||
+    rawBody?.order_items ||
+    rawBody?.data
+  );
+
+  if (isExplicitPing && !hasOrderData) {
     const logEntry: InboundWebhookLog = {
       id: `in_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       timestamp: new Date().toISOString(),
@@ -146,59 +154,249 @@ export async function processWebhookPayload(
     };
   }
 
-  const details = extractOrderObject(rawBody);
+  const details = extractOrderObject(rawBody) || rawBody || {};
 
-  if (!details || typeof details !== 'object') {
-    const errorMsg = 'Invalid webhook payload: missing order data or could not parse JSON body';
-    const log: InboundWebhookLog = {
-      id: `in_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      timestamp: new Date().toISOString(),
-      method: reqMethod,
-      path: reqPath,
-      ip: meta?.ip,
-      headers: headers || {},
-      raw_body: rawBody,
-      detected_platform: 'unknown',
-      detected_source: 'INVALID',
-      item_count: 0,
-      total_amount: 0,
-      status_code: 400,
-      success: false,
-      message: errorMsg,
-      duration_ms: Date.now() - startTime
-    };
-    recordInboundLog(log);
+  // 2. ROBUST FIELD EXTRACTION (PETPOOJA, DYNO, AND CUSTOM SCHEMAS)
+
+  // Customer Name
+  const rawCustomerName =
+    rawBody?.Customer?.Name ||
+    rawBody?.Customer?.name ||
+    rawBody?.customer_name ||
+    rawBody?.customerName ||
+    rawBody?.CustomerName ||
+    rawBody?.customer?.name ||
+    rawBody?.customer?.customer_name ||
+    rawBody?.data?.customer_name ||
+    rawBody?.data?.customer?.name ||
+    rawBody?.delivery_details?.customer_name ||
+    rawBody?.delivery_details?.name ||
+    rawBody?.user?.name ||
+    details?.Customer?.Name ||
+    details?.Customer?.name ||
+    details?.customer_name ||
+    details?.customerName ||
+    details?.CustomerName ||
+    details?.customer?.name ||
+    details?.customer?.customer_name ||
+    details?.data?.customer_name ||
+    details?.data?.customer?.name ||
+    details?.delivery_details?.customer_name ||
+    details?.delivery_details?.name ||
+    details?.user?.name ||
+    details?.recipient_name ||
+    details?.client_name ||
+    details?.buyer_name ||
+    '';
+
+  const customerName = String(rawCustomerName).trim() || 'Guest Customer';
+
+  // Customer Phone
+  const rawCustomerPhone =
+    rawBody?.Customer?.Mobile ||
+    rawBody?.Customer?.mobile ||
+    rawBody?.Customer?.Phone ||
+    rawBody?.Customer?.phone ||
+    rawBody?.customer_phone ||
+    rawBody?.customerPhone ||
+    rawBody?.CustomerPhone ||
+    rawBody?.customer?.phone ||
+    rawBody?.customer?.mobile ||
+    rawBody?.customer?.phone_number ||
+    rawBody?.data?.customer_phone ||
+    rawBody?.data?.customer?.phone ||
+    rawBody?.delivery_details?.phone ||
+    rawBody?.delivery_details?.phone_number ||
+    rawBody?.phone_number ||
+    rawBody?.mobile ||
+    rawBody?.user?.phone ||
+    details?.Customer?.Mobile ||
+    details?.Customer?.mobile ||
+    details?.Customer?.Phone ||
+    details?.Customer?.phone ||
+    details?.customer_phone ||
+    details?.customerPhone ||
+    details?.CustomerPhone ||
+    details?.customer?.phone ||
+    details?.customer?.mobile ||
+    details?.customer?.phone_number ||
+    details?.data?.customer_phone ||
+    details?.data?.customer?.phone ||
+    details?.delivery_details?.phone ||
+    details?.delivery_details?.phone_number ||
+    details?.phone_number ||
+    details?.phone ||
+    details?.mobile ||
+    details?.user?.phone ||
+    '';
+
+  const customerPhone = String(rawCustomerPhone).trim() || 'Masked Number';
+
+  // Items Array
+  const rawItems =
+    (Array.isArray(rawBody?.Item) && rawBody.Item) ||
+    (Array.isArray(rawBody?.item) && rawBody.item) ||
+    (Array.isArray(rawBody?.items) && rawBody.items) ||
+    (Array.isArray(rawBody?.Items) && rawBody.Items) ||
+    (Array.isArray(rawBody?.order_items) && rawBody.order_items) ||
+    (Array.isArray(rawBody?.orderItems) && rawBody.orderItems) ||
+    (Array.isArray(rawBody?.OrderItems) && rawBody.OrderItems) ||
+    (Array.isArray(rawBody?.data?.items) && rawBody.data.items) ||
+    (Array.isArray(rawBody?.data?.order_items) && rawBody.data.order_items) ||
+    (Array.isArray(details?.Item) && details.Item) ||
+    (Array.isArray(details?.item) && details.item) ||
+    (Array.isArray(details?.items) && details.items) ||
+    (Array.isArray(details?.Items) && details.Items) ||
+    (Array.isArray(details?.order_items) && details.order_items) ||
+    (Array.isArray(details?.orderItems) && details.orderItems) ||
+    (Array.isArray(details?.OrderItems) && details.OrderItems) ||
+    (Array.isArray(details?.data?.items) && details.data.items) ||
+    (Array.isArray(details?.data?.order_items) && details.data.order_items) ||
+    [];
+
+  const items = rawItems.map((item: any, idx: number) => {
+    const name = String(
+      item?.Item_Name ||
+      item?.ItemName ||
+      item?.item_name ||
+      item?.itemName ||
+      item?.name ||
+      item?.Name ||
+      item?.title ||
+      item?.Title ||
+      item?.item_title ||
+      `Item ${idx + 1}`
+    ).trim();
+
+    const rawPrice =
+      item?.Price ??
+      item?.price ??
+      item?.Rate ??
+      item?.rate ??
+      item?.Item_Price ??
+      item?.item_price ??
+      item?.final_price ??
+      item?.unit_price ??
+      item?.amount ??
+      item?.Amount ??
+      0;
+
+    const price = Number(rawPrice) || 0;
+
+    const rawQty =
+      item?.Quantity ??
+      item?.quantity ??
+      item?.Qty ??
+      item?.qty ??
+      item?.count ??
+      item?.Count ??
+      item?.item_quantity ??
+      1;
+
+    const quantity = Number(rawQty) || 1;
 
     return {
-      status: 400,
-      data: {
-        success: '0',
-        status: 'error',
-        message: errorMsg
-      }
+      id: String(item?.item_id || item?.id || item?.Item_ID || item?.ItemID || `item_${idx + 1}`),
+      name: name || `Item ${idx + 1}`,
+      price: isNaN(price) ? 0 : price,
+      quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
+      item_notes: item?.notes || item?.item_notes || item?.special_instructions || item?.instruction || undefined
     };
+  });
+
+  // Fallback single item
+  if (items.length === 0) {
+    const singleName =
+      rawBody?.item_name ||
+      rawBody?.itemName ||
+      rawBody?.Item_Name ||
+      details?.item_name ||
+      details?.itemName ||
+      details?.Item_Name ||
+      details?.name ||
+      'Order Item';
+
+    const singlePrice = Number(
+      rawBody?.price ||
+      rawBody?.Price ||
+      rawBody?.total ||
+      rawBody?.grand_total ||
+      details?.price ||
+      details?.total ||
+      details?.grand_total ||
+      0
+    ) || 0;
+
+    items.push({
+      id: 'item_1',
+      name: singleName,
+      price: singlePrice,
+      quantity: 1
+    });
   }
 
-  // 1. Detect Source Channel
+  // Total Amount Extraction
+  const calculatedItemsTotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
+
+  const rawTotalValue =
+    rawBody?.Order_Total ??
+    rawBody?.order_total ??
+    rawBody?.grand_total ??
+    rawBody?.Grand_Total ??
+    rawBody?.bill_amount ??
+    rawBody?.Bill_Amount ??
+    rawBody?.total_amount ??
+    rawBody?.Total_Amount ??
+    rawBody?.total ??
+    rawBody?.Total ??
+    rawBody?.data?.bill_amount ??
+    rawBody?.data?.grand_total ??
+    rawBody?.data?.total_amount ??
+    rawBody?.pricing?.grand_total ??
+    rawBody?.pricing?.total ??
+    details?.Order_Total ??
+    details?.order_total ??
+    details?.grand_total ??
+    details?.Grand_Total ??
+    details?.bill_amount ??
+    details?.Bill_Amount ??
+    details?.total_amount ??
+    details?.Total_Amount ??
+    details?.total ??
+    details?.Total ??
+    details?.data?.bill_amount ??
+    details?.data?.grand_total ??
+    details?.data?.total_amount ??
+    details?.amount ??
+    details?.Amount;
+
+  let total = Number(rawTotalValue);
+  if (isNaN(total) || total <= 0) {
+    total = calculatedItemsTotal > 0 ? calculatedItemsTotal : 0;
+  }
+
+  // Detect Source Channel
   const headerSource = headers?.['x-source'] || headers?.['x-channel'] || headers?.['x-platform'];
   const rawOrderFrom = (
     rawBody?.channel ||
     rawBody?.source ||
     rawBody?.platform ||
-    details.order_from ||
-    details.orderFrom ||
-    details.OrderFrom ||
-    details.source ||
-    details.Source ||
-    details.order_source ||
-    details.aggregator ||
-    details.channel ||
+    rawBody?.order_from ||
+    rawBody?.orderFrom ||
+    details?.order_from ||
+    details?.orderFrom ||
+    details?.OrderFrom ||
+    details?.source ||
+    details?.Source ||
+    details?.order_source ||
+    details?.aggregator ||
+    details?.channel ||
     headerSource ||
-    ''
+    'petpooja'
   ).toString().trim().toLowerCase();
 
   let detectedPlatform: 'swiggy' | 'zomato' | 'other_online' = 'other_online';
-  let sourceUpper = 'ONLINE';
+  let sourceUpper = 'PETPOOJA';
 
   if (rawOrderFrom.includes('swiggy') || rawOrderFrom === 'sw') {
     detectedPlatform = 'swiggy';
@@ -206,74 +404,59 @@ export async function processWebhookPayload(
   } else if (rawOrderFrom.includes('zomato') || rawOrderFrom === 'zm') {
     detectedPlatform = 'zomato';
     sourceUpper = 'ZOMATO';
+  } else if (rawOrderFrom.includes('dyno')) {
+    detectedPlatform = 'other_online';
+    sourceUpper = 'DYNO';
   } else if (rawOrderFrom.includes('magicpin')) {
     detectedPlatform = 'other_online';
     sourceUpper = 'MAGICPIN';
-  } else if (rawOrderFrom.includes('petpooja')) {
-    detectedPlatform = 'other_online';
-    sourceUpper = 'PETPOOJA';
   } else if (rawOrderFrom) {
     sourceUpper = rawOrderFrom.toUpperCase();
-  } else {
-    const textHints = `${details.table_id || ''} ${details.order_id || ''} ${details.notes || ''} ${details.special_instructions || ''}`.toLowerCase();
-    if (textHints.includes('swiggy')) {
-      detectedPlatform = 'swiggy';
-      sourceUpper = 'SWIGGY';
-    } else if (textHints.includes('zomato')) {
-      detectedPlatform = 'zomato';
-      sourceUpper = 'ZOMATO';
-    }
   }
 
-  // 2. Extract Order ID & 4-Digit Token
-  const rawOrderId = (
+  // Order ID & Token
+  const rawOrderId = String(
+    rawBody?.Order_ID ||
     rawBody?.order_id ||
-    rawBody?.id ||
     rawBody?.orderId ||
-    details.order_id ||
-    details.orderId ||
-    details.OrderID ||
-    details.id ||
-    details.ID ||
-    details.order_number ||
-    details.orderNumber ||
-    details.order_no ||
-    details.OrderNo ||
-    details.bill_no ||
-    details.billNo ||
-    ''
-  ).toString();
+    rawBody?.id ||
+    details?.Order_ID ||
+    details?.order_id ||
+    details?.orderId ||
+    details?.OrderID ||
+    details?.id ||
+    details?.order_number ||
+    details?.orderNumber ||
+    details?.bill_no ||
+    `ORD_${Math.floor(100000 + Math.random() * 900000)}`
+  );
 
-  const generatedId = `PP_${Math.floor(100000 + Math.random() * 900000)}`;
-  const orderId = rawOrderId || generatedId;
-
-  let token = (
+  let token = String(
     rawBody?.token ||
     rawBody?.token_no ||
-    details.token ||
-    details.Token ||
-    details.token_no ||
-    details.TokenNo ||
-    details.token_number ||
+    rawBody?.Token ||
+    details?.token ||
+    details?.Token ||
+    details?.token_no ||
     ''
-  ).toString().replace(/[^0-9]/g, '');
+  ).replace(/[^0-9]/g, '');
 
   if (token.length !== 4) {
-    token = orderId.replace(/[^0-9]/g, '').slice(-4);
+    token = rawOrderId.replace(/[^0-9]/g, '').slice(-4);
   }
   if (token.length !== 4) {
     token = Math.floor(1000 + Math.random() * 9000).toString();
   }
 
-  // 3. Map Order Status
-  const rawStatus = (
+  // Status Mapping
+  const rawStatus = String(
     rawBody?.status ||
     rawBody?.order_status ||
-    details.status ||
-    details.Status ||
-    details.order_status ||
+    rawBody?.Status ||
+    details?.status ||
+    details?.Status ||
     'pending'
-  ).toString().toLowerCase();
+  ).toLowerCase();
 
   let mappedStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled' = 'pending';
 
@@ -287,255 +470,97 @@ export async function processWebhookPayload(
     mappedStatus = 'cancelled';
   }
 
-  // 1. Customer Name fallback parsing:
-  // body.customer?.name || body.customer_name || body.delivery_details?.customer_name || body.user?.name
-  const customerName = (
-    rawBody?.customer?.name ||
-    rawBody?.customer_name ||
-    rawBody?.delivery_details?.customer_name ||
-    rawBody?.delivery_details?.name ||
-    rawBody?.user?.name ||
-    rawBody?.customer?.customer_name ||
-    details.customer?.name ||
-    details.customer_name ||
-    details.customerName ||
-    details.CustomerName ||
-    details.delivery_details?.customer_name ||
-    details.delivery_details?.name ||
-    details.user?.name ||
-    details.customer_details?.name ||
-    details.customer_details?.customer_name ||
-    details.recipient_name ||
-    details.client_name ||
-    details.buyer_name ||
-    `${sourceUpper} Customer`
-  ).toString().trim();
+  const createdAt = details?.created_at || details?.order_date || details?.placed_at || rawBody?.created_at || rawBody?.placed_at || new Date().toISOString();
+  const placedAtIst = details?.placed_at_ist || rawBody?.placed_at_ist || formatIST(createdAt);
 
-  // 2. Phone Number fallback parsing:
-  // body.customer?.phone || body.phone_number || body.customer_phone || body.delivery_details?.phone
-  const customerPhone = (
-    rawBody?.customer?.phone ||
-    rawBody?.phone_number ||
-    rawBody?.customer_phone ||
-    rawBody?.delivery_details?.phone ||
-    rawBody?.delivery_details?.phone_number ||
-    rawBody?.customer?.phone_number ||
-    rawBody?.user?.phone ||
-    details.customer?.phone ||
-    details.phone_number ||
-    details.customer_phone ||
-    details.customerPhone ||
-    details.CustomerPhone ||
-    details.delivery_details?.phone ||
-    details.delivery_details?.phone_number ||
-    details.customer_details?.phone ||
-    details.user?.phone ||
-    details.phone ||
-    details.mobile ||
-    'Masked (Platform Policy)'
-  ).toString().trim();
-
-  // 5. Parse Item Details
-  const rawItems = Array.isArray(rawBody?.order_items)
-    ? rawBody.order_items
-    : Array.isArray(rawBody?.items)
-    ? rawBody.items
-    : Array.isArray(details.items)
-    ? details.items
-    : Array.isArray(details.order_items)
-    ? details.order_items
-    : Array.isArray(details.OrderItems)
-    ? details.OrderItems
-    : Array.isArray(details.orderitems)
-    ? details.orderitems
-    : Array.isArray(details.item)
-    ? details.item
-    : [];
-
-  const items = rawItems.map((item: any, idx: number) => {
-    const name = (
-      item.item_name ||
-      item.itemName ||
-      item.ItemName ||
-      item.name ||
-      item.title ||
-      item.item_title ||
-      `Delicacy Item ${idx + 1}`
-    ).toString();
-
-    const price = parseFloat(
-      item.price ??
-      item.item_price ??
-      item.rate ??
-      item.final_price ??
-      item.unit_price ??
-      item.amount ??
-      0
-    );
-    const quantity = parseInt(
-      item.quantity ??
-      item.qty ??
-      item.Qty ??
-      item.count ??
-      item.Quantity ??
-      1,
-      10
-    );
-    const itemNotes = item.notes || item.item_notes || item.customization || item.special_instructions || undefined;
-
-    return {
-      id: (item.item_id || item.id || `item-${idx + 1}`).toString(),
-      name,
-      price: isNaN(price) ? 0 : price,
-      quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
-      item_notes: itemNotes
-    };
-  });
-
-  if (items.length === 0) {
-    const singleName = details.item_name || details.name || rawBody?.item_name || `${sourceUpper} Special Combo`;
-    const singlePrice = parseFloat(details.total || details.order_total || details.amount || details.grand_total || rawBody?.total || 450);
-    items.push({
-      id: 'item-1',
-      name: singleName,
-      price: isNaN(singlePrice) ? 450 : singlePrice,
-      quantity: 1
-    });
-  }
-
-  // 3. Total Price / Grand Total fallback parsing:
-  // body.grand_total || body.order_total || body.total_amount || body.bill_amount || body.pricing?.grand_total
-  const calculatedItemsTotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
-  const rawTotalValue =
-    rawBody?.grand_total ??
-    rawBody?.order_total ??
-    rawBody?.total_amount ??
-    rawBody?.bill_amount ??
-    rawBody?.pricing?.grand_total ??
-    rawBody?.pricing?.total ??
-    rawBody?.total ??
-    rawBody?.final_amount ??
-    rawBody?.net_amount ??
-    details.grand_total ??
-    details.order_total ??
-    details.total_amount ??
-    details.bill_amount ??
-    details.pricing?.grand_total ??
-    details.pricing?.total ??
-    details.total ??
-    details.amount ??
-    details.final_total ??
-    details.net_amount;
-
-  let total = parseFloat(rawTotalValue);
-  if (isNaN(total) || total <= 0) {
-    total = calculatedItemsTotal;
-  }
-
-  // 7. Timestamps
-  const createdAt = details.created_at || details.order_date || details.placed_at || rawBody?.created_at || rawBody?.placed_at || new Date().toISOString();
-  const placedAtIst = details.placed_at_ist || rawBody?.placed_at_ist || formatIST(createdAt);
-
-  // 8. Construct Unified Server Order Record
+  // 3. PREVENT FALLBACK OVERWRITES
   const orderRecord: ServerOrder = {
-    id: orderId,
+    id: rawOrderId,
     token: `#${token}`,
     status: mappedStatus,
     total,
     items,
     customer_name: customerName,
     customer_phone: customerPhone,
-    table_id: rawBody?.table_id || details.table_id || `${sourceUpper} Online`,
+    table_id: rawBody?.table_id || details?.table_id || `${sourceUpper} Online`,
     order_type: 'aggregator',
     aggregator_platform: detectedPlatform,
     created_at: createdAt,
     placed_at_ist: placedAtIst,
-    notes: rawBody?.instructions || rawBody?.special_instructions || details.notes || details.special_instructions || details.customer_note || undefined
+    notes: rawBody?.instructions || rawBody?.special_instructions || details?.notes || details?.special_instructions || `Ref: ${rawOrderId}`
   };
 
-  // 9. Save to Server Memory Store & check existing
-  const existingOrder = getMemoryOrder(orderId) || getMemoryOrder(token);
+  // Save to Server Memory Store
   saveMemoryOrder(orderRecord);
 
-  // 10. Persist to Supabase Database (if configured)
-  let dbRecord = null;
-  try {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      const { data: dbData, error: dbError } = await supabase
-        .from('orders')
-        .upsert({
-          id: orderRecord.id,
-          token: orderRecord.token,
-          status: orderRecord.status,
-          total: orderRecord.total,
-          items: orderRecord.items,
-          customer_name: orderRecord.customer_name,
-          customer_phone: orderRecord.customer_phone,
-          table_id: orderRecord.table_id,
-          order_type: orderRecord.order_type,
-          aggregator_platform: orderRecord.aggregator_platform,
-          created_at: orderRecord.created_at,
-          placed_at_ist: orderRecord.placed_at_ist,
-          notes: orderRecord.notes
-        })
-        .select();
-
-      if (!dbError && dbData && dbData.length > 0) {
-        dbRecord = dbData[0];
-      }
+  // Persist to Supabase Database (if configured)
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      await supabase.from('orders').upsert({
+        id: orderRecord.id,
+        token: orderRecord.token,
+        status: orderRecord.status,
+        total: orderRecord.total,
+        items: orderRecord.items,
+        customer_name: orderRecord.customer_name,
+        customer_phone: orderRecord.customer_phone,
+        table_id: orderRecord.table_id,
+        order_type: orderRecord.order_type,
+        aggregator_platform: orderRecord.aggregator_platform,
+        created_at: orderRecord.created_at,
+        notes: orderRecord.notes
+      });
+    } catch (err: any) {
+      console.warn('[processWebhookPayload] Supabase sync warning:', err.message);
     }
-  } catch (err: any) {
-    console.warn('[processWebhook] Supabase write skipped or failed:', err?.message);
   }
 
-  // 11. Broadcast Real-Time Events
+  // Real-time SSE Broadcast to KDS
   try {
     broadcastEvent('new_order', orderRecord);
     broadcastEvent('order_created', orderRecord);
-  } catch (err: any) {
-    console.warn('[processWebhook] Real-time broadcast failed:', err?.message);
+  } catch (sseErr: any) {
+    console.warn('[processWebhookPayload] SSE broadcast error:', sseErr);
   }
 
-  // 12. Record Inbound Inspection Log
-  const log: InboundWebhookLog = {
-    id: `in_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    timestamp: new Date().toISOString(),
-    method: reqMethod,
-    path: reqPath,
-    ip: meta?.ip,
-    headers: headers || {},
-    raw_body: rawBody,
-    detected_platform: 'Vyoma Unified Webhook',
-    detected_source: sourceUpper,
-    order_id: orderId,
-    token: orderRecord.token,
-    item_count: items.length,
-    total_amount: total,
-    status_code: 200,
-    success: true,
-    message: `Order #${token} from ${sourceUpper} processed successfully for ${customerName} (₹${total})`,
-    duration_ms: Date.now() - startTime
-  };
-  recordInboundLog(log);
+  // Record Inbound Webhook Inspection Log
+  try {
+    recordInboundLog({
+      id: `in_${Date.now()}_${rawOrderId}`,
+      timestamp: new Date().toISOString(),
+      method: reqMethod,
+      path: reqPath,
+      ip: meta?.ip,
+      headers: headers || {},
+      raw_body: rawBody,
+      detected_platform: 'Vyoma Webhook',
+      detected_source: sourceUpper,
+      order_id: rawOrderId,
+      token: orderRecord.token,
+      item_count: items.length,
+      total_amount: total,
+      status_code: 200,
+      success: true,
+      message: `Order ${rawOrderId} processed successfully (${sourceUpper}) for ${customerName} (₹${total})`,
+      duration_ms: Date.now() - startTime
+    });
+  } catch (logErr: any) {
+    console.warn('[processWebhookPayload] Inbound log error:', logErr);
+  }
 
-  // 13. Return Standard Response
+  // Standard Petpooja JSON Success Response
   return {
     status: 200,
     data: {
       success: '1',
-      status: 'success',
-      http_code: 200,
-      message: `Order #${token} processed and registered in kitchen display`,
-      order_id: orderId,
+      message: 'Order saved successfully',
+      order_id: rawOrderId,
       token: orderRecord.token,
-      order_from: sourceUpper,
-      platform: detectedPlatform,
-      customer_name: customerName,
-      customer_phone: customerPhone,
+      customer: customerName,
       total_amount: total,
-      placed_at_ist: placedAtIst,
-      data: dbRecord || orderRecord
+      items_count: items.length,
+      timestamp: new Date().toISOString()
     }
   };
 }
