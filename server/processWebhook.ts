@@ -1,7 +1,7 @@
+import crypto from 'crypto';
 import {
   getSupabaseClient,
   saveMemoryOrder,
-  getMemoryOrder,
   formatIST,
   recordInboundLog,
   broadcastEvent,
@@ -9,21 +9,22 @@ import {
   InboundWebhookLog
 } from './orderStore.js';
 
+function isUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+}
+
 /**
  * Deep parser to extract an order object from any webhook body representation
- * (JSON object, stringified JSON, form body with 'order'/'order_details'/'data'/'payload' key, or array)
  */
 function extractOrderObject(body: any): any {
   if (!body) return null;
 
   let current = body;
 
-  // If body is a string, try JSON parse
   if (typeof current === 'string') {
     try {
       current = JSON.parse(current);
     } catch {
-      // Could be URL-encoded query string like order=%7B...%7D
       try {
         const urlParams = new URLSearchParams(current);
         const orderParam = urlParams.get('order') || urlParams.get('order_details') || urlParams.get('data') || urlParams.get('payload');
@@ -34,7 +35,6 @@ function extractOrderObject(body: any): any {
     }
   }
 
-  // If array, take the first order object
   if (Array.isArray(current) && current.length > 0) {
     current = current[0];
   }
@@ -43,7 +43,6 @@ function extractOrderObject(body: any): any {
     return null;
   }
 
-  // Check common wrapper keys
   const wrappers = [
     'order_details',
     'orderDetails',
@@ -88,7 +87,7 @@ export async function processWebhookPayload(
   const reqMethod = meta?.method || 'POST';
   const reqPath = meta?.path || '/api/webhooks/petpooja';
 
-  // 1. LOG INCOMING PAYLOAD RIGHT AT START OF HANDLER
+  // 1. LOG INCOMING PAYLOAD
   console.log('RECEIVED_PAYLOAD:', JSON.stringify(rawBody, null, 2));
 
   // 0. Handle Ping / Healthcheck Probes
@@ -155,8 +154,6 @@ export async function processWebhookPayload(
   }
 
   const details = extractOrderObject(rawBody) || rawBody || {};
-
-  // 2. ROBUST FIELD EXTRACTION (PETPOOJA, DYNO, AND CUSTOM SCHEMAS)
 
   // Customer Name
   const rawCustomerName =
@@ -304,7 +301,6 @@ export async function processWebhookPayload(
     };
   });
 
-  // Fallback single item
   if (items.length === 0) {
     const singleName =
       rawBody?.item_name ||
@@ -335,7 +331,7 @@ export async function processWebhookPayload(
     });
   }
 
-  // Total Amount Extraction
+  // Total Amount
   const calculatedItemsTotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
 
   const rawTotalValue =
@@ -414,8 +410,8 @@ export async function processWebhookPayload(
     sourceUpper = rawOrderFrom.toUpperCase();
   }
 
-  // Order ID & Token
-  const rawOrderId = String(
+  // Order ID
+  const rawProvidedId =
     rawBody?.Order_ID ||
     rawBody?.order_id ||
     rawBody?.orderId ||
@@ -427,9 +423,12 @@ export async function processWebhookPayload(
     details?.id ||
     details?.order_number ||
     details?.orderNumber ||
-    details?.bill_no ||
-    `ORD_${Math.floor(100000 + Math.random() * 900000)}`
-  );
+    details?.bill_no;
+
+  let finalOrderId = rawProvidedId ? String(rawProvidedId) : `TEST-${Date.now()}`;
+  if (finalOrderId.toLowerCase().includes('test') && !finalOrderId.includes(String(Date.now()).slice(0, 8))) {
+    finalOrderId = `${finalOrderId}_${Date.now()}`;
+  }
 
   let token = String(
     rawBody?.token ||
@@ -442,7 +441,7 @@ export async function processWebhookPayload(
   ).replace(/[^0-9]/g, '');
 
   if (token.length !== 4) {
-    token = rawOrderId.replace(/[^0-9]/g, '').slice(-4);
+    token = finalOrderId.replace(/[^0-9]/g, '').slice(-4);
   }
   if (token.length !== 4) {
     token = Math.floor(1000 + Math.random() * 9000).toString();
@@ -473,9 +472,8 @@ export async function processWebhookPayload(
   const createdAt = details?.created_at || details?.order_date || details?.placed_at || rawBody?.created_at || rawBody?.placed_at || new Date().toISOString();
   const placedAtIst = details?.placed_at_ist || rawBody?.placed_at_ist || formatIST(createdAt);
 
-  // 3. PREVENT FALLBACK OVERWRITES
   const orderRecord: ServerOrder = {
-    id: rawOrderId,
+    id: finalOrderId,
     token: `#${token}`,
     status: mappedStatus,
     total,
@@ -487,36 +485,13 @@ export async function processWebhookPayload(
     aggregator_platform: detectedPlatform,
     created_at: createdAt,
     placed_at_ist: placedAtIst,
-    notes: rawBody?.instructions || rawBody?.special_instructions || details?.notes || details?.special_instructions || `Ref: ${rawOrderId}`
+    notes: rawBody?.instructions || rawBody?.special_instructions || details?.notes || details?.special_instructions || `Ref: ${finalOrderId}`
   };
 
-  // Save to Server Memory Store
+  // Save to Memory Store
   saveMemoryOrder(orderRecord);
 
-  // Persist to Supabase Database (if configured)
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      await supabase.from('orders').upsert({
-        id: orderRecord.id,
-        token: orderRecord.token,
-        status: orderRecord.status,
-        total: orderRecord.total,
-        items: orderRecord.items,
-        customer_name: orderRecord.customer_name,
-        customer_phone: orderRecord.customer_phone,
-        table_id: orderRecord.table_id,
-        order_type: orderRecord.order_type,
-        aggregator_platform: orderRecord.aggregator_platform,
-        created_at: orderRecord.created_at,
-        notes: orderRecord.notes
-      });
-    } catch (err: any) {
-      console.warn('[processWebhookPayload] Supabase sync warning:', err.message);
-    }
-  }
-
-  // Real-time SSE Broadcast to KDS
+  // Broadcast Real-time SSE
   try {
     broadcastEvent('new_order', orderRecord);
     broadcastEvent('order_created', orderRecord);
@@ -527,7 +502,7 @@ export async function processWebhookPayload(
   // Record Inbound Webhook Inspection Log
   try {
     recordInboundLog({
-      id: `in_${Date.now()}_${rawOrderId}`,
+      id: `in_${Date.now()}_${finalOrderId}`,
       timestamp: new Date().toISOString(),
       method: reqMethod,
       path: reqPath,
@@ -536,26 +511,90 @@ export async function processWebhookPayload(
       raw_body: rawBody,
       detected_platform: 'Vyoma Webhook',
       detected_source: sourceUpper,
-      order_id: rawOrderId,
+      order_id: finalOrderId,
       token: orderRecord.token,
       item_count: items.length,
       total_amount: total,
       status_code: 200,
       success: true,
-      message: `Order ${rawOrderId} processed successfully (${sourceUpper}) for ${customerName} (₹${total})`,
+      message: `Order ${finalOrderId} processed (${sourceUpper}) for ${customerName} (₹${total})`,
       duration_ms: Date.now() - startTime
     });
   } catch (logErr: any) {
     console.warn('[processWebhookPayload] Inbound log error:', logErr);
   }
 
-  // Standard Petpooja JSON Success Response
+  // 1. EXPLICIT DATABASE LOGGING & ERROR HANDLING
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    console.log('ATTEMPTING_DB_PERSIST:', {
+      orderId: finalOrderId,
+      customerName: orderRecord.customer_name,
+      grandTotal: orderRecord.total
+    });
+
+    const dbPayload: Record<string, any> = {
+      token: orderRecord.token,
+      status: orderRecord.status || 'pending',
+      total: Number(orderRecord.total) || 0,
+      items: orderRecord.items || [],
+      customer_name: orderRecord.customer_name || 'Guest Customer',
+      customer_phone: orderRecord.customer_phone || 'Masked Number',
+      table_id: String(orderRecord.table_id || `${sourceUpper} Online`),
+      created_at: orderRecord.created_at || new Date().toISOString(),
+      gstin: rawBody?.gstin || details?.gstin || null
+    };
+
+    if (isUUID(finalOrderId)) {
+      dbPayload.id = finalOrderId;
+    } else {
+      dbPayload.id = crypto.randomUUID();
+    }
+
+    try {
+      const { data: dbData, error: dbError } = await supabase
+        .from('orders')
+        .insert([dbPayload])
+        .select();
+
+      if (dbError) {
+        console.error('DB_WRITE_FAILED:', dbError);
+        return {
+          status: 500,
+          data: {
+            success: false,
+            error: dbError.message || 'Database insert failed',
+            details: dbError,
+            order_id: finalOrderId
+          }
+        };
+      }
+
+      console.log('DB_PERSIST_SUCCESS:', {
+        orderId: finalOrderId,
+        dbId: dbPayload.id,
+        dbData
+      });
+    } catch (dbException: any) {
+      console.error('DB_WRITE_FAILED:', dbException);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          error: dbException?.message || 'Database exception',
+          order_id: finalOrderId
+        }
+      };
+    }
+  }
+
+  // Return standard Petpooja JSON Success Response
   return {
     status: 200,
     data: {
       success: '1',
       message: 'Order saved successfully',
-      order_id: rawOrderId,
+      order_id: finalOrderId,
       token: orderRecord.token,
       customer: customerName,
       total_amount: total,

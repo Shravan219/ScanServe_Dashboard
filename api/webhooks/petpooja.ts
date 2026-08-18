@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import {
   saveMemoryOrder,
@@ -32,6 +33,10 @@ function formatIST(dateInput?: string | Date) {
   const d = new Date(dateInput);
   if (isNaN(d.getTime())) return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
   return d.toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' });
+}
+
+function isUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
 }
 
 function extractOrderObject(body: any): any {
@@ -432,8 +437,8 @@ export default async function handler(req: any, res: any) {
       sourceUpper = rawOrderFrom.toUpperCase();
     }
 
-    // Order ID & Token
-    const rawOrderId = String(
+    // 2. UNIQUE ORDER ID HANDLER FOR TESTING & REGULAR ORDERS
+    const rawProvidedId =
       body?.Order_ID ||
       body?.order_id ||
       body?.orderId ||
@@ -445,9 +450,13 @@ export default async function handler(req: any, res: any) {
       details?.id ||
       details?.order_number ||
       details?.orderNumber ||
-      details?.bill_no ||
-      `ORD_${Math.floor(100000 + Math.random() * 900000)}`
-    );
+      details?.bill_no;
+
+    let finalOrderId = rawProvidedId ? String(rawProvidedId) : `TEST-${Date.now()}`;
+    // If it's explicitly named test or duplicate-prone, ensure uniqueness
+    if (finalOrderId.toLowerCase().includes('test') && !finalOrderId.includes(String(Date.now()).slice(0, 8))) {
+      finalOrderId = `${finalOrderId}_${Date.now()}`;
+    }
 
     let token = String(
       body?.token ||
@@ -460,7 +469,7 @@ export default async function handler(req: any, res: any) {
     ).replace(/[^0-9]/g, '');
 
     if (token.length !== 4) {
-      token = rawOrderId.replace(/[^0-9]/g, '').slice(-4);
+      token = finalOrderId.replace(/[^0-9]/g, '').slice(-4);
     }
     if (token.length !== 4) {
       token = Math.floor(1000 + Math.random() * 9000).toString();
@@ -488,10 +497,9 @@ export default async function handler(req: any, res: any) {
     const createdAt = details?.created_at || details?.order_date || body?.created_at || body?.placed_at || new Date().toISOString();
     const placedAtIst = details?.placed_at_ist || body?.placed_at_ist || formatIST(createdAt);
 
-    // 3. PREVENT FALLBACK OVERWRITES
-    // Construct Unified ServerOrder with exact parsed values
+    // 3. VALIDATE REQUIRED SCHEMA FIELDS & CONSTRUCT UNIFIED SERVER ORDER
     const serverOrder: ServerOrder = {
-      id: rawOrderId,
+      id: finalOrderId,
       token: `#${token}`,
       status: safeStatus,
       total,
@@ -503,10 +511,10 @@ export default async function handler(req: any, res: any) {
       aggregator_platform: detectedPlatform,
       created_at: createdAt,
       placed_at_ist: placedAtIst,
-      notes: body?.instructions || body?.special_instructions || details?.notes || details?.special_instructions || `Ref: ${rawOrderId}`
+      notes: body?.instructions || body?.special_instructions || details?.notes || details?.special_instructions || `Ref: ${finalOrderId}`
     };
 
-    // Save to memory store
+    // Save to server memory store
     try {
       saveMemoryOrder(serverOrder);
     } catch (e: any) {
@@ -516,7 +524,7 @@ export default async function handler(req: any, res: any) {
     // Record Inbound Log for Live Inspector
     try {
       recordInboundLog({
-        id: `petpooja_log_${Date.now()}_${rawOrderId}`,
+        id: `petpooja_log_${Date.now()}_${finalOrderId}`,
         timestamp: new Date().toISOString(),
         method: req.method,
         path: '/api/webhooks/petpooja',
@@ -525,13 +533,13 @@ export default async function handler(req: any, res: any) {
         raw_body: body,
         detected_platform: 'Vyoma Webhook',
         detected_source: sourceUpper,
-        order_id: rawOrderId,
+        order_id: finalOrderId,
         token: serverOrder.token,
         item_count: items.length,
         total_amount: total,
         status_code: 200,
         success: true,
-        message: `Order ${rawOrderId} received (${sourceUpper}) for ${customerName} (₹${total})`,
+        message: `Order ${finalOrderId} received (${sourceUpper}) for ${customerName} (₹${total})`,
         duration_ms: Date.now() - startTime
       });
     } catch (logErr: any) {
@@ -546,36 +554,73 @@ export default async function handler(req: any, res: any) {
       console.warn('[Petpooja Webhook] SSE broadcast warning:', sseErr?.message);
     }
 
-    // Persist to Supabase DB (if configured)
+    // 1. EXPLICIT DATABASE LOGGING & ERROR HANDLING
     const supabase = getSupabaseClient();
     if (supabase) {
-      try {
-        await supabase
-          .from('orders')
-          .upsert([{
-            id: serverOrder.id,
-            token: serverOrder.token,
-            status: serverOrder.status,
-            total: serverOrder.total,
-            items: serverOrder.items,
-            customer_name: serverOrder.customer_name,
-            customer_phone: serverOrder.customer_phone,
-            table_id: serverOrder.table_id,
-            order_type: serverOrder.order_type,
-            aggregator_platform: serverOrder.aggregator_platform,
-            created_at: serverOrder.created_at,
-            notes: serverOrder.notes
-          }]);
-      } catch (dbErr: any) {
-        console.warn('[Petpooja Webhook] Supabase sync warning:', dbErr?.message);
+      console.log('ATTEMPTING_DB_PERSIST:', {
+        orderId: finalOrderId,
+        customerName: serverOrder.customer_name,
+        grandTotal: serverOrder.total
+      });
+
+      // Prepare validated non-nullable fields matching public.orders schema
+      const dbPayload: Record<string, any> = {
+        token: serverOrder.token,
+        status: serverOrder.status || 'pending',
+        total: Number(serverOrder.total) || 0,
+        items: serverOrder.items || [],
+        customer_name: serverOrder.customer_name || 'Guest Customer',
+        customer_phone: serverOrder.customer_phone || 'Masked Number',
+        table_id: String(serverOrder.table_id || `${sourceUpper} Online`),
+        created_at: serverOrder.created_at || new Date().toISOString(),
+        gstin: body?.gstin || details?.gstin || null
+      };
+
+      // Set valid UUID for PostgreSQL UUID primary key compatibility
+      if (isUUID(finalOrderId)) {
+        dbPayload.id = finalOrderId;
+      } else {
+        dbPayload.id = crypto.randomUUID();
       }
+
+      try {
+        const { data: dbData, error: dbError } = await supabase
+          .from('orders')
+          .insert([dbPayload])
+          .select();
+
+        if (dbError) {
+          console.error('DB_WRITE_FAILED:', dbError);
+          return res.status(500).json({
+            success: false,
+            error: dbError.message || 'Database insert failed',
+            details: dbError,
+            order_id: finalOrderId
+          });
+        }
+
+        console.log('DB_PERSIST_SUCCESS:', {
+          orderId: finalOrderId,
+          dbId: dbPayload.id,
+          dbData
+        });
+      } catch (dbException: any) {
+        console.error('DB_WRITE_FAILED:', dbException);
+        return res.status(500).json({
+          success: false,
+          error: dbException?.message || 'Database connection or query exception',
+          order_id: finalOrderId
+        });
+      }
+    } else {
+      console.warn('SUPABASE_NOT_CONFIGURED: Order persisted in memory only.');
     }
 
     // Return official Petpooja acknowledgement response
     return res.status(200).json({
       success: '1',
       message: 'Order saved successfully',
-      order_id: rawOrderId,
+      order_id: finalOrderId,
       token: serverOrder.token,
       customer: customerName,
       total_amount: total,
@@ -585,9 +630,9 @@ export default async function handler(req: any, res: any) {
 
   } catch (err: any) {
     console.error('[Petpooja Webhook Exception]:', err);
-    return res.status(200).json({
-      success: '0',
-      message: err?.message || 'Error processing webhook order payload',
+    return res.status(500).json({
+      success: false,
+      error: err?.message || 'Error processing webhook order payload',
       timestamp: new Date().toISOString()
     });
   }
