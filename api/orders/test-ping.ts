@@ -1,4 +1,4 @@
-import { triggerOutboundWebhook } from '../../server/routes/orders';
+import { triggerOutboundWebhook } from '../../server/routes/orders.js';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
