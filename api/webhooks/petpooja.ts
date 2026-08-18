@@ -117,13 +117,21 @@ export default async function handler(req: any, res: any) {
     if (typeof body === 'string') {
       try {
         body = JSON.parse(body);
-      } catch {}
+      } catch {
+        try {
+          const urlParams = new URLSearchParams(body);
+          const orderParam = urlParams.get('order') || urlParams.get('order_details') || urlParams.get('data') || urlParams.get('payload');
+          if (orderParam) {
+            body = JSON.parse(orderParam);
+          }
+        } catch {}
+      }
     }
 
-    // 4. Print console log of the incoming body object right at the start
-    console.log('INCOMING_WEBHOOK_BODY:', JSON.stringify(body, null, 2));
+    // 1. LOG INCOMING PAYLOAD RIGHT AT THE TOP
+    console.log('RECEIVED_PAYLOAD:', JSON.stringify(body, null, 2));
 
-    // 2. Explicit or empty Ping Probe acknowledgment
+    // Handle Ping / Healthcheck probe
     const isExplicitPing =
       !body ||
       body === 'ping' ||
@@ -137,7 +145,22 @@ export default async function handler(req: any, res: any) {
       body?.test === true ||
       (typeof body === 'object' && Object.keys(body).length === 0);
 
-    if (isExplicitPing && (!body?.order_details && !body?.order && !body?.order_id && !body?.items)) {
+    const hasOrderFields = Boolean(
+      body?.order_details ||
+      body?.order ||
+      body?.orders ||
+      body?.order_id ||
+      body?.orderId ||
+      body?.Order_ID ||
+      body?.Customer ||
+      body?.customer ||
+      body?.Item ||
+      body?.items ||
+      body?.order_items ||
+      body?.data
+    );
+
+    if (isExplicitPing && !hasOrderFields) {
       return res.status(200).json({
         success: '1',
         status: 'success',
@@ -151,25 +174,247 @@ export default async function handler(req: any, res: any) {
 
     const details = extractOrderObject(body) || body || {};
 
-    // 3. Detect Platform
+    // 2. ROBUST FIELD EXTRACTION (PETPOOJA, DYNO, AND CUSTOM SCHEMAS)
+
+    // Customer Name
+    const rawCustomerName =
+      body?.Customer?.Name ||
+      body?.Customer?.name ||
+      body?.customer_name ||
+      body?.customerName ||
+      body?.CustomerName ||
+      body?.customer?.name ||
+      body?.customer?.customer_name ||
+      body?.data?.customer_name ||
+      body?.data?.customer?.name ||
+      body?.delivery_details?.customer_name ||
+      body?.delivery_details?.name ||
+      body?.user?.name ||
+      details?.Customer?.Name ||
+      details?.Customer?.name ||
+      details?.customer_name ||
+      details?.customerName ||
+      details?.CustomerName ||
+      details?.customer?.name ||
+      details?.customer?.customer_name ||
+      details?.data?.customer_name ||
+      details?.data?.customer?.name ||
+      details?.delivery_details?.customer_name ||
+      details?.delivery_details?.name ||
+      details?.user?.name ||
+      details?.recipient_name ||
+      details?.client_name ||
+      details?.buyer_name ||
+      '';
+
+    const customerName = String(rawCustomerName).trim() || 'Guest Customer';
+
+    // Customer Phone
+    const rawCustomerPhone =
+      body?.Customer?.Mobile ||
+      body?.Customer?.mobile ||
+      body?.Customer?.Phone ||
+      body?.Customer?.phone ||
+      body?.customer_phone ||
+      body?.customerPhone ||
+      body?.CustomerPhone ||
+      body?.customer?.phone ||
+      body?.customer?.mobile ||
+      body?.customer?.phone_number ||
+      body?.data?.customer_phone ||
+      body?.data?.customer?.phone ||
+      body?.delivery_details?.phone ||
+      body?.delivery_details?.phone_number ||
+      body?.phone_number ||
+      body?.mobile ||
+      body?.user?.phone ||
+      details?.Customer?.Mobile ||
+      details?.Customer?.mobile ||
+      details?.Customer?.Phone ||
+      details?.Customer?.phone ||
+      details?.customer_phone ||
+      details?.customerPhone ||
+      details?.CustomerPhone ||
+      details?.customer?.phone ||
+      details?.customer?.mobile ||
+      details?.customer?.phone_number ||
+      details?.data?.customer_phone ||
+      details?.data?.customer?.phone ||
+      details?.delivery_details?.phone ||
+      details?.delivery_details?.phone_number ||
+      details?.phone_number ||
+      details?.phone ||
+      details?.mobile ||
+      details?.user?.phone ||
+      '';
+
+    const customerPhone = String(rawCustomerPhone).trim() || 'Masked Number';
+
+    // Items Array
+    const rawItems =
+      (Array.isArray(body?.Item) && body.Item) ||
+      (Array.isArray(body?.item) && body.item) ||
+      (Array.isArray(body?.items) && body.items) ||
+      (Array.isArray(body?.Items) && body.Items) ||
+      (Array.isArray(body?.order_items) && body.order_items) ||
+      (Array.isArray(body?.orderItems) && body.orderItems) ||
+      (Array.isArray(body?.OrderItems) && body.OrderItems) ||
+      (Array.isArray(body?.data?.items) && body.data.items) ||
+      (Array.isArray(body?.data?.order_items) && body.data.order_items) ||
+      (Array.isArray(details?.Item) && details.Item) ||
+      (Array.isArray(details?.item) && details.item) ||
+      (Array.isArray(details?.items) && details.items) ||
+      (Array.isArray(details?.Items) && details.Items) ||
+      (Array.isArray(details?.order_items) && details.order_items) ||
+      (Array.isArray(details?.orderItems) && details.orderItems) ||
+      (Array.isArray(details?.OrderItems) && details.OrderItems) ||
+      (Array.isArray(details?.data?.items) && details.data.items) ||
+      (Array.isArray(details?.data?.order_items) && details.data.order_items) ||
+      [];
+
+    const items = rawItems.map((item: any, idx: number) => {
+      const name = String(
+        item?.Item_Name ||
+        item?.ItemName ||
+        item?.item_name ||
+        item?.itemName ||
+        item?.name ||
+        item?.Name ||
+        item?.title ||
+        item?.Title ||
+        item?.item_title ||
+        `Item ${idx + 1}`
+      ).trim();
+
+      const rawPrice =
+        item?.Price ??
+        item?.price ??
+        item?.Rate ??
+        item?.rate ??
+        item?.Item_Price ??
+        item?.item_price ??
+        item?.final_price ??
+        item?.unit_price ??
+        item?.amount ??
+        item?.Amount ??
+        0;
+
+      const price = Number(rawPrice) || 0;
+
+      const rawQty =
+        item?.Quantity ??
+        item?.quantity ??
+        item?.Qty ??
+        item?.qty ??
+        item?.count ??
+        item?.Count ??
+        item?.item_quantity ??
+        1;
+
+      const quantity = Number(rawQty) || 1;
+
+      return {
+        id: String(item?.item_id || item?.id || item?.Item_ID || item?.ItemID || `item_${idx + 1}`),
+        name: name || `Item ${idx + 1}`,
+        price: isNaN(price) ? 0 : price,
+        quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
+        item_notes: item?.notes || item?.item_notes || item?.special_instructions || item?.instruction || undefined
+      };
+    });
+
+    // Fallback if no item array was found but single item was provided in root
+    if (items.length === 0) {
+      const singleName =
+        body?.item_name ||
+        body?.itemName ||
+        body?.Item_Name ||
+        details?.item_name ||
+        details?.itemName ||
+        details?.Item_Name ||
+        details?.name ||
+        'Order Item';
+
+      const singlePrice = Number(
+        body?.price ||
+        body?.Price ||
+        body?.total ||
+        body?.grand_total ||
+        details?.price ||
+        details?.total ||
+        details?.grand_total ||
+        0
+      ) || 0;
+
+      items.push({
+        id: 'item_1',
+        name: singleName,
+        price: singlePrice,
+        quantity: 1
+      });
+    }
+
+    // Total Amount Extraction
+    const calculatedItemsTotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
+
+    const rawTotalValue =
+      body?.Order_Total ??
+      body?.order_total ??
+      body?.grand_total ??
+      body?.Grand_Total ??
+      body?.bill_amount ??
+      body?.Bill_Amount ??
+      body?.total_amount ??
+      body?.Total_Amount ??
+      body?.total ??
+      body?.Total ??
+      body?.data?.bill_amount ??
+      body?.data?.grand_total ??
+      body?.data?.total_amount ??
+      body?.pricing?.grand_total ??
+      body?.pricing?.total ??
+      details?.Order_Total ??
+      details?.order_total ??
+      details?.grand_total ??
+      details?.Grand_Total ??
+      details?.bill_amount ??
+      details?.Bill_Amount ??
+      details?.total_amount ??
+      details?.Total_Amount ??
+      details?.total ??
+      details?.Total ??
+      details?.data?.bill_amount ??
+      details?.data?.grand_total ??
+      details?.data?.total_amount ??
+      details?.amount ??
+      details?.Amount;
+
+    let total = Number(rawTotalValue);
+    if (isNaN(total) || total <= 0) {
+      total = calculatedItemsTotal > 0 ? calculatedItemsTotal : 0;
+    }
+
+    // Detect Source Channel / Platform
     const rawOrderFrom = (
-      body.channel ||
-      body.source ||
-      body.platform ||
-      details.order_from ||
-      details.orderFrom ||
-      details.OrderFrom ||
-      details.source ||
-      details.Source ||
-      details.order_source ||
-      details.aggregator ||
-      details.channel ||
+      body?.channel ||
+      body?.source ||
+      body?.platform ||
+      body?.order_from ||
+      body?.orderFrom ||
+      details?.order_from ||
+      details?.orderFrom ||
+      details?.OrderFrom ||
+      details?.source ||
+      details?.Source ||
+      details?.order_source ||
+      details?.aggregator ||
+      details?.channel ||
       req.headers?.['x-source'] ||
-      ''
+      req.headers?.['x-channel'] ||
+      'petpooja'
     ).toString().trim().toLowerCase();
 
     let detectedPlatform: 'swiggy' | 'zomato' | 'other_online' = 'other_online';
-    let sourceUpper = 'ONLINE';
+    let sourceUpper = 'PETPOOJA';
 
     if (rawOrderFrom.includes('swiggy') || rawOrderFrom === 'sw') {
       detectedPlatform = 'swiggy';
@@ -177,38 +422,42 @@ export default async function handler(req: any, res: any) {
     } else if (rawOrderFrom.includes('zomato') || rawOrderFrom === 'zm') {
       detectedPlatform = 'zomato';
       sourceUpper = 'ZOMATO';
+    } else if (rawOrderFrom.includes('dyno')) {
+      detectedPlatform = 'other_online';
+      sourceUpper = 'DYNO';
     } else if (rawOrderFrom.includes('magicpin')) {
       detectedPlatform = 'other_online';
       sourceUpper = 'MAGICPIN';
-    } else if (rawOrderFrom.includes('petpooja')) {
-      detectedPlatform = 'other_online';
-      sourceUpper = 'PETPOOJA';
     } else if (rawOrderFrom) {
       sourceUpper = rawOrderFrom.toUpperCase();
     }
 
-    // 4. Token & Raw Order ID
-    const rawOrderId = (
-      body.order_id ||
-      body.id ||
-      body.orderId ||
-      details.order_id ||
-      details.orderId ||
-      details.OrderID ||
-      details.id ||
-      details.order_number ||
-      details.bill_no ||
-      `PP_${Math.floor(100000 + Math.random() * 900000)}`
-    ).toString();
+    // Order ID & Token
+    const rawOrderId = String(
+      body?.Order_ID ||
+      body?.order_id ||
+      body?.orderId ||
+      body?.id ||
+      details?.Order_ID ||
+      details?.order_id ||
+      details?.orderId ||
+      details?.OrderID ||
+      details?.id ||
+      details?.order_number ||
+      details?.orderNumber ||
+      details?.bill_no ||
+      `ORD_${Math.floor(100000 + Math.random() * 900000)}`
+    );
 
-    let token = (
-      body.token ||
-      body.token_no ||
-      details.token ||
-      details.Token ||
-      details.token_no ||
+    let token = String(
+      body?.token ||
+      body?.token_no ||
+      body?.Token ||
+      details?.token ||
+      details?.Token ||
+      details?.token_no ||
       ''
-    ).toString().replace(/[^0-9]/g, '');
+    ).replace(/[^0-9]/g, '');
 
     if (token.length !== 4) {
       token = rawOrderId.replace(/[^0-9]/g, '').slice(-4);
@@ -217,150 +466,15 @@ export default async function handler(req: any, res: any) {
       token = Math.floor(1000 + Math.random() * 9000).toString();
     }
 
-    // 1. Customer Name fallback parsing:
-    // body.customer?.name || body.customer_name || body.delivery_details?.customer_name || body.user?.name
-    const customerName = (
-      body.customer?.name ||
-      body.customer_name ||
-      body.delivery_details?.customer_name ||
-      body.delivery_details?.name ||
-      body.user?.name ||
-      body.customer?.customer_name ||
-      details.customer?.name ||
-      details.customer_name ||
-      details.customerName ||
-      details.CustomerName ||
-      details.delivery_details?.customer_name ||
-      details.delivery_details?.name ||
-      details.user?.name ||
-      details.customer_details?.name ||
-      details.customer_details?.customer_name ||
-      details.recipient_name ||
-      details.client_name ||
-      details.buyer_name ||
-      `${sourceUpper} Customer`
-    ).toString().trim();
-
-    // 2. Phone Number fallback parsing:
-    // body.customer?.phone || body.phone_number || body.customer_phone || body.delivery_details?.phone
-    const customerPhone = (
-      body.customer?.phone ||
-      body.phone_number ||
-      body.customer_phone ||
-      body.delivery_details?.phone ||
-      body.delivery_details?.phone_number ||
-      body.customer?.phone_number ||
-      body.user?.phone ||
-      details.customer?.phone ||
-      details.phone_number ||
-      details.customer_phone ||
-      details.customerPhone ||
-      details.CustomerPhone ||
-      details.delivery_details?.phone ||
-      details.delivery_details?.phone_number ||
-      details.customer_details?.phone ||
-      details.user?.phone ||
-      details.phone ||
-      details.mobile ||
-      'Masked (Platform Policy)'
-    ).toString().trim();
-
-    // 5. Items Extraction
-    const rawItems = Array.isArray(body.order_items)
-      ? body.order_items
-      : Array.isArray(body.items)
-      ? body.items
-      : Array.isArray(details.items)
-      ? details.items
-      : Array.isArray(details.order_items)
-      ? details.order_items
-      : Array.isArray(details.OrderItems)
-      ? details.OrderItems
-      : [];
-
-    const items = rawItems.map((item: any, idx: number) => {
-      const name = (
-        item.item_name ||
-        item.itemName ||
-        item.name ||
-        item.title ||
-        item.item_title ||
-        `Item ${idx + 1}`
-      ).toString();
-      const price = parseFloat(
-        item.price ??
-        item.rate ??
-        item.item_price ??
-        item.final_price ??
-        item.unit_price ??
-        item.amount ??
-        0
-      );
-      const quantity = parseInt(
-        item.quantity ??
-        item.qty ??
-        item.count ??
-        item.item_quantity ??
-        1,
-        10
-      );
-      return {
-        id: (item.item_id || item.id || `item-${idx + 1}`).toString(),
-        name,
-        price: isNaN(price) ? 0 : price,
-        quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
-        item_notes: item.notes || item.item_notes || item.special_instructions || undefined
-      };
-    });
-
-    if (items.length === 0) {
-      const singleName = details.item_name || details.name || body.item_name || `${sourceUpper} Combo Meal`;
-      const singlePrice = parseFloat(details.total || details.amount || body.total || 450);
-      items.push({
-        id: 'item-1',
-        name: singleName,
-        price: isNaN(singlePrice) ? 450 : singlePrice,
-        quantity: 1
-      });
-    }
-
-    // 3. Total Price / Grand Total fallback parsing:
-    // body.grand_total || body.order_total || body.total_amount || body.bill_amount || body.pricing?.grand_total
-    const calculatedItemsTotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
-    const rawTotalValue =
-      body.grand_total ??
-      body.order_total ??
-      body.total_amount ??
-      body.bill_amount ??
-      body.pricing?.grand_total ??
-      body.pricing?.total ??
-      body.total ??
-      body.final_amount ??
-      body.net_amount ??
-      details.grand_total ??
-      details.order_total ??
-      details.total_amount ??
-      details.bill_amount ??
-      details.pricing?.grand_total ??
-      details.pricing?.total ??
-      details.total ??
-      details.amount ??
-      details.final_total ??
-      details.net_amount;
-
-    let total = parseFloat(rawTotalValue);
-    if (isNaN(total) || total <= 0) {
-      total = calculatedItemsTotal;
-    }
-
-    // 7. Status Mapping
-    const rawStatus = (
-      body.status ||
-      body.order_status ||
-      details.status ||
-      details.Status ||
+    // Status Mapping
+    const rawStatus = String(
+      body?.status ||
+      body?.order_status ||
+      body?.Status ||
+      details?.status ||
+      details?.Status ||
       'pending'
-    ).toString().toLowerCase();
+    ).toLowerCase();
 
     let safeStatus: 'pending' | 'preparing' | 'ready' | 'completed' = 'pending';
     if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted' || rawStatus === 'confirmed' || rawStatus === '1') {
@@ -371,9 +485,11 @@ export default async function handler(req: any, res: any) {
       safeStatus = 'completed';
     }
 
-    const createdAt = details.created_at || details.order_date || body.created_at || body.placed_at || new Date().toISOString();
-    const placedAtIst = details.placed_at_ist || body.placed_at_ist || formatIST(createdAt);
+    const createdAt = details?.created_at || details?.order_date || body?.created_at || body?.placed_at || new Date().toISOString();
+    const placedAtIst = details?.placed_at_ist || body?.placed_at_ist || formatIST(createdAt);
 
+    // 3. PREVENT FALLBACK OVERWRITES
+    // Construct Unified ServerOrder with exact parsed values
     const serverOrder: ServerOrder = {
       id: rawOrderId,
       token: `#${token}`,
@@ -382,12 +498,12 @@ export default async function handler(req: any, res: any) {
       items,
       customer_name: customerName,
       customer_phone: customerPhone,
-      table_id: body.table_id || details.table_id || `${sourceUpper} Online`,
+      table_id: body?.table_id || details?.table_id || `${sourceUpper} Online`,
       order_type: 'aggregator',
       aggregator_platform: detectedPlatform,
       created_at: createdAt,
       placed_at_ist: placedAtIst,
-      notes: body.instructions || body.special_instructions || details.notes || details.special_instructions || `Ref: ${rawOrderId}`
+      notes: body?.instructions || body?.special_instructions || details?.notes || details?.special_instructions || `Ref: ${rawOrderId}`
     };
 
     // Save to memory store
@@ -397,15 +513,15 @@ export default async function handler(req: any, res: any) {
       console.warn('[Petpooja Webhook] Memory order save warning:', e?.message);
     }
 
-    // Record Inbound Log for Inspector
+    // Record Inbound Log for Live Inspector
     try {
       recordInboundLog({
-        id: `petpooja_log_${Date.now()}`,
+        id: `petpooja_log_${Date.now()}_${rawOrderId}`,
         timestamp: new Date().toISOString(),
         method: req.method,
         path: '/api/webhooks/petpooja',
-        ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown',
-        headers: req.headers,
+        ip: req.headers?.['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown',
+        headers: req.headers || {},
         raw_body: body,
         detected_platform: 'Vyoma Webhook',
         detected_source: sourceUpper,
@@ -415,14 +531,14 @@ export default async function handler(req: any, res: any) {
         total_amount: total,
         status_code: 200,
         success: true,
-        message: `Order ${rawOrderId} received (${sourceUpper}) for ${customerName}`,
+        message: `Order ${rawOrderId} received (${sourceUpper}) for ${customerName} (₹${total})`,
         duration_ms: Date.now() - startTime
       });
     } catch (logErr: any) {
       console.warn('[Petpooja Webhook] Log recording warning:', logErr?.message);
     }
 
-    // Broadcast SSE
+    // Broadcast Real-Time SSE to Kitchen Display System & Dashboard
     try {
       broadcastEvent('new_order', serverOrder);
       broadcastEvent('order_created', serverOrder);
@@ -430,14 +546,14 @@ export default async function handler(req: any, res: any) {
       console.warn('[Petpooja Webhook] SSE broadcast warning:', sseErr?.message);
     }
 
-    // Persist to Supabase if credentials exist
-    let dbRecord = null;
+    // Persist to Supabase DB (if configured)
     const supabase = getSupabaseClient();
     if (supabase) {
       try {
-        const { data: dbData, error: dbError } = await supabase
+        await supabase
           .from('orders')
-          .insert([{
+          .upsert([{
+            id: serverOrder.id,
             token: serverOrder.token,
             status: serverOrder.status,
             total: serverOrder.total,
@@ -448,41 +564,31 @@ export default async function handler(req: any, res: any) {
             order_type: serverOrder.order_type,
             aggregator_platform: serverOrder.aggregator_platform,
             created_at: serverOrder.created_at,
-            placed_at_ist: serverOrder.placed_at_ist,
             notes: serverOrder.notes
-          }])
-          .select();
-
-        if (!dbError && dbData && dbData.length > 0) {
-          dbRecord = dbData[0];
-        }
-      } catch (dbEx: any) {
-        console.warn('[Petpooja Webhook] Supabase insert warning:', dbEx?.message);
+          }]);
+      } catch (dbErr: any) {
+        console.warn('[Petpooja Webhook] Supabase sync warning:', dbErr?.message);
       }
     }
 
+    // Return official Petpooja acknowledgement response
     return res.status(200).json({
       success: '1',
-      status: 'success',
-      message: 'Order processed and persisted successfully',
-      generated_id: dbRecord?.id || serverOrder.id,
+      message: 'Order saved successfully',
+      order_id: rawOrderId,
       token: serverOrder.token,
-      order_from: sourceUpper,
-      platform: detectedPlatform,
-      customer_name: customerName,
-      customer_phone: customerPhone,
+      customer: customerName,
       total_amount: total,
-      placed_at_ist: placedAtIst,
-      data: dbRecord || serverOrder
+      items_count: items.length,
+      timestamp: new Date().toISOString()
     });
 
   } catch (err: any) {
-    console.error('Webhook execution caught error:', err);
+    console.error('[Petpooja Webhook Exception]:', err);
     return res.status(200).json({
-      success: '1',
-      status: 'acknowledged_with_warning',
-      message: 'Payload received and handled with fallback',
-      error: err?.message || 'Warning while parsing order payload'
+      success: '0',
+      message: err?.message || 'Error processing webhook order payload',
+      timestamp: new Date().toISOString()
     });
   }
 }
