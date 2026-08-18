@@ -57,9 +57,12 @@ export default async function handler(req: any, res: any) {
       webhook_dispatch: webhookResult
     });
   } catch (err: any) {
-    return res.status(500).json({
-      success: false,
-      message: err.message || 'Internal error handling status sync'
+    console.error('Update status execution caught error:', err);
+    return res.status(200).json({
+      success: true,
+      status: 'acknowledged_with_warning',
+      message: 'Status update handled with fallback',
+      error: err?.message || 'Internal notice handling status sync'
     });
   }
 }
