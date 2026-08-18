@@ -7,8 +7,8 @@ export interface DynoItem {
 }
 
 export interface DynoCustomer {
-  name?: string;
-  phone?: string;
+  name: string;
+  phone: string;
   email?: string;
   address?: string;
 }
@@ -27,13 +27,13 @@ export interface NormalizedDynoOrder {
 }
 
 /**
- * Normalizes incoming order payloads from Dyno API into internal standard schema:
- * - orderId: map from body.order_id or body.id
- * - source: map from body.channel ('ZOMATO' / 'SWIGGY'), converted to lower case
- * - customer: { name: body.customer_details?.name, phone: body.customer_details?.phone }
- * - items: map body.order_items array to { name, quantity, price }
- * - totalAmount: map from body.total_amount
- * - status: default to 'ACCEPTED'
+ * Normalizes incoming order payloads from Dyno API (Zomato / Swiggy / Aggregators)
+ * into internal standard schema with robust fallbacks for privacy-masked and variable keys:
+ * 
+ * - Customer Name: payload.customer?.name || payload.customer_details?.name || payload.delivery_details?.name || payload.customer_name || "Delivery Customer"
+ * - Customer Phone: payload.customer?.phone || payload.customer_details?.phone || payload.delivery_details?.phone || payload.customer_phone || "Masked (Platform Policy)"
+ * - Order Total: Number(payload.order_total || payload.bill_amount || payload.net_amount || payload.total_amount || 0)
+ * - Item Price: Number(item.price || item.rate || item.item_price || item.final_price || 0)
  */
 export function parseDynoOrderPayload(body: any): NormalizedDynoOrder {
   if (!body) {
@@ -57,12 +57,14 @@ export function parseDynoOrderPayload(body: any): NormalizedDynoOrder {
     }
   }
 
-  // Handle nested wrapper if present (e.g. data or order)
+  // Handle nested wrapper if present (e.g. data, order, payload)
   if (payload && typeof payload === 'object') {
     if (payload.data && typeof payload.data === 'object' && !Array.isArray(payload.data)) {
       payload = payload.data;
     } else if (payload.order && typeof payload.order === 'object') {
       payload = payload.order;
+    } else if (payload.payload && typeof payload.payload === 'object') {
+      payload = payload.payload;
     }
   }
 
@@ -73,49 +75,113 @@ export function parseDynoOrderPayload(body: any): NormalizedDynoOrder {
     payload.orderId ||
     payload.order_number ||
     payload.orderNumber ||
+    payload.orderID ||
     `DYNO_${Date.now()}`
   );
 
-  // 2. Map source from channel ('ZOMATO' / 'SWIGGY' -> lowercase)
-  const rawChannel = payload.channel || payload.source || payload.platform || 'dyno';
+  // 2. Map source from channel ('ZOMATO' / 'SWIGGY' / etc. -> lowercase)
+  const rawChannel = (
+    payload.channel ||
+    payload.source ||
+    payload.platform ||
+    payload.order_from ||
+    payload.aggregator ||
+    'dyno'
+  );
   const source = String(rawChannel).toLowerCase();
 
-  // 3. Map customer details
-  const customerDetails = payload.customer_details || payload.customer || {};
+  // 3. Robust Customer Name Parsing with Aggregator Fallbacks
+  const rawCustomer = payload.customer || payload.customer_details || payload.user_details || {};
+  const rawDelivery = payload.delivery_details || payload.delivery_info || payload.delivery || {};
+
+  const extractedName = (
+    rawCustomer.name ||
+    rawDelivery.name ||
+    payload.customer_name ||
+    payload.recipient_name ||
+    payload.client_name ||
+    payload.user_name ||
+    payload.buyer_name ||
+    ''
+  ).toString().trim();
+
+  const customerName = extractedName || 'Delivery Customer';
+
+  // 4. Robust Customer Phone Parsing with Platform Privacy Fallbacks
+  const extractedPhone = (
+    rawCustomer.phone ||
+    rawCustomer.contact ||
+    rawDelivery.phone ||
+    rawDelivery.contact ||
+    payload.customer_phone ||
+    payload.recipient_phone ||
+    payload.contact_number ||
+    payload.phone_number ||
+    payload.phone ||
+    ''
+  ).toString().trim();
+
+  const customerPhone = extractedPhone || 'Masked (Platform Policy)';
+
   const customer: DynoCustomer = {
-    name: customerDetails.name || payload.customer_name || 'Guest Customer',
-    phone: customerDetails.phone || payload.customer_phone || '',
-    email: customerDetails.email || payload.customer_email || '',
-    address: customerDetails.address || payload.delivery_address || ''
+    name: customerName,
+    phone: customerPhone,
+    email: rawCustomer.email || payload.customer_email || '',
+    address: rawCustomer.address || rawDelivery.address || payload.delivery_address || payload.address || ''
   };
 
-  // 4. Map order_items to { name, quantity, price }
+  // 5. Map order_items array to { name, quantity, price, item_notes }
   const rawItems = Array.isArray(payload.order_items)
     ? payload.order_items
     : Array.isArray(payload.items)
     ? payload.items
+    : Array.isArray(payload.item_details)
+    ? payload.item_details
+    : Array.isArray(payload.orderItems)
+    ? payload.orderItems
     : [];
 
   const items: DynoItem[] = rawItems.map((item: any, idx: number) => {
-    const qty = Number(item.quantity ?? item.qty ?? item.count ?? 1) || 1;
-    const price = Number(item.price ?? item.rate ?? item.unit_price ?? item.amount ?? 0) || 0;
+    const qty = Number(item.quantity ?? item.qty ?? item.count ?? item.item_quantity ?? 1) || 1;
+    const price = Number(
+      item.price ??
+      item.rate ??
+      item.item_price ??
+      item.final_price ??
+      item.unit_price ??
+      item.amount ??
+      0
+    ) || 0;
+
     return {
       id: item.id || item.item_id || `item_${idx + 1}`,
-      name: item.name || item.item_name || item.title || `Item ${idx + 1}`,
+      name: item.name || item.item_name || item.title || item.item_title || `Item ${idx + 1}`,
       quantity: qty,
       price: price,
-      item_notes: item.item_notes || item.notes || item.special_instructions || ''
+      item_notes: item.item_notes || item.notes || item.special_instructions || item.instruction || ''
     };
   });
 
-  // 5. Map total_amount
-  const calculatedTotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
-  const totalAmount = typeof payload.total_amount !== 'undefined'
-    ? Number(payload.total_amount)
-    : (typeof payload.total !== 'undefined' ? Number(payload.total) : calculatedTotal);
+  // 6. Map total_amount with multiple key fallbacks
+  const calculatedItemsTotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+  
+  const rawTotalValue = 
+    payload.order_total ??
+    payload.bill_amount ??
+    payload.net_amount ??
+    payload.total_amount ??
+    payload.total ??
+    payload.final_amount ??
+    payload.order_amount ??
+    payload.grand_total ??
+    payload.amount;
 
-  // 6. Map status (default to 'ACCEPTED')
-  const status = payload.status || 'ACCEPTED';
+  const totalAmount = rawTotalValue !== undefined && rawTotalValue !== null && rawTotalValue !== ''
+    ? Number(rawTotalValue) || 0
+    : calculatedItemsTotal;
+
+  // 7. Map status (default to 'ACCEPTED')
+  const status = payload.status || payload.order_status || 'ACCEPTED';
 
   return {
     orderId,
@@ -124,9 +190,9 @@ export function parseDynoOrderPayload(body: any): NormalizedDynoOrder {
     items,
     totalAmount,
     status,
-    placedAt: payload.placed_at || payload.created_at || new Date().toISOString(),
+    placedAt: payload.placed_at || payload.created_at || payload.order_time || new Date().toISOString(),
     tableId: payload.table_id || payload.table_number || payload.table,
-    instructions: payload.instructions || payload.special_instructions || payload.notes || '',
+    instructions: payload.instructions || payload.special_instructions || payload.notes || payload.cooking_instructions || '',
     raw: payload
   };
 }
