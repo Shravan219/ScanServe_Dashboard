@@ -23,6 +23,7 @@ async function startServer() {
 
   // API Order Status Outbound & Management Routes
   app.use('/api/orders', ordersRouter);
+  app.use('/api/invoices', ordersRouter);
 
   // Health check endpoint
   app.get('/api/health', (req, res) => {
