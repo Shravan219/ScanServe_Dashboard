@@ -1,4 +1,4 @@
-import handler from './petpooja';
+import handler from './petpooja.js';
 
 export const config = {
   api: {

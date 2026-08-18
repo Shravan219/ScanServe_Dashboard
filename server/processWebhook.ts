@@ -7,7 +7,7 @@ import {
   broadcastEvent,
   ServerOrder,
   InboundWebhookLog
-} from './orderStore';
+} from './orderStore.js';
 
 /**
  * Deep parser to extract an order object from any webhook body representation
