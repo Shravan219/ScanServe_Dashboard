@@ -33,7 +33,9 @@ import {
   Check,
   Printer,
   Utensils,
-  Globe
+  Globe,
+  Shield,
+  ShieldCheck
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
@@ -2234,6 +2236,43 @@ function OrderCard({
     return `${minutes}m`;
   };
 
+  const platform = getOrderPlatform(order);
+  const platformLabel = platform === 'swiggy' ? 'Swiggy' : platform === 'zomato' ? 'Zomato' : platform === 'other_online' ? 'Online' : '';
+
+  const displayCustomerName = useMemo(() => {
+    const raw = (order.customer_name || '').trim();
+    if (!raw || raw.toLowerCase() === 'guest' || raw.toLowerCase() === 'guest order' || raw.toLowerCase() === 'null' || raw.toLowerCase() === 'undefined') {
+      return platformLabel ? `Guest Customer (${platformLabel})` : 'Guest Customer';
+    }
+    return raw;
+  }, [order.customer_name, platformLabel]);
+
+  const isPhoneMasked = useMemo(() => {
+    const phone = (order.customer_phone || '').trim();
+    if (!phone) return true;
+    const lower = phone.toLowerCase();
+    if (
+      lower.includes('mask') || 
+      lower.includes('policy') || 
+      lower.includes('n/a') || 
+      lower.includes('null') || 
+      lower === '0' || 
+      phone === '+919876543210' ||
+      phone.replace(/\D/g, '').length < 6
+    ) {
+      return true;
+    }
+    return false;
+  }, [order.customer_phone]);
+
+  const formatPrice = (amount?: number | null) => {
+    const num = Number(amount);
+    if (amount === null || amount === undefined || isNaN(num) || num <= 0) {
+      return 'Price N/A';
+    }
+    return `₹${num.toFixed(2)}`;
+  };
+
   return (
     <motion.div
       layout
@@ -2267,7 +2306,6 @@ function OrderCard({
 
             <div className="flex items-center gap-2">
               {(() => {
-                const platform = getOrderPlatform(order);
                 if (platform === 'swiggy') {
                   return (
                     <span className="px-2.5 py-0.5 rounded-full bg-[#FC8019] text-white text-[9px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(252,128,25,0.3)]">
@@ -2311,9 +2349,29 @@ function OrderCard({
           <div className="p-4 sm:p-5 flex flex-col justify-between min-w-0 flex-1">
             <div>
               <div className="mb-3">
-                <span className="text-lg font-serif text-white/90 block font-semibold">{order.customer_name || 'Guest Order'}</span>
-                {order.customer_phone && (
-                  <span className="text-[10px] text-white/40 tracking-wider font-mono block mt-0.5">{order.customer_phone}</span>
+                <span className="text-lg font-serif text-white/90 block font-semibold">{displayCustomerName}</span>
+                {isPhoneMasked ? (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/10 w-fit text-[9px] text-white/50 tracking-wider font-mono mt-1.5">
+                    <ShieldCheck size={11} className="text-primary/70 shrink-0" />
+                    <span>Masked Number (Privacy Protected)</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-white/60 tracking-wider font-mono block">{order.customer_phone}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (order.customer_phone) {
+                          navigator.clipboard.writeText(order.customer_phone);
+                          toast.success('Customer phone copied!');
+                        }
+                      }}
+                      className="p-1 text-white/30 hover:text-primary rounded transition-colors"
+                      title="Copy Phone"
+                    >
+                      <Copy size={11} />
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -2329,8 +2387,10 @@ function OrderCard({
                         {item.name}
                       </span>
                     </div>
-                    {item.price > 0 && (
-                      <span className="text-[10px] font-mono text-white/40 shrink-0 ml-2">₹{(item.price * item.quantity).toFixed(0)}</span>
+                    {Number(item.price) > 0 ? (
+                      <span className="text-[10px] font-mono text-white/40 shrink-0 ml-2">₹{(Number(item.price) * (Number(item.quantity) || 1)).toFixed(2)}</span>
+                    ) : (
+                      <span className="text-[9px] font-mono text-white/20 shrink-0 ml-2 italic">Included</span>
                     )}
                   </div>
                 ))}
@@ -2350,15 +2410,15 @@ function OrderCard({
                 {discountInfo && discountInfo.isDiscounted ? (
                   <div className="flex flex-col">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-xs text-white/20 line-through">₹{(discountInfo.originalTotal || 0).toFixed(2)}</span>
-                      <span className="text-2xl font-serif text-primary font-bold">₹{(discountInfo.finalTotal || 0).toFixed(2)}</span>
+                      <span className="text-xs text-white/20 line-through">{formatPrice(discountInfo.originalTotal)}</span>
+                      <span className="text-2xl font-serif text-primary font-bold">{formatPrice(discountInfo.finalTotal)}</span>
                     </div>
                     <span className="text-[8px] font-bold uppercase text-green-500 tracking-wider mt-0.5">
                       {discountInfo.discountPercentage}% Loyalty Discount ({discountInfo.orderCount} Orders)
                     </span>
                   </div>
                 ) : (
-                  <span className="text-2xl font-serif text-primary font-bold">₹{(order.total || 0).toFixed(2)}</span>
+                  <span className="text-2xl font-serif text-primary font-bold">{formatPrice(order.total)}</span>
                 )}
               </div>
 

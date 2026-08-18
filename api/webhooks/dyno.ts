@@ -55,10 +55,13 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // 1. Parse Dyno payload using Adapter
+    // 1. Log exact incoming payload for developer inspection in Vercel / terminal logs
+    console.log('RAW_DYNO_WEBHOOK:', JSON.stringify(body, null, 2));
+
+    // 2. Parse Dyno payload using Adapter with robust aggregator key fallbacks
     const normalized = parseDynoOrderPayload(body);
 
-    // 2. Convert to internal ServerOrder format
+    // 3. Convert to internal ServerOrder format
     const token = normalized.orderId.replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase() || 'D01';
     const serverOrder: ServerOrder = {
       id: normalized.orderId,
@@ -82,14 +85,14 @@ export default async function handler(req: any, res: any) {
       placed_at_ist: formatIST(normalized.placedAt)
     };
 
-    // 3. Save to In-Memory store
+    // 4. Save to In-Memory store
     try {
       saveMemoryOrder(serverOrder);
     } catch (e: any) {
       console.warn('[Dyno Webhook] Memory order save warning:', e?.message);
     }
 
-    // 4. Save to Supabase (if configured)
+    // 5. Save to Supabase (if configured)
     try {
       const supabase = getSupabaseClient();
       if (supabase) {
@@ -112,7 +115,7 @@ export default async function handler(req: any, res: any) {
       console.warn('[Dyno Webhook] Supabase sync warning:', dbErr?.message);
     }
 
-    // 5. Record inbound log for Live Inspector
+    // 6. Record inbound log for Live Inspector
     try {
       recordInboundLog({
         id: `dyno_log_${Date.now()}`,
@@ -130,14 +133,14 @@ export default async function handler(req: any, res: any) {
         total_amount: normalized.totalAmount,
         status_code: 200,
         success: true,
-        message: `Dyno order ${normalized.orderId} processed (${normalized.source.toUpperCase()})`,
+        message: `Dyno order ${normalized.orderId} processed (${normalized.source.toUpperCase()}) - ${normalized.customer.name}`,
         duration_ms: Date.now() - startTime
       });
     } catch (logErr: any) {
       console.warn('[Dyno Webhook] Log recording warning:', logErr?.message);
     }
 
-    // 6. Broadcast SSE real-time event to KDS and Dashboard
+    // 7. Broadcast SSE real-time event to KDS and Dashboard
     try {
       broadcastEvent('new_order', serverOrder);
       broadcastEvent('order_created', serverOrder);
@@ -145,12 +148,14 @@ export default async function handler(req: any, res: any) {
       console.warn('[Dyno Webhook] SSE broadcast warning:', sseErr?.message);
     }
 
-    // 7. Return success response
+    // 8. Return success response
     return res.status(200).json({
       success: true,
       message: 'Order received and processed successfully',
       order_id: normalized.orderId,
       source: normalized.source,
+      customer_name: normalized.customer.name,
+      customer_phone: normalized.customer.phone,
       total_amount: normalized.totalAmount,
       items_count: normalized.items.length,
       status: normalized.status,
@@ -158,28 +163,6 @@ export default async function handler(req: any, res: any) {
     });
   } catch (err: any) {
     console.error('[Dyno Webhook Error]:', err);
-
-    try {
-      recordInboundLog({
-        id: `dyno_err_${Date.now()}`,
-        timestamp: new Date().toISOString(),
-        method: req.method,
-        path: '/api/webhooks/dyno',
-        ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown',
-        headers: req.headers,
-        raw_body: req.body,
-        detected_platform: 'Dyno API',
-        detected_source: 'DYNO',
-        item_count: 0,
-        total_amount: 0,
-        status_code: 400,
-        success: false,
-        message: err?.message || 'Failed to parse Dyno order payload',
-        error: err?.message,
-        duration_ms: Date.now() - startTime
-      });
-    } catch {}
-
     return res.status(400).json({
       success: false,
       error: err?.message || 'Invalid Dyno order payload'

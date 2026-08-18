@@ -56,6 +56,10 @@ export async function POST(request: Request) {
       }
     }
 
+    // 1. Log exact incoming payload for developer inspection in Vercel / terminal logs
+    console.log('RAW_DYNO_WEBHOOK:', JSON.stringify(body, null, 2));
+
+    // 2. Parse Dyno payload using Adapter with robust aggregator key fallbacks
     const normalized = parseDynoOrderPayload(body);
     const token = normalized.orderId.replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase() || 'D01';
 
@@ -121,7 +125,7 @@ export async function POST(request: Request) {
         total_amount: normalized.totalAmount,
         status_code: 200,
         success: true,
-        message: `Dyno order ${normalized.orderId} processed (${normalized.source.toUpperCase()})`,
+        message: `Dyno order ${normalized.orderId} processed (${normalized.source.toUpperCase()}) - ${normalized.customer.name}`,
         duration_ms: Date.now() - startTime,
       });
     } catch {}
@@ -137,6 +141,8 @@ export async function POST(request: Request) {
         message: 'Order received and processed successfully',
         order_id: normalized.orderId,
         source: normalized.source,
+        customer_name: normalized.customer.name,
+        customer_phone: normalized.customer.phone,
         total_amount: normalized.totalAmount,
         items_count: normalized.items.length,
         status: normalized.status,
@@ -151,6 +157,7 @@ export async function POST(request: Request) {
       }
     );
   } catch (err: any) {
+    console.error('[Dyno Webhook Error]:', err);
     return new Response(
       JSON.stringify({
         success: false,
