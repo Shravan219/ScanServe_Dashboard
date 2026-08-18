@@ -2,6 +2,8 @@ export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'can
 
 export type PetpoojaMappedStatus = 'ACCEPTED' | 'IN_KITCHEN' | 'READY' | 'DISPATCHED' | 'CANCELLED';
 
+export type DynoMappedStatus = 'ACCEPTED' | 'PREPARING' | 'READY' | 'DISPATCHED' | 'DELIVERED' | 'CANCELLED';
+
 export interface DispatchOrderStatusParams {
   orderId: string;
   nextStatus: OrderStatus;
@@ -11,9 +13,9 @@ export interface DispatchOrderStatusParams {
 
 export interface DispatchResult {
   success: boolean;
-  mode: 'PROD' | 'MOCK';
+  mode: 'PROD' | 'MOCK' | 'DYNO';
   endpoint: string;
-  order_status: PetpoojaMappedStatus;
+  order_status: string;
   http_status?: number;
   data?: any;
   error?: string;
@@ -29,6 +31,38 @@ export function mapStatusToPetpooja(status: OrderStatus): PetpoojaMappedStatus {
       return 'READY';
     case 'completed':
       return 'DISPATCHED';
+    case 'cancelled':
+      return 'CANCELLED';
+    default:
+      return 'ACCEPTED';
+  }
+}
+
+/**
+ * Map internal status codes to Dyno status strings:
+ * - 'pending'   -> 'ACCEPTED'
+ * - 'preparing' / 'IN_KITCHEN' -> 'PREPARING'
+ * - 'ready'     -> 'READY'
+ * - 'completed' / 'COMPLETED' -> 'DELIVERED'
+ * - 'dispatched' -> 'DISPATCHED'
+ * - 'cancelled' -> 'CANCELLED'
+ */
+export function mapStatusToDyno(status: OrderStatus | string): DynoMappedStatus {
+  const normalized = String(status || '').toLowerCase();
+  switch (normalized) {
+    case 'pending':
+    case 'accepted':
+      return 'ACCEPTED';
+    case 'preparing':
+    case 'in_kitchen':
+      return 'PREPARING';
+    case 'ready':
+      return 'READY';
+    case 'dispatched':
+      return 'DISPATCHED';
+    case 'completed':
+    case 'delivered':
+      return 'DELIVERED';
     case 'cancelled':
       return 'CANCELLED';
     default:
@@ -58,52 +92,85 @@ export async function dispatchOrderStatus({
   restId,
   callbackUrl
 }: DispatchOrderStatusParams): Promise<DispatchResult> {
-  const mappedStatus = mapStatusToPetpooja(nextStatus);
+  // Dyno API configuration check
+  const dynoApiKey = getEnvVar('DYNO_API_KEY');
 
+  // Petpooja API configuration check
   const appKey = getEnvVar('PETPOOJA_APP_KEY');
   const appSecret = getEnvVar('PETPOOJA_APP_SECRET');
   const accessToken = getEnvVar('PETPOOJA_ACCESS_TOKEN');
 
-  const isProduction = Boolean(appKey && appSecret && accessToken);
-  const mode: 'PROD' | 'MOCK' = isProduction ? 'PROD' : 'MOCK';
-
-  const resolvedRestId = 
-    restId ||
-    getEnvVar('PETPOOJA_REST_ID') ||
-    getEnvVar('PETPOOJA_RESTAURANT_ID') ||
-    'REST_XTRA_01';
-
-  const clientId = 
-    getEnvVar('PETPOOJA_CLIENT_ID') ||
-    'petpooja_client_live';
-
-  const payload = {
-    restID: resolvedRestId,
-    client_id: clientId,
-    order_id: orderId,
-    order_status: mappedStatus,
-    updated_at: new Date().toISOString()
-  };
-
+  let mode: 'PROD' | 'MOCK' | 'DYNO' = 'MOCK';
   let endpoint = '';
+  let mappedStatus = '';
+  let payload: any = {};
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
   };
 
-  if (isProduction) {
-    endpoint = 
-      getEnvVar('PETPOOJA_STATUS_API_URL') || 
-      'https://open-api.petpooja.com/v1/orders/update_status';
-    
+  if (dynoApiKey) {
+    // 1. Dyno API dispatch mode
+    mode = 'DYNO';
+    mappedStatus = mapStatusToDyno(nextStatus);
+    endpoint = getEnvVar('DYNO_API_URL') || 'https://dynoapis.com/api/v1/orders/status';
+    headers['x-api-key'] = dynoApiKey;
+    payload = {
+      order_id: orderId,
+      status: mappedStatus
+    };
+  } else if (appKey && appSecret && accessToken) {
+    // 2. Production Petpooja Open API dispatch mode
+    mode = 'PROD';
+    mappedStatus = mapStatusToPetpooja(nextStatus);
+    endpoint = getEnvVar('PETPOOJA_STATUS_API_URL') || 'https://open-api.petpooja.com/v1/orders/update_status';
     headers['app-key'] = appKey;
     headers['app-secret'] = appSecret;
     headers['access-token'] = accessToken;
+
+    const resolvedRestId = 
+      restId ||
+      getEnvVar('PETPOOJA_REST_ID') ||
+      getEnvVar('PETPOOJA_RESTAURANT_ID') ||
+      'REST_XTRA_01';
+
+    const clientId = 
+      getEnvVar('PETPOOJA_CLIENT_ID') ||
+      'petpooja_client_live';
+
+    payload = {
+      restID: resolvedRestId,
+      client_id: clientId,
+      order_id: orderId,
+      order_status: mappedStatus,
+      updated_at: new Date().toISOString()
+    };
   } else {
+    // 3. Fallback / Mock Tester Receiver mode
+    mode = 'MOCK';
+    mappedStatus = mapStatusToPetpooja(nextStatus);
     endpoint = 
       callbackUrl ||
       getEnvVar('TESTER_CALLBACK_URL') ||
       getEnvVar('PETPOOJA_OUTBOUND_WEBHOOK_URL') ||
       'https://vyomapos-t.vercel.app/api/webhooks/receiver';
+
+    const resolvedRestId = 
+      restId ||
+      getEnvVar('PETPOOJA_REST_ID') ||
+      getEnvVar('PETPOOJA_RESTAURANT_ID') ||
+      'REST_XTRA_01';
+
+    const clientId = 
+      getEnvVar('PETPOOJA_CLIENT_ID') ||
+      'petpooja_client_live';
+
+    payload = {
+      restID: resolvedRestId,
+      client_id: clientId,
+      order_id: orderId,
+      order_status: mappedStatus,
+      updated_at: new Date().toISOString()
+    };
   }
 
   const controller = new AbortController();
