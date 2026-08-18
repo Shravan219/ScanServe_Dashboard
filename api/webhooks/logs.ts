@@ -1,4 +1,4 @@
-import { getInboundLogs, clearInboundLogs } from '../../server/orderStore.js';
+import { getInboundLogs, clearInboundLogs } from '../../server/orderStore';
 
 export default function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');

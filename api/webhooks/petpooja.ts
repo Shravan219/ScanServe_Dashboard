@@ -5,7 +5,7 @@ import {
   broadcastEvent,
   recordInboundLog,
   ServerOrder
-} from '../../server/orderStore.js';
+} from '../../server/orderStore';
 
 export const config = {
   api: {

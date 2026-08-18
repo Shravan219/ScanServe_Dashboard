@@ -6,7 +6,7 @@ import {
   recordInboundLog,
   formatIST,
   ServerOrder
-} from '../../server/orderStore.js';
+} from '../../server/orderStore';
 
 export const config = {
   api: {

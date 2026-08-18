@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { processWebhookPayload } from '../processWebhook.js';
-import { getInboundLogs, clearInboundLogs } from '../orderStore.js';
-import dynoHandler from '../../api/webhooks/dyno.js';
+import { processWebhookPayload } from '../processWebhook';
+import { getInboundLogs, clearInboundLogs } from '../orderStore';
+import dynoHandler from '../../api/webhooks/dyno';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
-import { processWebhookPayload } from '../../server/processWebhook.js';
-import { getAllMemoryOrders, getSupabaseClient } from '../../server/orderStore.js';
+import { processWebhookPayload } from '../../server/processWebhook';
+import { getAllMemoryOrders, getSupabaseClient } from '../../server/orderStore';
 
 export const config = {
   api: {
