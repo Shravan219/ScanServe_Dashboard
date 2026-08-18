@@ -35,12 +35,14 @@ import {
   Utensils,
   Globe,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
+import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { soundService } from '@/src/lib/sound';
 import { syncOrderStatusToPetpooja } from '@/src/lib/orderSync';
 import { sendPetpoojaStatusUpdate, isPetpoojaOrAggregatorOrder } from '@lib/webhooks/petpooja-dispatcher';
@@ -343,7 +345,7 @@ export default function App() {
   const activeTab = useMemo(() => {
     if (isKioskLocked) return 'captain';
     const path = location.pathname.split('/')[1];
-    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu', 'customers', 'captain', 'online'];
+    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu', 'customers', 'captain', 'online', 'invoices'];
     return validTabs.includes(path) ? path : 'service';
   }, [location.pathname, isKioskLocked]);
 
@@ -493,117 +495,116 @@ export default function App() {
     soundService.playNewOrderSound();
   };
 
-  // ... (rest of the useEffect and handlers)
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+  const fetchData = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      let dbActiveOrders: Order[] = [];
+      let dbAllOrders: Order[] = [];
+
+      // 1. Try fetching from Supabase
       try {
-        let dbActiveOrders: Order[] = [];
-        let dbAllOrders: Order[] = [];
-
-        // 1. Try fetching from Supabase
-        try {
-          const { data: ordersData, error: ordersError } = await supabase
-            .from('orders')
-            .select('*')
-            .neq('status', 'completed')
-            .neq('status', 'cancelled')
-            .order('created_at', { ascending: true });
-
-          if (!ordersError && ordersData) {
-            dbActiveOrders = ordersData;
-          }
-
-          const { data: allOrdersData, error: allOrdersError } = await supabase
-            .from('orders')
-            .select('*')
-            .order('created_at', { ascending: false });
-          if (!allOrdersError && allOrdersData) {
-            dbAllOrders = allOrdersData;
-          }
-        } catch (supabaseErr) {
-          console.warn('Supabase fetch notice, falling back to API server store:', supabaseErr);
-        }
-
-        // 2. Fetch from Express API server orders store
-        try {
-          const apiRes = await fetch('/api/orders');
-          if (apiRes.ok) {
-            const apiData = await apiRes.json();
-            if (apiData.orders && Array.isArray(apiData.orders)) {
-              const apiOrders: Order[] = apiData.orders;
-              
-              // Merge with Supabase orders without duplicates
-              const mergedMap = new Map<string, Order>();
-              for (const o of dbAllOrders) {
-                mergedMap.set(o.id || o.token, o);
-              }
-              for (const o of apiOrders) {
-                mergedMap.set(o.id || o.token, o);
-              }
-              
-              dbAllOrders = Array.from(mergedMap.values()).sort(
-                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-              );
-              dbActiveOrders = dbAllOrders.filter(
-                o => o.status !== 'completed' && o.status !== 'cancelled'
-              );
-            }
-          }
-        } catch (apiErr) {
-          console.warn('API orders fetch notice:', apiErr);
-        }
-
-        setOrders(dbActiveOrders);
-        setAllOrders(dbAllOrders);
-
-        // Try getting dedicated customer records
-        try {
-          const { data: custData, error: custError } = await supabase
-            .from('customers')
-            .select('*');
-          if (!custError && custData) {
-            setDbCustomers(custData);
-          }
-        } catch (e) {
-          console.warn('Dedicated customers table not found, fallback to dynamically computed customer history.');
-        }
-
-        // Fetch stats for today
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        try {
-          const { count, error: statsError } = await supabase
-            .from('orders')
-            .select('*', { count: 'exact', head: true })
-            .eq('status', 'completed')
-            .gte('created_at', today.toISOString());
-
-          if (!statsError && count !== null) {
-            setStats(prev => ({ ...prev, preparedToday: count }));
-          }
-        } catch {
-          // ignore
-        }
-
-        const { data: menuData, error: menuError } = await supabase
-          .from('menu_items')
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
           .select('*')
-          .order('category', { ascending: true });
+          .neq('status', 'completed')
+          .neq('status', 'cancelled')
+          .order('created_at', { ascending: true });
 
-        if (menuError) {
-          console.warn('Could not load menu items from Supabase:', menuError.message);
-        } else if (menuData && menuData.length > 0) {
-          setMenuItems(menuData);
+        if (!ordersError && ordersData) {
+          dbActiveOrders = ordersData;
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
+        const { data: allOrdersData, error: allOrdersError } = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!allOrdersError && allOrdersData) {
+          dbAllOrders = allOrdersData;
+        }
+      } catch (supabaseErr) {
+        console.warn('Supabase fetch notice, falling back to API server store:', supabaseErr);
+      }
+
+      // 2. Fetch from Express API server orders store
+      try {
+        const apiRes = await fetch('/api/orders');
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.orders && Array.isArray(apiData.orders)) {
+            const apiOrders: Order[] = apiData.orders;
+            
+            // Merge with Supabase orders without duplicates
+            const mergedMap = new Map<string, Order>();
+            for (const o of dbAllOrders) {
+              mergedMap.set(o.id || o.token, o);
+            }
+            for (const o of apiOrders) {
+              mergedMap.set(o.id || o.token, o);
+            }
+            
+            dbAllOrders = Array.from(mergedMap.values()).sort(
+              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            dbActiveOrders = dbAllOrders.filter(
+              o => o.status !== 'completed' && o.status !== 'cancelled'
+            );
+          }
+        }
+      } catch (apiErr) {
+        console.warn('API orders fetch notice:', apiErr);
+      }
+
+      setOrders(dbActiveOrders);
+      setAllOrders(dbAllOrders);
+
+      // Try getting dedicated customer records
+      try {
+        const { data: custData, error: custError } = await supabase
+          .from('customers')
+          .select('*');
+        if (!custError && custData) {
+          setDbCustomers(custData);
+        }
+      } catch (e) {
+        console.warn('Dedicated customers table not found, fallback to dynamically computed customer history.');
+      }
+
+      // Fetch stats for today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      try {
+        const { count, error: statsError } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'completed')
+          .gte('created_at', today.toISOString());
+
+        if (!statsError && count !== null) {
+          setStats(prev => ({ ...prev, preparedToday: count }));
+        }
+      } catch {
+        // ignore
+      }
+
+      const { data: menuData, error: menuError } = await supabase
+        .from('menu_items')
+        .select('*')
+        .order('category', { ascending: true });
+
+      if (menuError) {
+        console.warn('Could not load menu items from Supabase:', menuError.message);
+      } else if (menuData && menuData.length > 0) {
+        setMenuItems(menuData);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     fetchData();
 
     // 1. Server-Sent Events (SSE) listener for instant order delivery from webhooks/testers
@@ -1216,6 +1217,12 @@ export default function App() {
                 active={activeTab === 'online'} 
                 onClick={() => setActiveTab('online')}
               />
+              <NavItem 
+                icon={<FileText size={18} strokeWidth={1.5} />} 
+                label="Invoices" 
+                active={activeTab === 'invoices'} 
+                onClick={() => setActiveTab('invoices')}
+              />
             </>
           )}
 
@@ -1333,6 +1340,16 @@ export default function App() {
               >
                 Customers
               </button>
+              <button
+                onClick={() => setActiveTab('invoices')}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'invoices'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                Invoices
+              </button>
             </>
           )}
         </div>
@@ -1415,6 +1432,14 @@ export default function App() {
                   >
                     <Globe size={16} /> Online Orders
                   </button>
+                  <button
+                    onClick={() => setActiveTab('invoices')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'invoices' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <FileText size={16} /> Invoices & Billing
+                  </button>
                 </>
               )}
             </motion.div>
@@ -1435,6 +1460,7 @@ export default function App() {
                   <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
                   <TabsTrigger value="customers" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
                   <TabsTrigger value="online" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
+                  <TabsTrigger value="invoices" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Invoices</TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -1963,6 +1989,30 @@ export default function App() {
                     />
                   );
                 }}
+              />
+            </TabsContent>
+
+            <TabsContent value="invoices" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-hidden">
+              <InvoicesView
+                menuItems={menuItems}
+                orders={allOrders && allOrders.length > 0 ? allOrders : orders}
+                onOrderCreated={(newOrder) => {
+                  setOrders(prev => {
+                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                    if (exists) {
+                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                    }
+                    return [newOrder, ...prev];
+                  });
+                  setAllOrders(prev => {
+                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                    if (exists) {
+                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                    }
+                    return [newOrder, ...prev];
+                  });
+                }}
+                onRefreshLedger={fetchData}
               />
             </TabsContent>
           </div>
