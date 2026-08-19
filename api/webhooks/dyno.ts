@@ -52,32 +52,63 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const rawOrder of rawOrdersList) {
       if (!rawOrder || typeof rawOrder !== 'object') continue;
 
-      // Extract Order Identifier (e.g. "VY-ZOM-9821")
       const externalOrderId = String(
         rawOrder.orderId || rawOrder.order_id || rawOrder.id || `DYN_${Date.now()}`
       ).trim();
 
-      // Extract Token Number from external order ID
       const digitsOnly = externalOrderId.replace(/[^0-9]/g, '');
       const tokenNumber = digitsOnly.length >= 4 ? digitsOnly.slice(-4) : digitsOnly || '1001';
       const token = `#${tokenNumber}`;
 
-      // Extract Vendor (e.g., ZOMATO, SWIGGY)
       const vendorName = String(rawOrder.vendor || rawOrder.aggregator_platform || rawOrder.source || 'ZOMATO').toUpperCase();
 
-      // Extract Customer Info from nested object
       const customer = rawOrder.customerDetails || rawOrder.customer || {};
       const customerName = customer.name || rawOrder.customer_name || 'Guest Customer';
       const customerPhone = customer.phone || customer.mobile || rawOrder.customer_phone || 'Masked Number';
 
-      // Extract Financials from nested billSummary
       const bill = rawOrder.billSummary || {};
       const grandTotal = Number(bill.grandTotal || bill.grand_total || rawOrder.bill_amount || rawOrder.total || 0);
       const discountVal = bill.discount ? Number(bill.discount) : (rawOrder.discount ? Number(rawOrder.discount) : null);
 
-      // Order Type & Special Instructions
       const orderType = String(rawOrder.orderType || rawOrder.order_type || 'delivery').toLowerCase();
       const instructions = rawOrder.specialInstructions || rawOrder.instructions || rawOrder.custom_instructions || null;
+
+      // Extract and normalize item schema across UI key naming conventions
+      const rawItems = Array.isArray(rawOrder.items)
+        ? rawOrder.items
+        : Array.isArray(rawOrder.order_items)
+        ? rawOrder.order_items
+        : [];
+
+      const normalizedItems = rawItems.map((it: any, idx: number) => {
+        const name = String(it.name || it.itemName || it.item_name || it.title || `Item ${idx + 1}`).trim();
+        const price = Number(it.price || it.itemPrice || it.rate || 0);
+        const quantity = Number(it.quantity || it.qty || 1);
+        const notes = it.specialNotes || it.notes || it.item_notes || '';
+
+        const addons = Array.isArray(it.addons)
+          ? it.addons.map((a: any) => ({
+              id: a.id || safeUUID(),
+              name: a.name || a.addon_name || '',
+              price: Number(a.price || 0)
+            }))
+          : [];
+
+        return {
+          id: String(it.id || it.item_id || `itm_${idx + 1}`),
+          name,
+          itemName: name,
+          item_name: name,
+          price: isNaN(price) ? 0 : price,
+          quantity: isNaN(quantity) ? 1 : quantity,
+          qty: isNaN(quantity) ? 1 : quantity,
+          notes,
+          specialNotes: notes,
+          category: it.category || 'General',
+          isVeg: it.isVeg ?? true,
+          addons
+        };
+      });
 
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(externalOrderId);
 
@@ -86,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         token: token,
         status: sanitizeStatus(rawOrder.status),
         total: grandTotal,
-        items: rawOrder.items || rawOrder.order_items || [],
+        items: normalizedItems, // Saved as normalized JSONB
         table_id: String(rawOrder.restaurantId || rawOrder.table_id || `${vendorName} Order`),
         created_at: rawOrder.timestamp || new Date().toISOString(),
         placed_at_ist: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
