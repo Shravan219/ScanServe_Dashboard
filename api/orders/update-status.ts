@@ -1,4 +1,4 @@
-import { triggerOutboundWebhook } from '../../server/routes/orders';
+import { triggerOutboundWebhook } from '../../server/outboundWebhook';
 import { getMemoryOrder, saveMemoryOrder, broadcastEvent, getSupabaseClient } from '../../server/orderStore';
 
 export default async function handler(req: any, res: any) {
