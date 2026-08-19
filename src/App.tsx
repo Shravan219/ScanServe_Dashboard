@@ -803,175 +803,64 @@ export default function App() {
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     console.log(`Updating order ${orderId} status to ${newStatus}...`);
+    
+    // Find order in allOrders or active orders list (matching by id or token)
+    const orderToUpdate = 
+      allOrders.find(o => o.id === orderId || o.token === orderId) || 
+      orders.find(o => o.id === orderId || o.token === orderId);
+
+    const realOrderId = orderToUpdate?.id || orderId;
+
+    // 1. Optimistic UI State Update
+    setOrders(prev => {
+      if (newStatus === 'completed' || newStatus === 'cancelled') {
+        return prev.filter(o => o.id !== realOrderId && o.token !== orderId);
+      }
+      return prev.map(o => (o.id === realOrderId || o.token === orderId) ? { ...o, status: newStatus } : o);
+    });
+
+    setAllOrders(prev => {
+      return prev.map(o => {
+        if (o.id === realOrderId || o.token === orderId) {
+          return { ...o, status: newStatus };
+        }
+        return o;
+      });
+    });
+
+    toast.success(`Order #${orderToUpdate?.token || realOrderId} updated to ${newStatus}`);
+
+    // 2. Dispatch to Backend Server & Dyno Webhooks
+    const platform = orderToUpdate ? getOrderPlatform(orderToUpdate) : 'online';
+    const sourceUpper = platform === 'swiggy' ? 'SWIGGY' : (platform === 'zomato' ? 'ZOMATO' : (orderToUpdate?.source || 'DYNO'));
+
+    dispatchOrderStatus({
+      orderId: realOrderId,
+      nextStatus: newStatus,
+      callbackUrl: orderToUpdate?.callback_url
+    }).catch(err => {
+      console.warn('[Outbound Dispatcher Warning]', err);
+    });
+
+    syncOrderStatusToDyno({
+      orderId: realOrderId,
+      token: orderToUpdate?.token,
+      status: newStatus,
+      source: sourceUpper
+    });
+
+    // 3. Sync to Supabase DB (Non-blocking)
     try {
-      const orderToUpdate = orders.find(o => o.id === orderId);
-      if (!orderToUpdate) {
-        throw new Error('Order not found');
-      }
-
-      // 1. Fetch fresh customer data to check for exact up-to-date values, avoiding state mismatch
-      const phone = orderToUpdate.customer_phone?.trim();
-      const name = orderToUpdate.customer_name?.trim() || 'Guest';
-
-      let isEligible = false;
-      let currentDbCount = 0;
-      let existingDiscount = discountPercentage;
-
-      if (phone) {
-        try {
-          const { data: existingCust, error: fetchErr } = await supabase
-            .from('customers')
-            .select('*')
-            .eq('phone', phone)
-            .maybeSingle();
-
-          if (!fetchErr && existingCust) {
-            currentDbCount = existingCust.order_count || 0;
-            isEligible = !!existingCust.loyal_vip;
-            if (existingCust.discount != null) {
-              existingDiscount = Number(existingCust.discount);
-            }
-          }
-        } catch (err) {
-          console.error('Error fetching customer profile:', err);
-        }
-      }
-
-      // Calculate completed order count as of before this status change, verified from the orders list
-      let completedOrdersCount = 0;
-      if (phone) {
-        const pNormalized = phone.replace(/\D/g, '');
-        completedOrdersCount = allOrders.filter(o => {
-          if (o.id === orderId) return false;
-          if (o.status !== 'completed') return false;
-          const oPhone = o.customer_phone?.trim();
-          if (oPhone) {
-            return oPhone.replace(/\D/g, '') === pNormalized;
-          }
-          return false;
-        }).length;
-      } else if (name) {
-        completedOrdersCount = allOrders.filter(o => {
-          if (o.id === orderId) return false;
-          if (o.status !== 'completed') return false;
-          return o.customer_name?.trim().toLowerCase() === name.toLowerCase();
-        }).length;
-      }
-
-      // Calculate state as of after the current order is completed
-      const newCount = completedOrdersCount + (newStatus === 'completed' ? 1 : 0);
-      
-      // Eligibility is met if they are already VIP, or if frequent loyalty is enabled and newCount hits threshold
-      const isEligibleNow = frequentDiscountEnabled && (isEligible || newCount >= minOrdersForDiscount);
-      const activeDiscountPercentage = (frequentDiscountEnabled && isEligible) ? existingDiscount : discountPercentage;
-
-      // Calculate order discount details
-      const discountInfo = getOrderDiscountInfo(orderToUpdate);
-      const shouldApplyDiscount = isEligibleNow || discountInfo.isDiscounted;
-
-      const updatePayload: any = { status: newStatus };
-      if (newStatus === 'completed' && shouldApplyDiscount) {
-        const factor = (100 - activeDiscountPercentage) / 100;
-        updatePayload.total = orderToUpdate.total * factor;
-      }
-
-      // 2. Perform the Order Update in Supabase
-      const { data, error } = await supabase
+      const { error: dbErr } = await supabase
         .from('orders')
-        .update(updatePayload)
-        .eq('id', orderId)
-        .select();
+        .update({ status: newStatus })
+        .or(`id.eq.${realOrderId},token.eq.${orderToUpdate?.token || realOrderId}`);
 
-      if (error) {
-        console.error('Supabase update error:', error);
-        throw error;
+      if (dbErr) {
+        console.warn('Supabase DB update warning:', dbErr.message);
       }
-      
-      console.log('Update successful:', data);
-
-      // 3. Handle Customer Database loyalty update
-      if (newStatus === 'completed' && phone) {
-        try {
-          const customerPayload = {
-            phone,
-            name,
-            order_count: newCount,
-            loyal_vip: isEligibleNow,
-            discount: isEligibleNow ? activeDiscountPercentage : null
-          };
-
-          console.log('Upserting customers record:', customerPayload);
-          const { error: upsertErr } = await supabase
-            .from('customers')
-            .upsert(customerPayload);
-
-          if (upsertErr) {
-            console.error('Error upserting customer table:', upsertErr);
-          } else {
-            console.log('Customer table updated successfully:', customerPayload);
-            // Fetch updated list of customers to keep UI fully in sync
-            const { data: updatedCusts, error: listErr } = await supabase
-              .from('customers')
-              .select('*');
-            if (!listErr && updatedCusts) {
-              setDbCustomers(updatedCusts);
-            }
-          }
-        } catch (err) {
-          console.error('Exception updating customer loyalty:', err);
-        }
-      }
-
-      toast.success(
-        shouldApplyDiscount && newStatus === 'completed'
-          ? `Order status updated to ${newStatus} (${activeDiscountPercentage}% Loyalty Discount applied!)`
-          : `Order status updated to ${newStatus}`
-      );
-      
-      // Manual state update
-      setOrders(prev => {
-        if (newStatus === 'completed' || newStatus === 'cancelled') {
-          return prev.filter(o => o.id !== orderId);
-        }
-        return prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
-      });
-
-      setAllOrders(prev => {
-        return prev.map(o => {
-          if (o.id === orderId) {
-            const updatedOrder = { ...o, status: newStatus };
-            if (newStatus === 'completed' && discountInfo?.isDiscounted) {
-              updatedOrder.total = discountInfo.finalTotal;
-            }
-            return updatedOrder;
-          }
-          return o;
-        });
-      });
-
-      // 4. Trigger Outbound Webhook to Petpooja / Aggregator Dispatcher (Optimistic & Asynchronous)
-      dispatchOrderStatus({
-        orderId: orderToUpdate.id,
-        nextStatus: newStatus,
-        restId: 'REST_XTRA_01',
-        callbackUrl: orderToUpdate.callback_url
-      }).catch(err => {
-        console.warn('[Outbound Dispatcher Warning]', err);
-      });
-
-      const platform = getOrderPlatform(orderToUpdate);
-      const sourceUpper = platform === 'swiggy' ? 'SWIGGY' : (platform === 'zomato' ? 'ZOMATO' : (orderToUpdate.source || 'DINE_IN'));
-      
-      // Also dispatch through server sync bridge for centralized telemetry
-      syncOrderStatusToDyno({
-        orderId: orderToUpdate.id,
-        token: orderToUpdate.token,
-        status: newStatus,
-        source: sourceUpper
-      });
-    } catch (error) {
-      console.error('Error updating order:', error);
-      toast.error('Failed to update order status');
+    } catch (dbErr: any) {
+      console.warn('Supabase exception:', dbErr?.message || dbErr);
     }
   };
 
