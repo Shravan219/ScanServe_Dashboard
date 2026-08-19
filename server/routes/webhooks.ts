@@ -51,9 +51,9 @@ router.delete('/logs', (req: Request, res: Response) => {
 });
 
 /**
- * Direct Dyno API webhook route
+ * Direct Dyno API webhook routes
  */
-router.all('/dyno', async (req: Request, res: Response) => {
+router.all(['/dyno', '/receiver'], async (req: Request, res: Response) => {
   try {
     return await dynoHandler(req, res);
   } catch (err: any) {
