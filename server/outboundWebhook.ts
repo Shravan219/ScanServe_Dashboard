@@ -1,10 +1,7 @@
-import crypto from 'crypto';
 import { broadcastEvent } from './orderStore';
 
-// In-memory runtime config that overrides process.env if set via UI
-let dynamicOutboundUrl: string = process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL || '';
-let dynamicRestaurantId: string = process.env.PETPOOJA_RESTAURANT_ID || 'REST_XTRA_01';
-let dynamicSecret: string = process.env.PETPOOJA_WEBHOOK_SECRET || 'vyoma_live_sec_882194ad7c10b';
+let dynamicOutboundUrl: string = process.env.DYNO_API_URL || 'https://dynoapis.com/api/v1/orders/status';
+let dynamicApiKey: string = process.env.DYNO_API_KEY || '';
 
 export interface OutboundLog {
   id: string;
@@ -39,90 +36,67 @@ export function clearOutboundLogs() {
   outboundLogs.length = 0;
 }
 
-export function updateDynamicConfig(config: { outbound_url?: string; restaurant_id?: string; secret?: string }) {
+export function updateDynamicConfig(config: { outbound_url?: string; api_key?: string }) {
   if (config.outbound_url !== undefined) dynamicOutboundUrl = config.outbound_url;
-  if (config.restaurant_id !== undefined) dynamicRestaurantId = config.restaurant_id;
-  if (config.secret !== undefined) dynamicSecret = config.secret;
+  if (config.api_key !== undefined) dynamicApiKey = config.api_key;
 }
 
 export function getDynamicConfig() {
   return {
-    outbound_url: dynamicOutboundUrl || process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL || 'https://vyomapos-t.vercel.app/api/webhooks/receiver',
-    restaurant_id: dynamicRestaurantId || process.env.PETPOOJA_RESTAURANT_ID || 'REST_XTRA_01',
-    secret: dynamicSecret
+    outbound_url: dynamicOutboundUrl || process.env.DYNO_API_URL || 'https://dynoapis.com/api/v1/orders/status',
+    api_key: dynamicApiKey || process.env.DYNO_API_KEY || ''
   };
 }
 
-// Petpooja / Aggregator Outbound Webhook Trigger Handler
+export function mapStatusToDyno(rawStatus: string): string {
+  const s = String(rawStatus || '').toUpperCase();
+  if (s === 'PENDING' || s === 'ACCEPTED') return 'ACCEPTED';
+  if (s === 'PREPARING' || s === 'IN_KITCHEN') return 'PREPARING';
+  if (s === 'READY' || s === 'READY_FOR_PICKUP') return 'READY';
+  if (s === 'COMPLETED' || s === 'DISPATCHED' || s === 'DELIVERED') return 'DELIVERED';
+  if (s === 'CANCELLED') return 'CANCELLED';
+  return 'ACCEPTED';
+}
+
 export async function triggerOutboundWebhook(orderData: {
   order_id: string;
   token?: string;
-  restaurant_id?: string;
   status: string;
   updated_at?: string;
-  source?: 'ZOMATO' | 'SWIGGY' | 'DINE_IN' | string;
+  source?: string;
   custom_target_url?: string;
 }) {
   const targetUrl =
     orderData.custom_target_url ||
     dynamicOutboundUrl ||
-    process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL ||
-    'https://api.petpooja.com/v1/orders/status_update';
-  const restaurantId = orderData.restaurant_id || dynamicRestaurantId || 'REST_XTRA_01';
-  const apiSecret = dynamicSecret;
-  const posVersion = 'v2.19.4';
-  const updatedAt = orderData.updated_at || new Date().toISOString();
+    process.env.DYNO_API_URL ||
+    'https://dynoapis.com/api/v1/orders/status';
 
-  // Normalize mapping for status
-  let mappedStatus = orderData.status;
-  const sUpper = (orderData.status || '').toUpperCase();
-  if (sUpper === 'PREPARING' || sUpper === 'IN_KITCHEN') {
-    mappedStatus = 'IN_KITCHEN';
-  } else if (sUpper === 'READY' || sUpper === 'READY_FOR_PICKUP') {
-    mappedStatus = 'READY';
-  } else if (sUpper === 'COMPLETED' || sUpper === 'DISPATCHED' || sUpper === 'DELIVERED') {
-    mappedStatus = 'DISPATCHED';
-  } else if (sUpper === 'CANCELLED') {
-    mappedStatus = 'CANCELLED';
-  }
-
-  // Determine Source (ZOMATO, SWIGGY, DINE_IN, ONLINE)
-  let source = (orderData.source || 'DINE_IN').toUpperCase();
-  if (source.includes('ZOMATO')) source = 'ZOMATO';
-  else if (source.includes('SWIGGY')) source = 'SWIGGY';
-  else if (source.includes('DINE') || source.includes('TABLE')) source = 'DINE_IN';
+  const mappedStatus = mapStatusToDyno(orderData.status);
+  const source = (orderData.source || 'DYNO').toUpperCase();
 
   const payload = {
     order_id: orderData.order_id,
-    token: orderData.token || orderData.order_id,
-    restaurant_id: restaurantId,
-    status: mappedStatus,
-    updated_at: updatedAt,
-    source,
-    order_from: source
+    status: mappedStatus
   };
 
   const payloadString = JSON.stringify(payload);
-  const signature = crypto
-    .createHmac('sha256', apiSecret)
-    .update(payloadString)
-    .digest('hex');
+  const apiKey = dynamicApiKey || process.env.DYNO_API_KEY || '';
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${apiSecret}`,
-    'X-Restaurant-ID': restaurantId,
-    'X-Pos-Version': posVersion,
-    'X-Petpooja-Signature': signature,
-    'X-Source': 'VYOMA_POS'
+    'Content-Type': 'application/json'
   };
 
-  console.log(`[Outbound Webhook] Dispatching status update for order ${orderData.order_id} -> ${mappedStatus} to ${targetUrl}`);
+  if (apiKey) {
+    headers['x-api-key'] = apiKey;
+  }
+
+  console.log(`[Dyno Outbound Webhook] Dispatching status update for order ${orderData.order_id} -> ${mappedStatus} to ${targetUrl}`);
   const startTime = Date.now();
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
 
     const response = await fetch(targetUrl, {
       method: 'POST',
@@ -167,7 +141,7 @@ export async function triggerOutboundWebhook(orderData: {
     };
   } catch (err: any) {
     const duration_ms = Date.now() - startTime;
-    console.warn(`[Outbound Webhook Warning] Could not reach ${targetUrl}:`, err.message);
+    console.warn(`[Dyno Outbound Webhook Warning] Could not reach ${targetUrl}:`, err.message);
 
     const logEntry: OutboundLog = {
       id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,

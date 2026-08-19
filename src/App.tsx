@@ -44,8 +44,7 @@ import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { soundService } from '@/src/lib/sound';
-import { syncOrderStatusToPetpooja } from '@/src/lib/orderSync';
-import { sendPetpoojaStatusUpdate, isPetpoojaOrAggregatorOrder } from '@lib/webhooks/petpooja-dispatcher';
+import { syncOrderStatusToDyno } from '@/src/lib/orderSync';
 import { dispatchOrderStatus } from '@/lib/dispatch-status';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -964,12 +963,11 @@ export default function App() {
       const sourceUpper = platform === 'swiggy' ? 'SWIGGY' : (platform === 'zomato' ? 'ZOMATO' : (orderToUpdate.source || 'DINE_IN'));
       
       // Also dispatch through server sync bridge for centralized telemetry
-      syncOrderStatusToPetpooja({
+      syncOrderStatusToDyno({
         orderId: orderToUpdate.id,
         token: orderToUpdate.token,
         status: newStatus,
-        source: sourceUpper,
-        restaurantId: 'REST_XTRA_01'
+        source: sourceUpper
       });
     } catch (error) {
       console.error('Error updating order:', error);

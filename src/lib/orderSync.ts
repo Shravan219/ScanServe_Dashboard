@@ -1,25 +1,22 @@
-// Standardized status mapping for outbound POS integration
-export const POS_STATUS_MAP = {
-  preparing: 'IN_KITCHEN',
+// Standardized status mapping for outbound Dyno POS integration
+export const DYNO_STATUS_MAP = {
+  pending: 'ACCEPTED',
+  preparing: 'PREPARING',
   ready: 'READY',
-  completed: 'DISPATCHED',
+  completed: 'DELIVERED',
   cancelled: 'CANCELLED'
 } as const;
 
-export type MappedPosStatus = 'IN_KITCHEN' | 'READY' | 'DISPATCHED' | 'CANCELLED';
-
 /**
- * Dispatches an outbound status change notification to Petpooja/Aggregators via our backend API.
- * Uses optimistic execution and error tolerance.
+ * Dispatches an outbound status change notification to Dyno API via our backend API.
  */
-export async function syncOrderStatusToPetpooja(params: {
+export async function syncOrderStatusToDyno(params: {
   orderId: string;
   token?: string;
-  status: 'preparing' | 'ready' | 'completed' | 'cancelled' | string;
-  source?: 'ZOMATO' | 'SWIGGY' | 'DINE_IN' | string;
-  restaurantId?: string;
+  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled' | string;
+  source?: string;
 }) {
-  const mappedStatus = (POS_STATUS_MAP as any)[params.status] || params.status.toUpperCase();
+  const mappedStatus = (DYNO_STATUS_MAP as any)[params.status] || params.status.toUpperCase();
 
   try {
     const response = await fetch('/api/orders/update-status', {
@@ -31,20 +28,19 @@ export async function syncOrderStatusToPetpooja(params: {
         order_id: params.orderId || params.token,
         token: params.token || params.orderId,
         status: mappedStatus,
-        source: params.source || 'DINE_IN',
-        order_from: params.source || 'DINE_IN',
-        restaurant_id: params.restaurantId || 'REST_XTRA_01'
+        source: params.source || 'DYNO'
       })
     });
 
     if (!response.ok) {
-      console.warn(`[Petpooja Sync] HTTP ${response.status} when updating order ${params.orderId}`);
+      console.warn(`[Dyno Sync] HTTP ${response.status} when updating order ${params.orderId}`);
     } else {
       const data = await response.json();
-      console.log(`[Petpooja Sync] Outbound status sync successful:`, data);
+      console.log(`[Dyno Sync] Outbound status sync successful:`, data);
     }
   } catch (error) {
-    // Non-blocking: optimistic UI continues normally even with offline or network latency
-    console.warn(`[Petpooja Sync Error] Could not reach status sync endpoint:`, error);
+    console.warn(`[Dyno Sync Error] Could not reach status sync endpoint:`, error);
   }
 }
+
+export const syncOrderStatusToPetpooja = syncOrderStatusToDyno;

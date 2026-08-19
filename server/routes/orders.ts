@@ -150,8 +150,8 @@ router.get('/webhook-config', (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       outbound_webhook_url: cfg.outbound_url,
-      restaurant_id: cfg.restaurant_id,
-      env_configured: !!process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL
+      api_key: cfg.api_key,
+      env_configured: !!process.env.DYNO_API_URL
     });
   } catch (err: any) {
     console.error('Error in GET /webhook-config:', err);
@@ -165,17 +165,17 @@ router.get('/webhook-config', (req: Request, res: Response) => {
  */
 router.post('/webhook-config', (req: Request, res: Response) => {
   try {
-    const { outbound_webhook_url, restaurant_id } = req.body || {};
+    const { outbound_webhook_url, api_key } = req.body || {};
     updateDynamicConfig({
       outbound_url: outbound_webhook_url !== undefined ? String(outbound_webhook_url).trim() : undefined,
-      restaurant_id: restaurant_id !== undefined ? String(restaurant_id).trim() : undefined
+      api_key: api_key !== undefined ? String(api_key).trim() : undefined
     });
     const cfg = getDynamicConfig();
     return res.status(200).json({
       success: true,
       message: 'Webhook config updated successfully',
       outbound_webhook_url: cfg.outbound_url,
-      restaurant_id: cfg.restaurant_id
+      api_key: cfg.api_key
     });
   } catch (err: any) {
     console.error('Error updating webhook config:', err);
@@ -275,8 +275,7 @@ router.post('/update-status', async (req: Request, res: Response) => {
       order_id: String(order_id),
       token: token ? String(token) : undefined,
       status: String(status),
-      source: source || 'DINE_IN',
-      restaurant_id
+      source: source || 'DYNO'
     });
 
     return res.status(200).json({

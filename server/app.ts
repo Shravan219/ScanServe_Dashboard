@@ -23,11 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Webhook Routes for Petpooja / Deliverect / Dyno / Zomato / Swiggy / Testers
+// API Webhook Routes for Dyno API & Aggregators
 app.use('/api/webhooks', webhookRouter);
 app.use('/api/webhook', webhookRouter);
-app.use('/api/petpooja', webhookRouter);
-app.use('/api/aggregator', webhookRouter);
 
 // API Order Status Outbound & Management & Invoice Routes
 app.use('/api/orders', ordersRouter);
