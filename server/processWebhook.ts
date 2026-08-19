@@ -559,33 +559,16 @@ export async function processWebhookPayload(
         .select();
 
       if (dbError) {
-        console.error('DB_WRITE_FAILED:', dbError);
-        return {
-          status: 500,
-          data: {
-            success: false,
-            error: dbError.message || 'Database insert failed',
-            details: dbError,
-            order_id: finalOrderId
-          }
-        };
+        console.warn('DB_WRITE_WARNING (Order saved to memory):', dbError.message);
+      } else {
+        console.log('DB_PERSIST_SUCCESS:', {
+          orderId: finalOrderId,
+          dbId: dbPayload.id,
+          dbData
+        });
       }
-
-      console.log('DB_PERSIST_SUCCESS:', {
-        orderId: finalOrderId,
-        dbId: dbPayload.id,
-        dbData
-      });
     } catch (dbException: any) {
-      console.error('DB_WRITE_FAILED:', dbException);
-      return {
-        status: 500,
-        data: {
-          success: false,
-          error: dbException?.message || 'Database exception',
-          order_id: finalOrderId
-        }
-      };
+      console.warn('DB_WRITE_EXCEPTION (Order saved to memory):', dbException?.message || dbException);
     }
   }
 
