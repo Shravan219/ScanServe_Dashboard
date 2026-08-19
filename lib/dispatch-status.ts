@@ -90,6 +90,19 @@ export async function dispatchOrderStatus({
     status: mappedStatus
   };
 
+  // Also send duplicate order status dispatch to TESTER_CALLBACK_URL if configured
+  const testerUrl = getEnvVar('TESTER_CALLBACK_URL', 'VITE_TESTER_CALLBACK_URL');
+  if (testerUrl && testerUrl !== endpoint) {
+    fetch(testerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(tRes => {
+      console.log(`[TESTER CALLBACK DISPATCH] Sent status ${mappedStatus} for order ${orderId} to ${testerUrl} (HTTP ${tRes.status})`);
+    }).catch(tErr => {
+      console.warn(`[TESTER CALLBACK DISPATCH WARNING] Could not reach ${testerUrl}:`, tErr.message);
+    });
+  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
