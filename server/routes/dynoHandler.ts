@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import crypto from 'crypto';
 import {
   saveMemoryOrder,
@@ -186,7 +187,7 @@ function isUUID(str: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request, res: Response) {
   const startTime = Date.now();
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -367,7 +368,7 @@ export default async function handler(req: any, res: any) {
           timestamp: new Date().toISOString(),
           method: req.method,
           path: '/api/webhooks/dyno',
-          ip: req.headers?.['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown',
+          ip: (Array.isArray(req.headers?.['x-forwarded-for']) ? req.headers['x-forwarded-for'][0] : req.headers?.['x-forwarded-for']) || req.socket?.remoteAddress || 'unknown',
           headers: req.headers || {},
           raw_body: rawOrder,
           detected_platform: 'Dyno API',

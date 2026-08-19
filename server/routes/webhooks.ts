@@ -5,53 +5,32 @@ import dynoHandler from './dynoHandler';
 
 const router = Router();
 
+// Apply CORS headers on all webhook routes
+router.use((req: Request, res: Response, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Source, X-Requested-With');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
 /**
- * GET /api/webhooks/logs
- * Returns live inbound webhook inspection logs
+ * GET /api/webhooks (Root Health Check Endpoint)
  */
-router.get('/logs', (req: Request, res: Response) => {
-  try {
-    return res.status(200).json({
-      success: true,
-      logs: getInboundLogs()
-    });
-  } catch (err: any) {
-    console.error('Error fetching inbound logs:', err);
-    return res.status(500).json({ success: false, error: err?.message || 'Error fetching logs' });
-  }
-});
-
-router.get('/inbound-logs', (req: Request, res: Response) => {
-  try {
-    return res.status(200).json({
-      success: true,
-      logs: getInboundLogs()
-    });
-  } catch (err: any) {
-    console.error('Error fetching inbound logs:', err);
-    return res.status(500).json({ success: false, error: err?.message || 'Error fetching logs' });
-  }
+router.get(['/', ''], (req: Request, res: Response) => {
+  return res.status(200).json({
+    success: '1',
+    status: 'online',
+    message: 'Vyoma Webhook API Service is ACTIVE and ready to receive POST order payloads.',
+    endpoint: req.originalUrl || '/api/webhooks',
+    timestamp: new Date().toISOString()
+  });
 });
 
 /**
- * DELETE /api/webhooks/logs
- * Clears inbound webhook logs
- */
-router.delete('/logs', (req: Request, res: Response) => {
-  try {
-    clearInboundLogs();
-    return res.status(200).json({
-      success: true,
-      message: 'Inbound webhook logs cleared'
-    });
-  } catch (err: any) {
-    console.error('Error clearing inbound logs:', err);
-    return res.status(500).json({ success: false, error: err?.message || 'Error clearing logs' });
-  }
-});
-
-/**
- * Direct Dyno API webhook routes
+ * GET & POST /api/webhooks/dyno and /api/webhooks/receiver
  */
 router.all(['/dyno', '/receiver'], async (req: Request, res: Response) => {
   try {
@@ -69,8 +48,38 @@ router.all(['/dyno', '/receiver'], async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/webhooks/logs and GET /api/webhooks/inbound-logs
+ */
+router.get(['/logs', '/inbound-logs'], (req: Request, res: Response) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      logs: getInboundLogs()
+    });
+  } catch (err: any) {
+    console.error('Error fetching inbound logs:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error fetching logs' });
+  }
+});
+
+/**
+ * DELETE /api/webhooks/logs
+ */
+router.delete('/logs', (req: Request, res: Response) => {
+  try {
+    clearInboundLogs();
+    return res.status(200).json({
+      success: true,
+      message: 'Inbound webhook logs cleared'
+    });
+  } catch (err: any) {
+    console.error('Error clearing inbound logs:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error clearing logs' });
+  }
+});
+
+/**
  * POST /api/webhooks/simulate
- * Simulates an order directly from UI / testing
  */
 router.post('/simulate', async (req: Request, res: Response) => {
   try {
@@ -90,13 +99,11 @@ router.post('/simulate', async (req: Request, res: Response) => {
 });
 
 /**
- * Universal Webhook Handler for Petpooja, Deliverect, Zomato, Swiggy, and generic testers.
- * Catches all common paths (/petpooja, /aggregator, /zomato, /swiggy, /orders, /saveorder, /, etc.)
+ * Universal Webhook Handler for Petpooja, Deliverect, Zomato, Swiggy, etc.
  */
-const webhookHandler = async (req: Request, res: Response) => {
-  // If GET request, return health / ping confirmation
+const universalWebhookHandler = async (req: Request, res: Response) => {
   if (req.method === 'GET') {
-    return res.json({
+    return res.status(200).json({
       success: '1',
       status: 'online',
       message: 'Vyoma Webhook Endpoint is ACTIVE and ready to receive POST order payloads.',
@@ -122,9 +129,7 @@ const webhookHandler = async (req: Request, res: Response) => {
   }
 };
 
-// Mount universal handler on all specific routes & wildcard
 router.all([
-  '/',
   '/petpooja',
   '/aggregator',
   '/zomato',
@@ -135,6 +140,6 @@ router.all([
   '/saveorder',
   '/push',
   '*'
-], webhookHandler);
+], universalWebhookHandler);
 
 export default router;
