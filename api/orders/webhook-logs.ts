@@ -1,3 +1,5 @@
+import { getOutboundLogs } from '../../server/outboundWebhook';
+
 export default function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -10,7 +12,7 @@ export default function handler(req: any, res: any) {
   try {
     return res.status(200).json({
       success: true,
-      logs: []
+      logs: getOutboundLogs()
     });
   } catch (err: any) {
     return res.status(200).json({
