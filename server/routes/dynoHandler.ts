@@ -16,6 +16,196 @@ export const config = {
   },
 };
 
+export interface NormalizedDynoOrder {
+  orderId: string;
+  source: string;
+  resId?: string;
+  status: string;
+  customer_name: string;
+  customer_mobile: string;
+  bill_amount: number;
+  order_items: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    item_notes?: string;
+  }>;
+  table_id: string;
+  instructions?: string;
+  raw: any;
+}
+
+/**
+ * Normalizes an incoming Dyno order payload object:
+ * Dyno sends:
+ * {
+ *   "orders": [
+ *     {
+ *       "data": { ...customer, item, and bill details... },
+ *       "orderId": "string",
+ *       "resId": "string",
+ *       "status": "string",
+ *       "vendor": "string"
+ *     }
+ *   ]
+ * }
+ */
+export function normalizeDynoPayload(item: any): NormalizedDynoOrder {
+  if (!item || typeof item !== 'object') {
+    const fallbackId = `DYN-${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    return {
+      orderId: fallbackId,
+      source: 'dyno',
+      status: 'pending',
+      customer_name: 'Guest Customer',
+      customer_mobile: 'Masked Number',
+      bill_amount: 0,
+      order_items: [],
+      table_id: 'Dyno API',
+      raw: item
+    };
+  }
+
+  // 1. Extract orderId from top-level orderId and vendor as source
+  const rawId =
+    item.orderId ||
+    item.order_id ||
+    item.id ||
+    item.data?.orderId ||
+    item.data?.order_id ||
+    item.data?.id;
+
+  let orderId = rawId ? String(rawId).trim() : `DYN-${Date.now()}`;
+  if (orderId.toLowerCase().includes('test') && !orderId.includes(String(Date.now()).slice(0, 8))) {
+    orderId = `${orderId}_${Date.now()}`;
+  }
+
+  const rawVendor =
+    item.vendor ||
+    item.vendor_name ||
+    item.source ||
+    item.channel ||
+    item.data?.vendor ||
+    item.data?.source ||
+    item.data?.channel ||
+    'dyno';
+  const source = String(rawVendor).trim().toLowerCase() || 'dyno';
+
+  const resId = item.resId || item.data?.resId || item.data?.restaurant_id || undefined;
+  const status = (item.status || item.data?.status || 'pending').toString().toLowerCase();
+
+  // 2. Extract customer_name, customer_mobile, bill_amount, and order_items directly from item.data
+  const data = item.data && typeof item.data === 'object' ? item.data : item;
+
+  const customer_name = String(
+    data.customer_name ||
+    data.customerName ||
+    data.CustomerName ||
+    data.customer?.name ||
+    data.delivery_details?.customer_name ||
+    data.delivery_details?.name ||
+    data.user?.name ||
+    item.customer_name ||
+    item.customerName ||
+    item.name ||
+    'Guest Customer'
+  ).trim() || 'Guest Customer';
+
+  const customer_mobile = String(
+    data.customer_mobile ||
+    data.customer_phone ||
+    data.customerPhone ||
+    data.CustomerPhone ||
+    data.customer?.phone ||
+    data.customer?.mobile ||
+    data.delivery_details?.phone ||
+    data.phone ||
+    data.mobile ||
+    item.customer_mobile ||
+    item.customer_phone ||
+    item.phone ||
+    'Masked Number'
+  ).trim() || 'Masked Number';
+
+  const rawItems =
+    (Array.isArray(data.order_items) && data.order_items) ||
+    (Array.isArray(data.items) && data.items) ||
+    (Array.isArray(item.order_items) && item.order_items) ||
+    (Array.isArray(item.items) && item.items) ||
+    [];
+
+  const order_items = rawItems.map((rawIt: any, idx: number) => {
+    const name = String(
+      rawIt?.name ||
+      rawIt?.Item_Name ||
+      rawIt?.item_name ||
+      rawIt?.itemName ||
+      rawIt?.title ||
+      `Item ${idx + 1}`
+    ).trim();
+
+    const rawPrice =
+      rawIt?.price ??
+      rawIt?.Price ??
+      rawIt?.rate ??
+      rawIt?.Rate ??
+      rawIt?.item_price ??
+      rawIt?.unit_price ??
+      rawIt?.amount ??
+      0;
+    const price = Number(rawPrice);
+
+    const rawQty =
+      rawIt?.quantity ??
+      rawIt?.Quantity ??
+      rawIt?.qty ??
+      rawIt?.Qty ??
+      rawIt?.count ??
+      1;
+    const quantity = Number(rawQty);
+
+    return {
+      id: String(rawIt?.id || rawIt?.item_id || rawIt?.Item_ID || `item_${idx + 1}`),
+      name: name || `Item ${idx + 1}`,
+      price: isNaN(price) || price < 0 ? 0 : price,
+      quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
+      item_notes: rawIt?.notes || rawIt?.item_notes || rawIt?.special_instructions || undefined
+    };
+  });
+
+  const calculatedItemsTotal = order_items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+
+  const rawBill =
+    data.bill_amount ??
+    data.grand_total ??
+    data.total_amount ??
+    data.total ??
+    item.bill_amount ??
+    item.grand_total ??
+    item.total;
+
+  let bill_amount = Number(rawBill);
+  if (isNaN(bill_amount) || bill_amount <= 0) {
+    bill_amount = calculatedItemsTotal > 0 ? calculatedItemsTotal : 0;
+  }
+
+  // 3. Provide default fallbacks for missing fields
+  return {
+    orderId,
+    source,
+    resId,
+    status,
+    customer_name,
+    customer_mobile,
+    bill_amount,
+    order_items,
+    table_id: String(data.table_id || data.table_no || data.table || item.table_id || 'Dyno API'),
+    instructions: String(data.instructions || data.special_instructions || data.notes || item.instructions || ''),
+    raw: item
+  };
+}
+
 function isUUID(str: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
 }
@@ -70,7 +260,7 @@ export default async function handler(req: any, res: any) {
     }
 
     // Inspect incoming raw payload in server logs
-    console.log('RECEIVED_PAYLOAD:', JSON.stringify(body, null, 2));
+    console.log('RECEIVED_DYNO_PAYLOAD:', JSON.stringify(body, null, 2));
 
     // Support both multi-order batches (body.orders) and single order objects (body)
     const rawOrdersList: any[] = Array.isArray(body?.orders)
@@ -81,155 +271,58 @@ export default async function handler(req: any, res: any) {
 
     const responseList: Array<{ status: number; orderId: string; message: string }> = [];
 
-    for (const order of rawOrdersList) {
-      if (!order || typeof order !== 'object') continue;
+    for (const rawOrder of rawOrdersList) {
+      if (!rawOrder || typeof rawOrder !== 'object') continue;
 
-      // Extract Order ID with clean fallbacks
-      const rawId =
-        order.data?.order_id ||
-        order.data?.orderId ||
-        order.data?.id ||
-        order.order_id ||
-        order.orderId ||
-        order.id ||
-        order.order_number ||
-        order.orderNumber;
-
-      let orderId = rawId ? String(rawId) : `DYN-${Date.now()}`;
-      if (orderId.toLowerCase().includes('test') && !orderId.includes(String(Date.now()).slice(0, 8))) {
-        orderId = `${orderId}_${Date.now()}`;
-      }
-
-      // Extract Customer Name, Phone, Total, and Items per specification
-      const customerName = (
-        order.data?.customer_name ||
-        order.data?.customer?.name ||
-        order.customer_name ||
-        order.customer?.name ||
-        order.delivery_details?.customer_name ||
-        order.delivery_details?.name ||
-        order.user?.name ||
-        order.name ||
-        'Guest Customer'
-      ).toString().trim();
-
-      const customerPhone = (
-        order.data?.customer_phone ||
-        order.data?.customer?.phone ||
-        order.customer_phone ||
-        order.customer?.phone ||
-        order.delivery_details?.phone ||
-        order.phone ||
-        order.mobile ||
-        'Masked Number'
-      ).toString().trim();
-
-      const totalAmount = Number(
-        order.data?.bill_amount ||
-        order.data?.grand_total ||
-        order.data?.total ||
-        order.bill_amount ||
-        order.grand_total ||
-        order.total ||
-        order.amount ||
-        0
-      );
-
-      const rawItems = Array.isArray(order.data?.items)
-        ? order.data.items
-        : Array.isArray(order.items)
-        ? order.items
-        : Array.isArray(order.data?.order_items)
-        ? order.data.order_items
-        : Array.isArray(order.order_items)
-        ? order.order_items
-        : [];
-
-      const items = rawItems.map((item: any, idx: number) => {
-        const itemName = (
-          item.Item_Name ||
-          item.item_name ||
-          item.name ||
-          item.title ||
-          `Item ${idx + 1}`
-        ).toString().trim();
-
-        const itemPrice = Number(
-          item.Price ||
-          item.price ||
-          item.rate ||
-          item.item_price ||
-          item.unit_price ||
-          0
-        );
-
-        const itemQuantity = Number(
-          item.Quantity ||
-          item.quantity ||
-          item.qty ||
-          item.count ||
-          1
-        );
-
-        return {
-          id: (item.item_id || item.id || `item_${idx + 1}`).toString(),
-          name: itemName,
-          price: isNaN(itemPrice) ? 0 : itemPrice,
-          quantity: isNaN(itemQuantity) || itemQuantity <= 0 ? 1 : itemQuantity,
-          item_notes: item.notes || item.special_instructions || undefined
-        };
-      });
-
-      const calculatedItemsTotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
-      const finalTotal = totalAmount > 0 ? totalAmount : (calculatedItemsTotal > 0 ? calculatedItemsTotal : 0);
+      // Transform & normalize incoming Dyno payload
+      const norm = normalizeDynoPayload(rawOrder);
 
       // Extract / Normalize 4-digit token
       let token = (
-        order.token ||
-        order.data?.token ||
-        order.token_no ||
+        rawOrder.token ||
+        rawOrder.data?.token ||
+        rawOrder.token_no ||
         ''
       ).toString().replace(/[^0-9]/g, '');
 
       if (token.length !== 4) {
-        token = orderId.replace(/[^0-9]/g, '').slice(-4);
+        token = norm.orderId.replace(/[^0-9]/g, '').slice(-4);
       }
       if (token.length !== 4) {
         token = Math.floor(1000 + Math.random() * 9000).toString();
       }
 
       // Map status
-      const rawStatus = (order.status || order.data?.status || 'pending').toString().toLowerCase();
       let safeStatus: 'pending' | 'preparing' | 'ready' | 'completed' = 'pending';
-      if (rawStatus === 'in_kitchen' || rawStatus === 'preparing' || rawStatus === 'accepted' || rawStatus === 'confirmed' || rawStatus === '1') {
+      const st = norm.status;
+      if (st === 'in_kitchen' || st === 'preparing' || st === 'accepted' || st === 'confirmed' || st === '1') {
         safeStatus = 'preparing';
-      } else if (rawStatus === 'ready' || rawStatus === 'ready_for_pickup' || rawStatus === '2') {
+      } else if (st === 'ready' || st === 'ready_for_pickup' || st === '2') {
         safeStatus = 'ready';
-      } else if (rawStatus === 'completed' || rawStatus === 'dispatched' || rawStatus === 'delivered' || rawStatus === '3') {
+      } else if (st === 'completed' || st === 'dispatched' || st === 'delivered' || st === '3') {
         safeStatus = 'completed';
       }
 
-      const source = (order.source || order.channel || order.platform || 'dyno').toString().toLowerCase();
       let aggregatorPlatform: 'swiggy' | 'zomato' | 'other_online' = 'other_online';
-      if (source.includes('swiggy')) aggregatorPlatform = 'swiggy';
-      else if (source.includes('zomato')) aggregatorPlatform = 'zomato';
+      if (norm.source.includes('swiggy')) aggregatorPlatform = 'swiggy';
+      else if (norm.source.includes('zomato')) aggregatorPlatform = 'zomato';
 
-      const createdAt = order.created_at || order.data?.created_at || new Date().toISOString();
+      const createdAt = rawOrder.created_at || rawOrder.data?.created_at || new Date().toISOString();
 
       const serverOrder: ServerOrder = {
-        id: orderId,
+        id: norm.orderId,
         token: `#${token}`,
         status: safeStatus,
-        total: finalTotal,
-        items,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        table_id: order.table_id || order.data?.table_id || 'Dyno API',
+        total: norm.bill_amount,
+        items: norm.order_items,
+        customer_name: norm.customer_name,
+        customer_phone: norm.customer_mobile,
+        table_id: norm.table_id,
         order_type: 'aggregator',
         aggregator_platform: aggregatorPlatform,
         created_at: createdAt,
         placed_at_ist: formatIST(createdAt),
-        notes: order.instructions || order.notes || `Ref: ${orderId}`
+        notes: norm.instructions || `Vendor: ${norm.source} | Ref: ${norm.orderId}`
       };
 
       // 1. Save to in-memory store
@@ -239,7 +332,7 @@ export default async function handler(req: any, res: any) {
       const supabase = getSupabaseClient();
       if (supabase) {
         console.log('ATTEMPTING_DB_PERSIST:', {
-          orderId,
+          orderId: norm.orderId,
           customerName: serverOrder.customer_name,
           grandTotal: serverOrder.total
         });
@@ -253,11 +346,11 @@ export default async function handler(req: any, res: any) {
           customer_phone: serverOrder.customer_phone || 'Masked Number',
           table_id: String(serverOrder.table_id || 'Dyno API'),
           created_at: serverOrder.created_at || new Date().toISOString(),
-          gstin: order.gstin || null
+          gstin: rawOrder.gstin || rawOrder.data?.gstin || null
         };
 
-        if (isUUID(orderId)) {
-          dbPayload.id = orderId;
+        if (isUUID(norm.orderId)) {
+          dbPayload.id = norm.orderId;
         } else {
           dbPayload.id = crypto.randomUUID();
         }
@@ -270,22 +363,25 @@ export default async function handler(req: any, res: any) {
 
           if (dbError) {
             console.error('DB_WRITE_FAILED:', dbError);
-            return res.status(500).json({
-              success: false,
-              error: dbError.message || 'Database insert failed',
-              details: dbError,
-              order_id: orderId
-            });
+            return res.status(500).json([
+              {
+                status: 500,
+                orderId: norm.orderId,
+                message: dbError.message || 'Database insert failed'
+              }
+            ]);
           }
 
-          console.log('DB_PERSIST_SUCCESS:', { orderId, dbData });
+          console.log('DB_PERSIST_SUCCESS:', { orderId: norm.orderId, dbData });
         } catch (dbErr: any) {
           console.error('DB_WRITE_FAILED:', dbErr);
-          return res.status(500).json({
-            success: false,
-            error: dbErr?.message || 'Database exception',
-            order_id: orderId
-          });
+          return res.status(500).json([
+            {
+              status: 500,
+              orderId: norm.orderId,
+              message: dbErr?.message || 'Database exception'
+            }
+          ]);
         }
       }
 
@@ -300,37 +396,37 @@ export default async function handler(req: any, res: any) {
       // 4. Log for Live Inbound Inspector
       try {
         recordInboundLog({
-          id: `dyno_log_${Date.now()}_${orderId}`,
+          id: `dyno_log_${Date.now()}_${norm.orderId}`,
           timestamp: new Date().toISOString(),
           method: req.method,
           path: '/api/webhooks/dyno',
           ip: req.headers?.['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown',
           headers: req.headers || {},
-          raw_body: order,
+          raw_body: rawOrder,
           detected_platform: 'Dyno API',
-          detected_source: source.toUpperCase(),
-          order_id: orderId,
+          detected_source: norm.source.toUpperCase(),
+          order_id: norm.orderId,
           token: serverOrder.token,
-          item_count: items.length,
-          total_amount: finalTotal,
+          item_count: norm.order_items.length,
+          total_amount: norm.bill_amount,
           status_code: 200,
           success: true,
-          message: `Order No. ${orderId} Inserted Successfully`,
+          message: `Order No. ${norm.orderId} Inserted Successfully`,
           duration_ms: Date.now() - startTime
         });
       } catch (logErr: any) {
         console.warn('[Dyno API] Inbound log recording warning:', logErr?.message);
       }
 
-      // Add to official Dyno response schema
+      // 5. Format success response matching Dyno's API docs schema:
+      // [{ status: 200, orderId: "<order_id>", message: "Order No. <order_id> Inserted Successfully" }]
       responseList.push({
         status: 200,
-        orderId: orderId,
-        message: `Order No. ${orderId} Inserted Successfully`
+        orderId: norm.orderId,
+        message: `Order No. ${norm.orderId} Inserted Successfully`
       });
     }
 
-    // Return official Dyno JSON response array
     return res.status(200).json(responseList);
   } catch (error: any) {
     console.error('[Dyno API Exception]:', error);

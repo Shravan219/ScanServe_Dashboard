@@ -44,7 +44,7 @@ app.get(['/api', '/api/', '/api/health'], (req, res) => {
 });
 
 // Fallback 404 handler for unmatched API routes
-app.use((req, res) => {
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     status: 'not_found',
