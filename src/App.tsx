@@ -7,7 +7,7 @@ import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/src/lib/supabase';
-import { Order, MenuItem, OrderStatus } from '@/src/types';
+import { Order, MenuItem, OrderStatus, normalizeOrder, normalizeOrderItems } from '@/src/types';
 import { 
   LayoutDashboard, 
   ChefHat, 
@@ -541,9 +541,9 @@ export default function App() {
               mergedMap.set(o.id || o.token, o);
             }
             
-            dbAllOrders = Array.from(mergedMap.values()).sort(
-              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            );
+            dbAllOrders = Array.from(mergedMap.values())
+              .map(o => normalizeOrder(o))
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
             dbActiveOrders = dbAllOrders.filter(
               o => o.status !== 'completed' && o.status !== 'cancelled'
             );
@@ -613,7 +613,7 @@ export default function App() {
 
       eventSource.addEventListener('order_created', (event: MessageEvent) => {
         try {
-          const newOrder = JSON.parse(event.data) as Order;
+          const newOrder = normalizeOrder(JSON.parse(event.data) as Order);
           console.log('[SSE] New Order Received from Server:', newOrder);
 
           setOrders(prev => {
@@ -645,7 +645,7 @@ export default function App() {
 
       eventSource.addEventListener('order_updated', (event: MessageEvent) => {
         try {
-          const updated = JSON.parse(event.data) as Order;
+          const updated = normalizeOrder(JSON.parse(event.data) as Order);
           console.log('[SSE] Order Status Update Received:', updated);
 
           if (updated.status === 'ready') {
@@ -2314,7 +2314,7 @@ function OrderCard({
 
               {/* Items List */}
               <div className="space-y-2 bg-white/[0.02] p-3 rounded-xl border border-white/5 my-2">
-                {order.items.map((item, idx) => (
+                {normalizeOrderItems(order.items).map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between text-xs group/item">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-[9px] font-bold text-primary">

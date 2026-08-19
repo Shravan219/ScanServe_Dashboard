@@ -230,29 +230,57 @@ export async function processWebhookPayload(
 
   const customerPhone = String(rawCustomerPhone).trim() || 'Masked Number';
 
-  // Items Array
-  const rawItems =
-    (Array.isArray(rawBody?.Item) && rawBody.Item) ||
-    (Array.isArray(rawBody?.item) && rawBody.item) ||
-    (Array.isArray(rawBody?.items) && rawBody.items) ||
-    (Array.isArray(rawBody?.Items) && rawBody.Items) ||
-    (Array.isArray(rawBody?.order_items) && rawBody.order_items) ||
-    (Array.isArray(rawBody?.orderItems) && rawBody.orderItems) ||
-    (Array.isArray(rawBody?.OrderItems) && rawBody.OrderItems) ||
-    (Array.isArray(rawBody?.data?.items) && rawBody.data.items) ||
-    (Array.isArray(rawBody?.data?.order_items) && rawBody.data.order_items) ||
-    (Array.isArray(details?.Item) && details.Item) ||
-    (Array.isArray(details?.item) && details.item) ||
-    (Array.isArray(details?.items) && details.items) ||
-    (Array.isArray(details?.Items) && details.Items) ||
-    (Array.isArray(details?.order_items) && details.order_items) ||
-    (Array.isArray(details?.orderItems) && details.orderItems) ||
-    (Array.isArray(details?.OrderItems) && details.OrderItems) ||
-    (Array.isArray(details?.data?.items) && details.data.items) ||
-    (Array.isArray(details?.data?.order_items) && details.data.order_items) ||
-    [];
+  // Extract Items Array or Stringified JSON
+  let rawItemsCandidate: any =
+    rawBody?.Item ||
+    rawBody?.item ||
+    rawBody?.items ||
+    rawBody?.Items ||
+    rawBody?.order_items ||
+    rawBody?.orderItems ||
+    rawBody?.OrderItems ||
+    rawBody?.order_details ||
+    rawBody?.OrderDetails ||
+    rawBody?.menu_items ||
+    rawBody?.MenuItems ||
+    rawBody?.cart ||
+    rawBody?.dishes ||
+    rawBody?.products ||
+    rawBody?.data?.items ||
+    rawBody?.data?.order_items ||
+    details?.Item ||
+    details?.item ||
+    details?.items ||
+    details?.Items ||
+    details?.order_items ||
+    details?.orderItems ||
+    details?.OrderItems ||
+    details?.order_details ||
+    details?.OrderDetails ||
+    details?.menu_items ||
+    details?.data?.items ||
+    details?.data?.order_items;
+
+  if (typeof rawItemsCandidate === 'string') {
+    try {
+      rawItemsCandidate = JSON.parse(rawItemsCandidate);
+    } catch {
+      rawItemsCandidate = [{ name: rawItemsCandidate.trim(), quantity: 1, price: 0 }];
+    }
+  }
+
+  let rawItems: any[] = [];
+  if (Array.isArray(rawItemsCandidate)) {
+    rawItems = rawItemsCandidate;
+  } else if (typeof rawItemsCandidate === 'object' && rawItemsCandidate !== null) {
+    rawItems = [rawItemsCandidate];
+  }
 
   const items = rawItems.map((item: any, idx: number) => {
+    if (typeof item === 'string') {
+      return { id: `item_${idx + 1}`, name: item, price: 0, quantity: 1 };
+    }
+
     const name = String(
       item?.Item_Name ||
       item?.ItemName ||
@@ -263,6 +291,8 @@ export async function processWebhookPayload(
       item?.title ||
       item?.Title ||
       item?.item_title ||
+      item?.description ||
+      item?.dish_name ||
       `Item ${idx + 1}`
     ).trim();
 
