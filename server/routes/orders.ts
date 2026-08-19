@@ -71,45 +71,53 @@ router.get('/events', (req: Request, res: Response) => {
  * Returns all active & historic orders (merges server memory + Supabase)
  */
 router.get('/', async (req: Request, res: Response) => {
-  const memoryOrders = getAllMemoryOrders();
-  
-  // Try fetching from Supabase if connected
-  const supabase = getSupabaseClient();
-  let dbOrders: any[] = [];
-  if (supabase) {
-    try {
-      const { data } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (data) dbOrders = data;
-    } catch {
-      // ignore
+  try {
+    const memoryOrders = getAllMemoryOrders();
+    
+    // Try fetching from Supabase if connected
+    const supabase = getSupabaseClient();
+    let dbOrders: any[] = [];
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (data) dbOrders = data;
+      } catch (dbErr: any) {
+        console.warn('Supabase fetch error in GET /api/orders:', dbErr?.message);
+      }
     }
+
+    // Merge uniquely by ID / Token
+    const orderMap = new Map<string, any>();
+    
+    for (const o of dbOrders) {
+      const key = o.id || o.token;
+      if (key) orderMap.set(key, o);
+    }
+
+    for (const o of memoryOrders) {
+      const key = o.id || o.token;
+      if (key) orderMap.set(key, o);
+    }
+
+    const merged = Array.from(orderMap.values()).sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: merged.length,
+      orders: merged
+    });
+  } catch (err: any) {
+    console.error('Error in GET /api/orders:', err);
+    return res.status(500).json({
+      success: false,
+      message: err?.message || 'Error fetching orders'
+    });
   }
-
-  // Merge uniquely by ID / Token
-  const orderMap = new Map<string, any>();
-  
-  for (const o of dbOrders) {
-    const key = o.id || o.token;
-    if (key) orderMap.set(key, o);
-  }
-
-  for (const o of memoryOrders) {
-    const key = o.id || o.token;
-    if (key) orderMap.set(key, o);
-  }
-
-  const merged = Array.from(orderMap.values()).sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
-
-  res.json({
-    success: true,
-    count: merged.length,
-    orders: merged
-  });
 });
 
 /**
@@ -121,13 +129,13 @@ router.post(['/', '/create', '/webhook'], async (req: Request, res: Response) =>
     const result = await processWebhookPayload(req.body, req.headers, {
       method: req.method,
       path: req.originalUrl || '/api/orders',
-      ip: req.ip || req.socket.remoteAddress
+      ip: req.ip || req.socket?.remoteAddress
     });
     return res.status(result.status).json(result.data);
   } catch (err: any) {
     return res.status(500).json({
       success: false,
-      message: err.message || 'Error processing order'
+      message: err?.message || 'Error processing order'
     });
   }
 });
@@ -137,13 +145,18 @@ router.post(['/', '/create', '/webhook'], async (req: Request, res: Response) =>
  * Return current outbound target URL and config
  */
 router.get('/webhook-config', (req: Request, res: Response) => {
-  const cfg = getDynamicConfig();
-  res.json({
-    success: true,
-    outbound_webhook_url: cfg.outbound_url,
-    restaurant_id: cfg.restaurant_id,
-    env_configured: !!process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL
-  });
+  try {
+    const cfg = getDynamicConfig();
+    return res.status(200).json({
+      success: true,
+      outbound_webhook_url: cfg.outbound_url,
+      restaurant_id: cfg.restaurant_id,
+      env_configured: !!process.env.PETPOOJA_OUTBOUND_WEBHOOK_URL
+    });
+  } catch (err: any) {
+    console.error('Error in GET /webhook-config:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error fetching config' });
+  }
 });
 
 /**
@@ -151,18 +164,23 @@ router.get('/webhook-config', (req: Request, res: Response) => {
  * Update dynamic outbound target URL
  */
 router.post('/webhook-config', (req: Request, res: Response) => {
-  const { outbound_webhook_url, restaurant_id } = req.body;
-  updateDynamicConfig({
-    outbound_url: outbound_webhook_url !== undefined ? String(outbound_webhook_url).trim() : undefined,
-    restaurant_id: restaurant_id !== undefined ? String(restaurant_id).trim() : undefined
-  });
-  const cfg = getDynamicConfig();
-  res.json({
-    success: true,
-    message: 'Webhook config updated successfully',
-    outbound_webhook_url: cfg.outbound_url,
-    restaurant_id: cfg.restaurant_id
-  });
+  try {
+    const { outbound_webhook_url, restaurant_id } = req.body || {};
+    updateDynamicConfig({
+      outbound_url: outbound_webhook_url !== undefined ? String(outbound_webhook_url).trim() : undefined,
+      restaurant_id: restaurant_id !== undefined ? String(restaurant_id).trim() : undefined
+    });
+    const cfg = getDynamicConfig();
+    return res.status(200).json({
+      success: true,
+      message: 'Webhook config updated successfully',
+      outbound_webhook_url: cfg.outbound_url,
+      restaurant_id: cfg.restaurant_id
+    });
+  } catch (err: any) {
+    console.error('Error updating webhook config:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error updating config' });
+  }
 });
 
 /**
@@ -170,10 +188,15 @@ router.post('/webhook-config', (req: Request, res: Response) => {
  * Return recent outbound dispatch logs
  */
 router.get('/webhook-logs', (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    logs: getOutboundLogs()
-  });
+  try {
+    return res.status(200).json({
+      success: true,
+      logs: getOutboundLogs()
+    });
+  } catch (err: any) {
+    console.error('Error fetching webhook logs:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error fetching logs' });
+  }
 });
 
 /**
@@ -181,27 +204,35 @@ router.get('/webhook-logs', (req: Request, res: Response) => {
  * Send a test status ping to verify connection with Tester App
  */
 router.post('/test-ping', async (req: Request, res: Response) => {
-  const { target_url, order_id, status, source } = req.body;
+  try {
+    const { target_url, order_id, status, source } = req.body || {};
 
-  const testOrderId = order_id || `TEST_PING_${Math.floor(1000 + Math.random() * 9000)}`;
-  const testStatus = status || 'IN_KITCHEN';
-  const testSource = source || 'SWIGGY';
+    const testOrderId = order_id || `TEST_PING_${Math.floor(1000 + Math.random() * 9000)}`;
+    const testStatus = status || 'IN_KITCHEN';
+    const testSource = source || 'SWIGGY';
 
-  const result = await triggerOutboundWebhook({
-    order_id: testOrderId,
-    token: testOrderId,
-    status: testStatus,
-    source: testSource,
-    custom_target_url: target_url
-  });
+    const result = await triggerOutboundWebhook({
+      order_id: testOrderId,
+      token: testOrderId,
+      status: testStatus,
+      source: testSource,
+      custom_target_url: target_url
+    });
 
-  return res.json({
-    success: result.success,
-    message: result.success
-      ? `Successfully delivered test update to tester (${result.http_status})`
-      : `Failed to deliver test update to tester: ${result.error || 'HTTP ' + result.http_status}`,
-    details: result
-  });
+    return res.status(200).json({
+      success: result.success,
+      message: result.success
+        ? `Successfully delivered test update to tester (${result.http_status})`
+        : `Failed to deliver test update to tester: ${result.error || 'HTTP ' + result.http_status}`,
+      details: result
+    });
+  } catch (err: any) {
+    console.error('Error in POST /test-ping:', err);
+    return res.status(500).json({
+      success: false,
+      message: err?.message || 'Error executing test ping'
+    });
+  }
 });
 
 /**

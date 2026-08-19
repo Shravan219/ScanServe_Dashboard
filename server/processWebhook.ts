@@ -83,9 +83,10 @@ export async function processWebhookPayload(
   headers?: Record<string, any>,
   meta?: { method?: string; path?: string; ip?: string }
 ) {
-  const startTime = Date.now();
-  const reqMethod = meta?.method || 'POST';
-  const reqPath = meta?.path || '/api/webhooks/petpooja';
+  try {
+    const startTime = Date.now();
+    const reqMethod = meta?.method || 'POST';
+    const reqPath = meta?.path || '/api/webhooks/petpooja';
 
   // 1. LOG INCOMING PAYLOAD
   console.log('RECEIVED_PAYLOAD:', JSON.stringify(rawBody, null, 2));
@@ -602,4 +603,16 @@ export async function processWebhookPayload(
       timestamp: new Date().toISOString()
     }
   };
+  } catch (outerErr: any) {
+    console.error('[Process Webhook Payload Fatal Exception]:', outerErr);
+    return {
+      status: 500,
+      data: {
+        success: '0',
+        status: 'error',
+        message: outerErr?.message || 'Unhandled exception in webhook processing engine',
+        timestamp: new Date().toISOString()
+      }
+    };
+  }
 }

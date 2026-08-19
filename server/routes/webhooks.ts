@@ -10,17 +10,27 @@ const router = Router();
  * Returns live inbound webhook inspection logs
  */
 router.get('/logs', (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    logs: getInboundLogs()
-  });
+  try {
+    return res.status(200).json({
+      success: true,
+      logs: getInboundLogs()
+    });
+  } catch (err: any) {
+    console.error('Error fetching inbound logs:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error fetching logs' });
+  }
 });
 
 router.get('/inbound-logs', (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    logs: getInboundLogs()
-  });
+  try {
+    return res.status(200).json({
+      success: true,
+      logs: getInboundLogs()
+    });
+  } catch (err: any) {
+    console.error('Error fetching inbound logs:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error fetching logs' });
+  }
 });
 
 /**
@@ -28,18 +38,34 @@ router.get('/inbound-logs', (req: Request, res: Response) => {
  * Clears inbound webhook logs
  */
 router.delete('/logs', (req: Request, res: Response) => {
-  clearInboundLogs();
-  res.json({
-    success: true,
-    message: 'Inbound webhook logs cleared'
-  });
+  try {
+    clearInboundLogs();
+    return res.status(200).json({
+      success: true,
+      message: 'Inbound webhook logs cleared'
+    });
+  } catch (err: any) {
+    console.error('Error clearing inbound logs:', err);
+    return res.status(500).json({ success: false, error: err?.message || 'Error clearing logs' });
+  }
 });
 
 /**
  * Direct Dyno API webhook route
  */
 router.all('/dyno', async (req: Request, res: Response) => {
-  return dynoHandler(req, res);
+  try {
+    return await dynoHandler(req, res);
+  } catch (err: any) {
+    console.error('[Dyno Route Exception]:', err);
+    return res.status(500).json([
+      {
+        status: 500,
+        orderId: 'ERROR',
+        message: err?.message || 'Internal server exception in Dyno route'
+      }
+    ]);
+  }
 });
 
 /**
