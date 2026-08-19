@@ -131,6 +131,34 @@ export async function triggerOutboundWebhook(orderData: {
     };
     recordLog(logEntry);
 
+    // If TESTER_CALLBACK_URL is set in environment, also forward payload to tester endpoint
+    const testerUrl = process.env.TESTER_CALLBACK_URL;
+    if (testerUrl && testerUrl !== targetUrl) {
+      fetch(testerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payloadString
+      }).then(async tRes => {
+        const text = await tRes.text();
+        console.log(`[Tester Callback Dispatch] Sent to ${testerUrl} (Status: ${tRes.status})`);
+        recordLog({
+          id: `log_tester_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          order_id: orderData.order_id,
+          status: mappedStatus,
+          source: `${source}_TESTER`,
+          target_url: testerUrl,
+          http_status: tRes.status,
+          success: tRes.ok,
+          duration_ms: 0,
+          payload,
+          response: { raw: text }
+        });
+      }).catch(tErr => {
+        console.warn(`[Tester Callback Dispatch Error] Failed sending to ${testerUrl}:`, tErr.message);
+      });
+    }
+
     return {
       success: response.ok,
       http_status: response.status,
