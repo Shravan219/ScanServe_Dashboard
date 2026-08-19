@@ -55,6 +55,18 @@ app.use('/api/*', (req, res) => {
 // Global error handler for uncaught exceptions in route handlers
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('[Vyoma API Error]:', err);
+
+  // Catch malformed JSON body-parser syntax errors and return Dyno API 200 error array
+  if (err instanceof SyntaxError || err?.type === 'entity.parse.failed') {
+    return res.status(200).json([
+      {
+        status: 400,
+        orderId: 'INVALID_JSON',
+        message: 'Malformed payload sanitized'
+      }
+    ]);
+  }
+
   if (!res.headersSent) {
     res.status(500).json({
       success: false,
