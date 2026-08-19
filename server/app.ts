@@ -33,7 +33,33 @@ app.use('/api/aggregator', webhookRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/invoices', ordersRouter);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health check endpoints
+app.get(['/api', '/api/', '/api/health'], (req, res) => {
+  res.json({
+    success: true,
+    status: 'online',
+    message: 'Vyoma POS API & Webhook Service is active',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Fallback 404 handler for unmatched API routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    status: 'not_found',
+    message: `API Endpoint ${req.originalUrl || req.url || req.path} not found`
+  });
+});
+
+// Global error handler for uncaught exceptions in route handlers
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[Vyoma API Error]:', err);
+  if (!res.headersSent) {
+    res.status(500).json({
+      success: false,
+      status: 'error',
+      message: err?.message || 'Internal server error'
+    });
+  }
 });
