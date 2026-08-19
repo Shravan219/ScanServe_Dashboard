@@ -8,14 +8,6 @@ import {
   ServerOrder
 } from '../orderStore';
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-};
-
 export interface NormalizedDynoOrder {
   orderId: string;
   source: string;
@@ -37,19 +29,7 @@ export interface NormalizedDynoOrder {
 }
 
 /**
- * Normalizes an incoming Dyno order payload object:
- * Dyno sends:
- * {
- *   "orders": [
- *     {
- *       "data": { ...customer, item, and bill details... },
- *       "orderId": "string",
- *       "resId": "string",
- *       "status": "string",
- *       "vendor": "string"
- *     }
- *   ]
- * }
+ * Normalizes an incoming Dyno order payload object
  */
 export function normalizeDynoPayload(item: any): NormalizedDynoOrder {
   if (!item || typeof item !== 'object') {
@@ -67,7 +47,7 @@ export function normalizeDynoPayload(item: any): NormalizedDynoOrder {
     };
   }
 
-  // 1. Extract orderId from top-level orderId and vendor as source
+  // 1. Extract orderId and vendor source deterministically
   const rawId =
     item.orderId ||
     item.order_id ||
@@ -76,10 +56,7 @@ export function normalizeDynoPayload(item: any): NormalizedDynoOrder {
     item.data?.order_id ||
     item.data?.id;
 
-  let orderId = rawId ? String(rawId).trim() : `DYN-${Date.now()}`;
-  if (orderId.toLowerCase().includes('test') && !orderId.includes(String(Date.now()).slice(0, 8))) {
-    orderId = `${orderId}_${Date.now()}`;
-  }
+  const orderId = rawId ? String(rawId).trim() : `DYN-${Date.now()}`;
 
   const rawVendor =
     item.vendor ||
@@ -95,7 +72,7 @@ export function normalizeDynoPayload(item: any): NormalizedDynoOrder {
   const resId = item.resId || item.data?.resId || item.data?.restaurant_id || undefined;
   const status = (item.status || item.data?.status || 'pending').toString().toLowerCase();
 
-  // 2. Extract customer_name, customer_mobile, bill_amount, and order_items directly from item.data
+  // 2. Extract customer, bill, and item details
   const data = item.data && typeof item.data === 'object' ? item.data : item;
 
   const customer_name = String(
@@ -190,7 +167,6 @@ export function normalizeDynoPayload(item: any): NormalizedDynoOrder {
     bill_amount = calculatedItemsTotal > 0 ? calculatedItemsTotal : 0;
   }
 
-  // 3. Provide default fallbacks for missing fields
   return {
     orderId,
     source,
@@ -213,7 +189,6 @@ function isUUID(str: string): boolean {
 export default async function handler(req: any, res: any) {
   const startTime = Date.now();
 
-  // Set standard CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Source, X-Requested-With');
@@ -222,7 +197,6 @@ export default async function handler(req: any, res: any) {
     return res.status(200).end();
   }
 
-  // Health / ping check
   if (req.method === 'GET') {
     return res.status(200).json({
       status: 200,
@@ -248,7 +222,6 @@ export default async function handler(req: any, res: any) {
       try {
         body = JSON.parse(body);
       } catch {
-        // Fallback for form body
         try {
           const params = new URLSearchParams(body);
           const dataParam = params.get('data') || params.get('order') || params.get('orders');
@@ -259,10 +232,8 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // Inspect incoming raw payload in server logs
     console.log('RECEIVED_DYNO_PAYLOAD:', JSON.stringify(body, null, 2));
 
-    // Support both multi-order batches (body.orders) and single order objects (body)
     const rawOrdersList: any[] = Array.isArray(body?.orders)
       ? body.orders
       : Array.isArray(body?.data?.orders)
@@ -274,10 +245,8 @@ export default async function handler(req: any, res: any) {
     for (const rawOrder of rawOrdersList) {
       if (!rawOrder || typeof rawOrder !== 'object') continue;
 
-      // Transform & normalize incoming Dyno payload
       const norm = normalizeDynoPayload(rawOrder);
 
-      // Extract / Normalize 4-digit token
       let token = (
         rawOrder.token ||
         rawOrder.data?.token ||
@@ -292,7 +261,6 @@ export default async function handler(req: any, res: any) {
         token = Math.floor(1000 + Math.random() * 9000).toString();
       }
 
-      // Map status
       let safeStatus: 'pending' | 'preparing' | 'ready' | 'completed' = 'pending';
       const st = norm.status;
       if (st === 'in_kitchen' || st === 'preparing' || st === 'accepted' || st === 'confirmed' || st === '1') {
@@ -328,7 +296,7 @@ export default async function handler(req: any, res: any) {
       // 1. Save to in-memory store
       saveMemoryOrder(serverOrder);
 
-      // 2. Persist to Supabase Database (if configured)
+      // 2. Persist to Supabase Database
       const supabase = getSupabaseClient();
       if (supabase) {
         console.log('ATTEMPTING_DB_PERSIST:', {
@@ -338,6 +306,7 @@ export default async function handler(req: any, res: any) {
         });
 
         const dbPayload: Record<string, any> = {
+          order_id: norm.orderId,
           token: serverOrder.token,
           status: serverOrder.status || 'pending',
           total: Number(serverOrder.total) || 0,
@@ -358,34 +327,32 @@ export default async function handler(req: any, res: any) {
         try {
           const { data: dbData, error: dbError } = await supabase
             .from('orders')
-            .insert([dbPayload])
+            .upsert([dbPayload])
             .select();
 
           if (dbError) {
             console.error('DB_WRITE_FAILED:', dbError);
-            return res.status(500).json([
-              {
-                status: 500,
-                orderId: norm.orderId,
-                message: dbError.message || 'Database insert failed'
-              }
-            ]);
+            responseList.push({
+              status: 500,
+              orderId: norm.orderId,
+              message: dbError.message || 'Database insert failed'
+            });
+            continue;
           }
 
           console.log('DB_PERSIST_SUCCESS:', { orderId: norm.orderId, dbData });
         } catch (dbErr: any) {
           console.error('DB_WRITE_FAILED:', dbErr);
-          return res.status(500).json([
-            {
-              status: 500,
-              orderId: norm.orderId,
-              message: dbErr?.message || 'Database exception'
-            }
-          ]);
+          responseList.push({
+            status: 500,
+            orderId: norm.orderId,
+            message: dbErr?.message || 'Database exception'
+          });
+          continue;
         }
       }
 
-      // 3. Real-Time SSE Broadcast to KDS
+      // 3. Real-Time SSE Broadcast
       try {
         broadcastEvent('new_order', serverOrder);
         broadcastEvent('order_created', serverOrder);
@@ -418,8 +385,7 @@ export default async function handler(req: any, res: any) {
         console.warn('[Dyno API] Inbound log recording warning:', logErr?.message);
       }
 
-      // 5. Format success response matching Dyno's API docs schema:
-      // [{ status: 200, orderId: "<order_id>", message: "Order No. <order_id> Inserted Successfully" }]
+      // 5. Format success response matching Dyno API specification
       responseList.push({
         status: 200,
         orderId: norm.orderId,
