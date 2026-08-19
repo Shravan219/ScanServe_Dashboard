@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Order, OrderStatus } from '@/src/types';
+import { Order, OrderStatus, normalizeOrderItems } from '@/src/types';
 import { soundService } from '@/src/lib/sound';
 import { 
   Bell, 
@@ -272,10 +272,10 @@ export function ReadyOrdersBanner({
                   {/* Items List Preview */}
                   <div className="my-3 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 flex flex-col gap-1 text-xs">
                     <span className="text-[9px] uppercase font-bold tracking-wider text-white/30">
-                      Dishes Ready ({order.items?.length || 0}):
+                      Dishes Ready ({normalizeOrderItems(order.items).length}):
                     </span>
                     <div className="flex flex-col gap-1 max-h-24 overflow-y-auto custom-scrollbar">
-                      {order.items?.map((item, idx) => (
+                      {normalizeOrderItems(order.items).map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-white/90">
                           <span className="font-medium text-xs">
                             <span className="text-primary font-bold mr-1.5">{item.quantity}x</span>

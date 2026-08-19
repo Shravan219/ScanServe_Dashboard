@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { saveMemoryOrder, broadcastEvent } from '../../server/orderStore';
 
 function safeUUID(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -130,10 +131,18 @@ export default async function handler(req: any, res: any) {
         aggregator_platform: vendorName.toLowerCase()
       };
 
+      // Save to memory store and broadcast SSE for instant UI updates
+      try {
+        saveMemoryOrder(dbPayload as any);
+        broadcastEvent('order_created', dbPayload);
+      } catch (memErr) {
+        console.warn('[Dyno Webhook Memory Save Notice]', memErr);
+      }
+
       if (supabase) {
         const { error: dbError } = await supabase.from('orders').insert([dbPayload]);
         if (dbError) {
-          console.error(`SUPABASE_INSERT_ERROR [${externalOrderId}]:`, dbError.message);
+          console.warn(`SUPABASE_INSERT_WARNING [${externalOrderId}]:`, dbError.message);
         }
       }
 
