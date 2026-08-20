@@ -36,6 +36,7 @@ import {
   Globe,
   Shield,
   ShieldCheck,
+  KeyRound,
   FileText
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
@@ -44,6 +45,7 @@ import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { soundService } from '@/src/lib/sound';
+import { verifyStaffPassword } from '@/src/lib/authService';
 import { syncOrderStatusToDyno } from '@/src/lib/orderSync';
 import { dispatchOrderStatus } from '@/lib/dispatch-status';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -444,49 +446,26 @@ export default function App() {
   }, [location.pathname, navigate]);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const authData = localStorage.getItem('vyoma_staff_auth');
-      if (authData) {
-        try {
-          const { expiry } = JSON.parse(authData);
-          if (new Date().getTime() < expiry) {
-            setIsAuthenticated(true);
-          } else {
-            localStorage.removeItem('vyoma_staff_auth');
-          }
-        } catch (e) {
-          localStorage.removeItem('vyoma_staff_auth');
-        }
-      }
-    };
-    checkAuth();
+    // Clear any legacy auth tokens
+    localStorage.removeItem('vyoma_staff_auth');
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Default password for staff access
-    if (password === 'Vyoma2026') {
-      // Calculate expiry: End of the day in IST
-      // IST is UTC+5:30
-      const now = new Date();
-      const istOffset = 5.5 * 60 * 60 * 1000;
-      const istNow = new Date(now.getTime() + istOffset);
-      
-      const istEndOfDay = new Date(istNow);
-      istEndOfDay.setHours(23, 59, 59, 999);
-      
-      const expiryUtc = istEndOfDay.getTime() - istOffset;
-      
-      localStorage.setItem('vyoma_staff_auth', JSON.stringify({
-        authenticated: true,
-        expiry: expiryUtc
-      }));
+    if (!password) {
+      setAuthError(true);
+      toast.error('Please enter access password');
+      return;
+    }
+
+    const res = await verifyStaffPassword(password);
+    if (res.success) {
       setIsAuthenticated(true);
       setAuthError(false);
-      toast.success('Access Granted');
+      toast.success('Access Granted (Verified via Supabase)');
     } else {
       setAuthError(true);
-      toast.error('Invalid Access Password');
+      toast.error(res.message || 'Invalid Access Password');
     }
   };
 

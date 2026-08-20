@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import webhookRouter from './routes/webhooks';
 import ordersRouter from './routes/orders';
+import authRouter from './routes/auth';
 
 dotenv.config();
 
@@ -26,6 +27,9 @@ app.use((req, res, next) => {
 // API Webhook Routes for Dyno API & Aggregators
 app.use('/api/webhooks', webhookRouter);
 app.use('/api/webhook', webhookRouter);
+
+// API Authentication & Password Routes
+app.use('/api/auth', authRouter);
 
 // API Order Status Outbound & Management & Invoice Routes
 app.use('/api/orders', ordersRouter);

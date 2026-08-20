@@ -4,6 +4,7 @@ import { TableStatusGrid } from './TableStatusGrid';
 import { OrderBuilderSheet } from './OrderBuilderSheet';
 import { ReadyOrdersBanner } from './ReadyOrdersBanner';
 import { supabase } from '@/src/lib/supabase';
+import { verifyAdminPassword } from '@/src/lib/authService';
 import { 
   Lock, 
   Unlock, 
@@ -42,8 +43,6 @@ const DEFAULT_TABLES: RestaurantTable[] = Array.from({ length: 20 }, (_, i) => {
     total_amount: 0
   };
 });
-
-const ADMIN_PASSWORD_DEFAULT = 'admin123';
 
 export function CaptainDashboard({
   menuItems,
@@ -231,12 +230,12 @@ export function CaptainDashboard({
   };
 
   // Password Verification Handler
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
 
-    const trimmed = passwordInput.trim();
-    if (trimmed === ADMIN_PASSWORD_DEFAULT || trimmed === '1234' || trimmed === 'admin') {
+    const res = await verifyAdminPassword(passwordInput);
+    if (res.success) {
       if (passwordActionType === 'lock') {
         setIsKioskLocked(true);
         toast.success('Kiosk Lock Mode Activated', {
@@ -251,7 +250,7 @@ export function CaptainDashboard({
       setIsPasswordModalOpen(false);
       setPasswordInput('');
     } else {
-      setPasswordError('Invalid Admin Password. Hint: Default is admin123');
+      setPasswordError(res.message || 'Invalid Admin Password. Verified against Supabase DB.');
     }
   };
 
@@ -458,7 +457,6 @@ export function CaptainDashboard({
                     autoFocus
                     className="w-full rounded-2xl bg-[#14161C] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
                   />
-                  <p className="text-[10px] text-white/30 italic">Default Password: admin123</p>
                 </div>
 
                 {passwordError && (
