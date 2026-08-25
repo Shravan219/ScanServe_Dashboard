@@ -93,8 +93,8 @@ export function ReadyOrdersBanner({
 
   const handleMarkServed = (order: Order) => {
     if (onUpdateStatus) {
-      onUpdateStatus(order.id, 'completed');
-      toast.success(`Order ${order.token} marked as Served & Completed!`);
+      onUpdateStatus(order.id, 'waiting for payment');
+      toast.success(`Order #${order.token} marked as Served & Moved to Payments!`);
     }
   };
 

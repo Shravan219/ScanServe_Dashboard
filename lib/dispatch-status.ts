@@ -1,4 +1,4 @@
-export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'waiting for payment' | 'completed' | 'cancelled';
 
 export type DynoMappedStatus = 'ACCEPTED' | 'PREPARING' | 'READY' | 'DISPATCHED' | 'DELIVERED' | 'CANCELLED';
 
@@ -24,12 +24,13 @@ export interface DispatchResult {
  * - 'pending'   -> 'ACCEPTED'
  * - 'preparing' -> 'PREPARING'
  * - 'ready'     -> 'READY'
+ * - 'waiting for payment' -> 'READY'
  * - 'completed' -> 'DELIVERED'
  * - 'dispatched' -> 'DISPATCHED'
  * - 'cancelled' -> 'CANCELLED'
  */
 export function mapStatusToDyno(status: OrderStatus | string): DynoMappedStatus {
-  const normalized = String(status || '').toLowerCase();
+  const normalized = String(status || '').toLowerCase().trim();
   switch (normalized) {
     case 'pending':
     case 'accepted':
@@ -38,6 +39,8 @@ export function mapStatusToDyno(status: OrderStatus | string): DynoMappedStatus 
     case 'in_kitchen':
       return 'PREPARING';
     case 'ready':
+    case 'waiting for payment':
+    case 'waiting_for_payment':
       return 'READY';
     case 'dispatched':
       return 'DISPATCHED';

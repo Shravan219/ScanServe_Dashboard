@@ -283,14 +283,14 @@ export function TableStatusGrid({
                   <button
                     onClick={() => {
                       if (onUpdateStatus) {
-                        onUpdateStatus(tableReadyOrders[0].id, 'completed');
-                        toast.success(`Served Order ${tableReadyOrders[0].token} for ${table.table_number}!`);
+                        onUpdateStatus(tableReadyOrders[0].id, 'waiting for payment');
+                        toast.success(`Served Order #${tableReadyOrders[0].token} for ${table.table_number}! Awaiting payment.`);
                       }
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black py-2 px-3 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black py-2 px-3 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                   >
                     <CheckCircle2 size={13} />
-                    <span>Serve Ready Food (#{tableReadyOrders[0].token})</span>
+                    <span>Serve Food &amp; Bill (#{tableReadyOrders[0].token})</span>
                   </button>
                 )}
 
