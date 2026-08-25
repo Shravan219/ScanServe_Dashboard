@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import webhookRouter from './routes/webhooks';
 import ordersRouter from './routes/orders';
 import authRouter from './routes/auth';
+import customersRouter from './routes/customers';
 
 dotenv.config();
 
@@ -30,6 +31,9 @@ app.use('/api/webhook', webhookRouter);
 
 // API Authentication & Password Routes
 app.use('/api/auth', authRouter);
+
+// API Customers Database Routes
+app.use('/api/customers', customersRouter);
 
 // API Order Status Outbound & Management & Invoice Routes
 app.use('/api/orders', ordersRouter);

@@ -98,6 +98,71 @@ class SoundService {
     }
   }
 
+  // Cash register / payment success celebratory chime
+  public playSuccessChime() {
+    if (this.getMuted()) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+
+      // Note 1: E5 (659.25 Hz)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(659.25, now);
+      gain1.gain.setValueAtTime(0, now);
+      gain1.gain.linearRampToValueAtTime(0.3, now + 0.02);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.3);
+
+      // Note 2: G#5 (830.61 Hz)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(830.61, now + 0.08);
+      gain2.gain.setValueAtTime(0, now + 0.08);
+      gain2.gain.linearRampToValueAtTime(0.35, now + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.4);
+
+      // Note 3: B5 (987.77 Hz)
+      const osc3 = ctx.createOscillator();
+      const gain3 = ctx.createGain();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(987.77, now + 0.16);
+      gain3.gain.setValueAtTime(0, now + 0.16);
+      gain3.gain.linearRampToValueAtTime(0.4, now + 0.18);
+      gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      osc3.connect(gain3);
+      gain3.connect(ctx.destination);
+      osc3.start(now + 0.16);
+      osc3.stop(now + 0.6);
+
+      // Note 4: E6 (1318.51 Hz) - High crisp ring
+      const osc4 = ctx.createOscillator();
+      const gain4 = ctx.createGain();
+      osc4.type = 'triangle';
+      osc4.frequency.setValueAtTime(1318.51, now + 0.24);
+      gain4.gain.setValueAtTime(0, now + 0.24);
+      gain4.gain.linearRampToValueAtTime(0.45, now + 0.26);
+      gain4.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      osc4.connect(gain4);
+      gain4.connect(ctx.destination);
+      osc4.start(now + 0.24);
+      osc4.stop(now + 0.9);
+    } catch (e) {
+      console.warn('Audio error:', e);
+    }
+  }
+
   // Pop sound for new incoming orders
   public playNewOrderSound() {
     if (this.getMuted()) return;

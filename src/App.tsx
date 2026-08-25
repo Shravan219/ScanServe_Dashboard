@@ -37,13 +37,15 @@ import {
   Shield,
   ShieldCheck,
   KeyRound,
-  FileText
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
+import { PaymentsView } from '@/src/components/payments/PaymentsView';
 import { soundService } from '@/src/lib/sound';
 import { verifyStaffPassword } from '@/src/lib/authService';
 import { syncOrderStatusToDyno } from '@/src/lib/orderSync';
@@ -171,19 +173,25 @@ export default function App() {
       toast.promise(
         (async () => {
           // Clear VIP status and active loyal tags in database for ALL records
-          const { error } = await supabase
+          await supabase
             .from('customers')
             .update({ loyal_vip: false, discount: null })
             .not('phone', 'is', null);
-          
-          if (error) throw error;
 
-          // Refetch customer table data to update current state
+          try {
+            await fetch('/api/customers/bulk-discount', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ discount: null })
+            });
+          } catch {}
+
+          // Refetch customer table data from DB
           const { data: updatedCusts, error: listErr } = await supabase
             .from('customers')
-            .select('*');
-          if (listErr) throw listErr;
-          if (updatedCusts) {
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!listErr && updatedCusts) {
             setDbCustomers(updatedCusts);
           }
         })(),
@@ -199,104 +207,103 @@ export default function App() {
   };
 
   const computedCustomers = useMemo(() => {
-    // Single-pass Map data structure for high-performance O(N + M) aggregation
+    // Single-pass Map data structure strictly populated from DB customers
     const customerMap = new Map<string, {
+      id?: string;
       name: string;
       phone: string;
       orderCount: number;
+      computedOrderCount: number;
       totalSpent: number;
       lastOrder: string;
       lastTable: string | number | null;
       loyal_vip: boolean;
       discount: number | null;
       favoriteItems: Record<string, number>;
+      gstin: string | null;
     }>();
 
-    // 1. Populate from dedicated dbCustomers records
+    // 1. Populate ONLY from dedicated dbCustomers records in Supabase
     dbCustomers.forEach(dc => {
       const rawPhone = (dc.phone || '').trim();
       const rawName = (dc.name || 'Guest').trim();
-      const normPhone = rawPhone.replace(/\D/g, '') || rawPhone;
-      const key = normPhone || rawName.toLowerCase();
+      const normPhone = rawPhone.replace(/\D/g, '');
+      const key = rawPhone || (dc.id ? String(dc.id) : rawName.toLowerCase());
       const isVip = !!dc.loyal_vip;
+      const initialOrderCount = Number(dc.order_count) || 0;
 
       if (key) {
         customerMap.set(key, {
+          id: dc.id,
           name: rawName,
           phone: rawPhone,
-          orderCount: dc.order_count || 0,
+          orderCount: initialOrderCount,
+          computedOrderCount: 0,
           totalSpent: 0,
           lastOrder: dc.created_at || new Date().toISOString(),
           lastTable: null,
           loyal_vip: isVip,
-          discount: isVip ? discountPercentage : (dc.discount != null ? Number(dc.discount) : null),
+          discount: isVip ? (dc.discount != null ? Number(dc.discount) : discountPercentage) : (dc.discount != null ? Number(dc.discount) : null),
           favoriteItems: {},
+          gstin: dc.gstin || null,
         });
       }
     });
 
-    // 2. Scan allOrders in a single pass to aggregate metrics & discover missing customers
+    // 2. Scan allOrders to calculate spending, top items, and tables ONLY for existing dbCustomers
+    // The code DOES NOT create or insert any new customer rows on its own!
     allOrders.forEach(order => {
       if (order.status === 'cancelled') return;
 
       const orderPhone = (order.customer_phone || '').trim();
       const orderName = (order.customer_name || '').trim();
-      const normPhone = orderPhone.replace(/\D/g, '') || orderPhone;
-      const key = normPhone || (orderName ? orderName.toLowerCase() : '');
+      const normOrderPhone = orderPhone.replace(/\D/g, '');
 
-      if (!key) return; // Skip guest order without phone or name
+      // Find matching customer from dbCustomers Map
+      let matchedCust: any = null;
 
-      let cust = customerMap.get(key);
+      for (const cust of customerMap.values()) {
+        const custPhone = cust.phone.trim();
+        const normCustPhone = custPhone.replace(/\D/g, '');
 
-      if (!cust && orderPhone) {
-        // Try finding by raw phone string matching
-        for (const [_, existing] of customerMap.entries()) {
-          if (existing.phone && (existing.phone === orderPhone || existing.phone.replace(/\D/g, '') === normPhone)) {
-            cust = existing;
-            break;
-          }
+        if (normOrderPhone && normCustPhone && normOrderPhone === normCustPhone) {
+          matchedCust = cust;
+          break;
+        } else if (orderPhone && custPhone && orderPhone.toLowerCase() === custPhone.toLowerCase()) {
+          matchedCust = cust;
+          break;
+        } else if (
+          orderName && 
+          cust.name && 
+          orderName.toLowerCase() === cust.name.trim().toLowerCase() && 
+          orderName.toLowerCase() !== 'guest' && 
+          orderName.toLowerCase() !== 'guest customer'
+        ) {
+          matchedCust = cust;
+          break;
         }
       }
 
-      if (!cust) {
-        cust = {
-          name: orderName || 'Guest',
-          phone: orderPhone,
-          orderCount: 0,
-          totalSpent: 0,
-          lastOrder: order.created_at,
-          lastTable: order.table_id || null,
-          loyal_vip: false,
-          discount: null,
-          favoriteItems: {},
-        };
-        customerMap.set(key, cust);
-      } else {
-        if ((!cust.name || cust.name === 'Guest') && orderName && orderName !== 'Guest') {
-          cust.name = orderName;
+      if (matchedCust) {
+        matchedCust.totalSpent += Number(order.total) || 0;
+        matchedCust.computedOrderCount += 1;
+
+        if (new Date(order.created_at).getTime() >= new Date(matchedCust.lastOrder).getTime()) {
+          matchedCust.lastOrder = order.created_at;
+          if (order.table_id) matchedCust.lastTable = order.table_id;
+        } else if (!matchedCust.lastTable && order.table_id) {
+          matchedCust.lastTable = order.table_id;
         }
-        if (!cust.phone && orderPhone) {
-          cust.phone = orderPhone;
+
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            if (item.name) {
+              matchedCust.favoriteItems[item.name] = (matchedCust.favoriteItems[item.name] || 0) + (item.quantity || 1);
+            }
+          });
         }
       }
-
-      cust.orderCount += 1;
-      cust.totalSpent += Number(order.total) || 0;
-
-      if (new Date(order.created_at).getTime() >= new Date(cust.lastOrder).getTime()) {
-        cust.lastOrder = order.created_at;
-        if (order.table_id) cust.lastTable = order.table_id;
-      } else if (!cust.lastTable && order.table_id) {
-        cust.lastTable = order.table_id;
-      }
-
-      if (order.items && Array.isArray(order.items)) {
-        order.items.forEach(item => {
-          if (item.name) {
-            cust!.favoriteItems[item.name] = (cust!.favoriteItems[item.name] || 0) + (item.quantity || 1);
-          }
-        });
-      }
+      // CRITICAL: If no match in dbCustomers, DO NOT create a row!
     });
 
     // 3. Format and sort list
@@ -310,17 +317,21 @@ export default function App() {
         }
       });
 
+      const effectiveOrderCount = Math.max(c.orderCount, c.computedOrderCount);
+
       return {
+        id: c.id,
         name: c.name,
         phone: c.phone,
-        orderCount: c.orderCount,
+        orderCount: effectiveOrderCount,
         totalSpent: c.totalSpent,
         lastOrder: c.lastOrder,
         lastTable: c.lastTable,
         loyal_vip: c.loyal_vip,
-        discount: c.loyal_vip ? discountPercentage : c.discount,
+        discount: c.discount,
         favoriteItem: topItem,
-        tablesList: c.lastTable ? `Table ${c.lastTable}` : 'Walk-in'
+        tablesList: c.lastTable ? `Table ${c.lastTable}` : 'Walk-in',
+        gstin: c.gstin
       };
     }).sort((a, b) => b.orderCount - a.orderCount);
 
@@ -328,7 +339,8 @@ export default function App() {
     const q = customerSearch.toLowerCase();
     return sortedList.filter(c => 
       c.name.toLowerCase().includes(q) || 
-      c.phone.toLowerCase().includes(q)
+      c.phone.toLowerCase().includes(q) ||
+      (c.gstin && c.gstin.toLowerCase().includes(q))
     );
   }, [allOrders, dbCustomers, customerSearch, discountPercentage]);
   
@@ -346,9 +358,15 @@ export default function App() {
   const activeTab = useMemo(() => {
     if (isKioskLocked) return 'captain';
     const path = location.pathname.split('/')[1];
-    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'menu', 'customers', 'captain', 'online', 'invoices'];
+    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'captain', 'online', 'invoices'];
     return validTabs.includes(path) ? path : 'service';
   }, [location.pathname, isKioskLocked]);
+
+  const waitingForPaymentCount = useMemo(() => {
+    return (allOrders && allOrders.length > 0 ? allOrders : orders).filter(
+      o => (o.status || '').toLowerCase().trim() === 'waiting for payment' || (o.status || '').toLowerCase().trim() === 'waiting_for_payment'
+    ).length;
+  }, [allOrders, orders]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -535,16 +553,34 @@ export default function App() {
       setOrders(dbActiveOrders);
       setAllOrders(dbAllOrders);
 
-      // Try getting dedicated customer records
+      // Try getting dedicated customer records from Supabase, with API fallback
       try {
         const { data: custData, error: custError } = await supabase
           .from('customers')
-          .select('*');
-        if (!custError && custData) {
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!custError && custData && Array.isArray(custData)) {
           setDbCustomers(custData);
+        } else {
+          const apiCustRes = await fetch('/api/customers');
+          if (apiCustRes.ok) {
+            const apiCustData = await apiCustRes.json();
+            if (apiCustData.success && Array.isArray(apiCustData.customers)) {
+              setDbCustomers(apiCustData.customers);
+            }
+          }
         }
       } catch (e) {
-        console.warn('Dedicated customers table not found, fallback to dynamically computed customer history.');
+        console.warn('Customer fetch notice, attempting API fallback:', e);
+        try {
+          const apiCustRes = await fetch('/api/customers');
+          if (apiCustRes.ok) {
+            const apiCustData = await apiCustRes.json();
+            if (apiCustData.success && Array.isArray(apiCustData.customers)) {
+              setDbCustomers(apiCustData.customers);
+            }
+          }
+        } catch {}
       }
 
       // Fetch stats for today
@@ -714,6 +750,18 @@ export default function App() {
       } catch {
         // silent poll error
       }
+      // Poll customers from API to guarantee DB sync
+      try {
+        const custRes = await fetch('/api/customers');
+        if (custRes.ok) {
+          const custJson = await custRes.json();
+          if (custJson.success && Array.isArray(custJson.customers)) {
+            setDbCustomers(custJson.customers);
+          }
+        }
+      } catch {
+        // silent poll error
+      }
     }, 3500);
 
     // 3. Supabase real-time updates subscription
@@ -772,11 +820,34 @@ export default function App() {
       })
       .subscribe();
 
+    const customersSubscription = supabase
+      .channel('customers-realtime')
+      .on('postgres_changes', { event: '*', table: 'customers', schema: 'public' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const newCust = payload.new;
+          setDbCustomers(prev => {
+            const exists = prev.some(c => c.phone === (newCust as any).phone);
+            if (exists) {
+              return prev.map(c => c.phone === (newCust as any).phone ? newCust : c);
+            }
+            return [newCust, ...prev];
+          });
+        } else if (payload.eventType === 'UPDATE') {
+          const updatedCust = payload.new;
+          setDbCustomers(prev => prev.map(c => c.phone === (updatedCust as any).phone ? updatedCust : c));
+        } else if (payload.eventType === 'DELETE') {
+          const oldCust = payload.old;
+          setDbCustomers(prev => prev.filter(c => c.phone !== (oldCust as any).phone));
+        }
+      })
+      .subscribe();
+
     return () => {
       if (eventSource) eventSource.close();
       clearInterval(pollInterval);
       supabase.removeChannel(ordersSubscription);
       supabase.removeChannel(menuSubscription);
+      supabase.removeChannel(customersSubscription);
     };
   }, []);
 
@@ -902,6 +973,7 @@ export default function App() {
     const targetDiscount = nextVip ? discountPercentage : null;
 
     try {
+      // 1. Update in Supabase
       const { error } = await supabase
         .from('customers')
         .upsert({
@@ -911,7 +983,20 @@ export default function App() {
           discount: targetDiscount
         }, { onConflict: 'phone' });
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Direct Supabase update warning, syncing via server API:', error.message);
+      }
+
+      // 2. Also call backend API to ensure server-side service_role sync
+      try {
+        await fetch(`/api/customers/${encodeURIComponent(phone)}/vip`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ loyal_vip: nextVip, discount: targetDiscount, name: customerName })
+        });
+      } catch (apiErr) {
+        console.warn('API customer update notice:', apiErr);
+      }
 
       toast.success(nextVip ? `${customerName || 'Customer'} marked as Loyal VIP (${targetDiscount}%)` : `VIP status revoked for ${customerName || 'Customer'}`);
 
@@ -1066,6 +1151,13 @@ export default function App() {
                 onClick={() => setActiveTab('pickup')}
               />
               <NavItem 
+                icon={<CreditCard size={18} strokeWidth={1.5} />} 
+                label="Payments" 
+                badge={waitingForPaymentCount}
+                active={activeTab === 'payments'} 
+                onClick={() => setActiveTab('payments')}
+              />
+              <NavItem 
                 icon={<MenuIcon size={18} strokeWidth={1.5} />} 
                 label="Menu" 
                 active={activeTab === 'menu'} 
@@ -1187,6 +1279,21 @@ export default function App() {
                 Pickup
               </button>
               <button
+                onClick={() => setActiveTab('payments')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  activeTab === 'payments'
+                    ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                <span>Payments</span>
+                {waitingForPaymentCount > 0 && (
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-black text-[8px] font-black">
+                    {waitingForPaymentCount}
+                  </span>
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('menu')}
                 className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
                   activeTab === 'menu'
@@ -1275,6 +1382,21 @@ export default function App() {
                     <PackageCheck size={16} /> Pickup Station
                   </button>
                   <button
+                    onClick={() => setActiveTab('payments')}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                      activeTab === 'payments' ? 'bg-primary text-black' : 'bg-white/5 text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <CreditCard size={16} /> Payments Desk
+                    </div>
+                    {waitingForPaymentCount > 0 && (
+                      <span className="flex h-5 px-2 items-center justify-center rounded-full bg-amber-500 text-black text-[9px] font-black">
+                        {waitingForPaymentCount} Due
+                      </span>
+                    )}
+                  </button>
+                  <button
                     onClick={() => setActiveTab('menu')}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                       activeTab === 'menu' ? 'bg-primary text-black' : 'bg-white/5 text-white'
@@ -1323,6 +1445,14 @@ export default function App() {
                   <TabsTrigger value="counter" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
                   <TabsTrigger value="kitchen" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
                   <TabsTrigger value="pickup" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
+                  <TabsTrigger value="payments" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all flex items-center gap-2">
+                    Payments
+                    {waitingForPaymentCount > 0 && (
+                      <span className="flex h-4 px-1.5 items-center justify-center rounded-full bg-amber-500 text-black text-[9px] font-extrabold shadow-[0_0_10px_rgba(245,158,11,0.4)]">
+                        {waitingForPaymentCount}
+                      </span>
+                    )}
+                  </TabsTrigger>
                   <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
                   <TabsTrigger value="customers" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
                   <TabsTrigger value="online" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
@@ -1420,7 +1550,10 @@ export default function App() {
                         actionLabel = "Mark Ready";
                         nextStatus = "ready";
                       } else if (order.status === 'ready') {
-                        actionLabel = "Complete & Paid";
+                        actionLabel = "Mark Served";
+                        nextStatus = "waiting for payment";
+                      } else if (order.status === 'waiting for payment') {
+                        actionLabel = "Payment Done";
                         nextStatus = "completed";
                       }
 
@@ -1493,9 +1626,9 @@ export default function App() {
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Complete & Paid" 
+                        actionLabel="Mark Served (Bill)" 
                         actionIcon={<PackageCheck size={14} strokeWidth={1.5} />}
-                        onAction={() => updateOrderStatus(order.id, 'completed')}
+                        onAction={() => updateOrderStatus(order.id, 'waiting for payment')}
                         variant="ready"
                         index={index}
                         discountInfo={getOrderDiscountInfo(order)}
@@ -1510,6 +1643,15 @@ export default function App() {
                   )}
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="payments" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+              <PaymentsView 
+                orders={orders}
+                allOrders={allOrders}
+                onUpdateStatus={updateOrderStatus}
+                discountPercentage={discountPercentage}
+              />
             </TabsContent>
 
             <TabsContent value="menu" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
@@ -2034,21 +2176,31 @@ function EditMenuItemDialog({ item, onSave }: { item: MenuItem, onSave: (updates
   );
 }
 
-function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void }) {
+function NavItem({ icon, label, badge, active = false, onClick }: { icon: React.ReactNode, label: string, badge?: number | string, active?: boolean, onClick?: () => void }) {
   return (
     <button 
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-4 rounded-full px-6 py-4 transition-all duration-500 group",
+        "flex w-full items-center justify-between rounded-full px-5 py-3.5 transition-all duration-500 group relative",
         active 
           ? "bg-primary text-black shadow-[0_0_30px_rgba(197,160,89,0.2)]" 
-          : "text-white/20 hover:text-primary hover:bg-primary/5"
+          : "text-white/40 hover:text-primary hover:bg-primary/5"
       )}
     >
-      <span className={cn("transition-transform duration-500 group-hover:scale-110", active ? "text-black" : "text-primary/60 group-hover:text-primary")}>
-        {icon}
-      </span>
-      <span className="hidden text-[10px] font-bold md:block uppercase tracking-[0.25em]">{label}</span>
+      <div className="flex items-center gap-3.5 min-w-0">
+        <span className={cn("transition-transform duration-500 group-hover:scale-110 shrink-0", active ? "text-black" : "text-primary/60 group-hover:text-primary")}>
+          {icon}
+        </span>
+        <span className="hidden text-[10px] font-bold md:block uppercase tracking-[0.2em] truncate">{label}</span>
+      </div>
+      {badge !== undefined && Number(badge) > 0 && (
+        <span className={cn(
+          "hidden md:flex items-center justify-center rounded-full text-[9px] font-extrabold px-2 py-0.5 min-w-[20px] transition-all",
+          active ? "bg-black text-primary" : "bg-amber-500 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+        )}>
+          {badge}
+        </span>
+      )}
     </button>
   );
 }
@@ -2066,7 +2218,7 @@ function OrderCard({
   actionLabel: string, 
   actionIcon: React.ReactNode, 
   onAction: () => void | Promise<void>,
-  variant?: 'pending' | 'preparing' | 'ready',
+  variant?: 'pending' | 'preparing' | 'ready' | 'waiting for payment' | 'completed' | 'cancelled',
   index?: number,
   key?: string | number,
   discountInfo?: {
@@ -2246,12 +2398,17 @@ function OrderCard({
                 return null;
               })()}
 
-              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">
                 <span className={cn(
                   "h-2 w-2 rounded-full shrink-0",
-                  variant === 'pending' ? "bg-blue-500" : variant === 'preparing' ? "bg-amber-500" : "bg-green-500"
+                  variant === 'pending' ? "bg-blue-500" : 
+                  variant === 'preparing' ? "bg-amber-500" : 
+                  variant === 'waiting for payment' ? "bg-amber-400 animate-pulse" : 
+                  "bg-green-500"
                 )} />
-                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/60">{variant}</span>
+                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/60">
+                  {variant === 'waiting for payment' ? 'WAITING FOR PAYMENT' : variant}
+                </span>
               </div>
 
               <div className="flex items-center gap-1 text-[10px] text-white/30 font-bold uppercase tracking-[0.15em] ml-1">
