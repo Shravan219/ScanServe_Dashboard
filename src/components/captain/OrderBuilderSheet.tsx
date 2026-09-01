@@ -408,18 +408,20 @@ export function OrderBuilderSheet({
                         <div className="flex items-center gap-1.5 bg-black/60 rounded-lg p-1 border border-white/10 shrink-0">
                           <button
                             onClick={() => handleQuantityChange(item, -1)}
-                            className="h-6 w-6 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                            className="h-7 w-7 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation"
                             title="Decrease quantity"
+                            aria-label="Decrease item quantity"
                           >
-                            <Minus size={11} />
+                            <Minus size={12} />
                           </button>
                           <span className="w-6 text-center text-xs font-bold text-primary font-mono">{quantity}</span>
                           <button
                             onClick={() => handleQuantityChange(item, 1)}
-                            className="h-6 w-6 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+                            className="h-7 w-7 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer touch-manipulation"
                             title="Increase quantity"
+                            aria-label="Increase item quantity"
                           >
-                            <Plus size={11} />
+                            <Plus size={12} />
                           </button>
                         </div>
                       </div>
@@ -686,17 +688,17 @@ export function OrderBuilderSheet({
                               <button
                                 type="button"
                                 onClick={() => handleQuantityChange(menuItem, -1)}
-                                className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                                className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation"
                                 aria-label="Decrease quantity"
                               >
-                                <Minus size={13} />
+                                <Minus size={14} />
                               </button>
                             )}
 
                             <button
                               type="button"
                               onClick={() => handleQuantityChange(menuItem, 1)}
-                              className={`flex items-center justify-center rounded-xl px-3.5 h-8 text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                              className={`min-h-[36px] flex items-center justify-center rounded-xl px-4 text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation ${
                                 qty > 0 
                                   ? 'bg-primary text-black hover:bg-primary/90 font-mono shadow-sm' 
                                   : 'bg-white/10 text-white hover:bg-primary hover:text-black'
@@ -721,9 +723,9 @@ export function OrderBuilderSheet({
                 </div>
               </div>
 
-              {/* Mobile Sticky Floating Cart Action Bar */}
+              {/* Mobile Sticky Floating Cart Action Bar with Safe-Area padding */}
               {totalItemCount > 0 && mobileTab === 'menu' && (
-                <div className="md:hidden shrink-0 p-3.5 bg-[#12141C] border border-primary/40 rounded-2xl shadow-[0_0_25px_rgba(197,160,89,0.2)] flex items-center justify-between z-10 backdrop-blur-md">
+                <div className="md:hidden shrink-0 p-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] bg-[#12141C] border border-primary/40 rounded-2xl shadow-[0_0_25px_rgba(197,160,89,0.2)] flex items-center justify-between z-10 backdrop-blur-md">
                   <div>
                     <span className="text-[9px] font-bold uppercase tracking-widest text-primary block">Selected Items ({totalItemCount})</span>
                     <span className="text-sm font-serif font-bold text-white font-mono">Total: ₹{totalAmount.toFixed(2)}</span>
@@ -731,7 +733,7 @@ export function OrderBuilderSheet({
                   <button
                     type="button"
                     onClick={() => setMobileTab('cart')}
-                    className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black shadow hover:bg-primary/90 transition-all cursor-pointer active:scale-95"
+                    className="min-h-[44px] flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black shadow hover:bg-primary/90 transition-all cursor-pointer active:scale-95 touch-manipulation"
                   >
                     <span>View Cart</span>
                     <ShoppingBag size={14} />

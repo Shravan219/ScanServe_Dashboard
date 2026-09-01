@@ -233,7 +233,7 @@ export function TableStatusGrid({
                   <select
                     value={table.status}
                     onChange={(e) => onTableStatusChange(table.id, e.target.value as TableStatus)}
-                    className="rounded-full bg-black/60 border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 cursor-pointer"
+                    className="min-h-[34px] rounded-full bg-black/60 border border-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 cursor-pointer"
                   >
                     <option value="available" className="bg-[#141620] text-emerald-400">Available</option>
                     <option value="occupied" className="bg-[#141620] text-amber-400">Occupied</option>
@@ -242,26 +242,26 @@ export function TableStatusGrid({
                   </select>
 
                   {/* Seats / Capacity adjustment control directly synced to Supabase */}
-                  <div className="flex items-center gap-1.5 bg-black/50 border border-white/10 rounded-lg px-2 py-1 mt-0.5">
+                  <div className="flex items-center gap-1.5 bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 mt-0.5">
                     <Users size={12} className="text-primary" />
                     <span className="text-[10px] font-bold text-white font-mono">{table.capacity} Seats</span>
                     {onTableCapacityChange && (
-                      <div className="flex items-center gap-1 ml-1 border-l border-white/10 pl-1">
+                      <div className="flex items-center gap-1 ml-1.5 border-l border-white/10 pl-1.5">
                         <button
                           onClick={() => onTableCapacityChange(table.id, Math.max(1, table.capacity - 1))}
-                          className="h-6 w-6 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer active:scale-90"
+                          className="h-7 w-7 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer active:scale-90 touch-manipulation"
                           title="Decrease seats in DB"
                           aria-label="Decrease table capacity"
                         >
-                          <Minus size={11} />
+                          <Minus size={12} />
                         </button>
                         <button
                           onClick={() => onTableCapacityChange(table.id, table.capacity + 1)}
-                          className="h-6 w-6 flex items-center justify-center rounded bg-primary/20 hover:bg-primary text-primary hover:text-black transition-all cursor-pointer active:scale-90"
+                          className="h-7 w-7 flex items-center justify-center rounded-md bg-primary/20 hover:bg-primary text-primary hover:text-black transition-all cursor-pointer active:scale-90 touch-manipulation"
                           title="Increase seats in DB"
                           aria-label="Increase table capacity"
                         >
-                          <Plus size={11} />
+                          <Plus size={12} />
                         </button>
                       </div>
                     )}
@@ -302,7 +302,7 @@ export function TableStatusGrid({
                         toast.success(`Served Order #${tableReadyOrders[0].token} for ${table.table_number}! Awaiting payment.`);
                       }
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.35)] active:scale-98"
+                    className="w-full min-h-[42px] flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.35)] active:scale-98"
                   >
                     <CheckCircle2 size={14} />
                     <span>Serve Food &amp; Bill (#{tableReadyOrders[0].token})</span>
@@ -312,7 +312,7 @@ export function TableStatusGrid({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onNewOrderClick(table)}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 border border-primary/25 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer active:scale-98"
+                    className="flex-1 min-h-[42px] flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 border border-primary/25 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer active:scale-98"
                   >
                     <PlusCircle size={13} />
                     <span>Take Order</span>
@@ -320,7 +320,7 @@ export function TableStatusGrid({
 
                   <button
                     onClick={() => onTableStatusChange(table.id, isOccupied ? 'available' : 'occupied')}
-                    className={`flex h-9 px-3 items-center justify-center rounded-xl border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                    className={`min-h-[42px] min-w-[58px] flex px-3 items-center justify-center rounded-xl border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
                       isOccupied
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
                         : 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
