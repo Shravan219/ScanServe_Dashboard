@@ -397,35 +397,45 @@ export function OrderBuilderSheet({
                       </button>
                     </div>
                   ) : (
-                    cartEntries.map(({ item, quantity }) => (
-                      <div key={item.id} className="flex items-center justify-between rounded-xl bg-[#14161C] p-3 border border-white/5 hover:border-white/10 transition-all">
-                        <div className="flex-1 min-w-0 pr-2">
-                          <p className="text-xs font-bold text-white leading-tight">{item.name}</p>
-                          <p className="text-[10px] text-primary/90 font-mono mt-0.5">
-                            ₹{item.price} × {quantity} = <span className="font-bold text-primary">₹{item.price * quantity}</span>
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-black/60 rounded-lg p-1 border border-white/10 shrink-0">
-                          <button
-                            onClick={() => handleQuantityChange(item, -1)}
-                            className="h-7 w-7 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation"
-                            title="Decrease quantity"
-                            aria-label="Decrease item quantity"
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="w-6 text-center text-xs font-bold text-primary font-mono">{quantity}</span>
-                          <button
-                            onClick={() => handleQuantityChange(item, 1)}
-                            className="h-7 w-7 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer touch-manipulation"
-                            title="Increase quantity"
-                            aria-label="Increase item quantity"
-                          >
-                            <Plus size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    ))
+                    <AnimatePresence mode="popLayout">
+                      {cartEntries.map(({ item, quantity }) => (
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          key={item.id}
+                          className="flex items-center justify-between rounded-xl bg-[#14161C] p-3 border border-white/5 hover:border-white/10 transition-colors"
+                        >
+                          <div className="flex-1 min-w-0 pr-2">
+                            <p className="text-xs font-bold text-white leading-tight">{item.name}</p>
+                            <p className="text-[10px] text-primary/90 font-mono mt-0.5">
+                              ₹{item.price} × {quantity} = <span className="font-bold text-primary">₹{item.price * quantity}</span>
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1.5 bg-black/60 rounded-lg p-1 border border-white/10 shrink-0">
+                            <button
+                              onClick={() => handleQuantityChange(item, -1)}
+                              className="h-7 w-7 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation"
+                              title="Decrease quantity"
+                              aria-label="Decrease item quantity"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="w-6 text-center text-xs font-bold text-primary font-mono">{quantity}</span>
+                            <button
+                              onClick={() => handleQuantityChange(item, 1)}
+                              className="h-7 w-7 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer touch-manipulation"
+                              title="Increase quantity"
+                              aria-label="Increase item quantity"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   )}
                 </div>
 

@@ -320,11 +320,11 @@ export function PaymentsView({
                 <motion.div
                   key={order.id}
                   layout
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: idx * 0.04 }}
-                  className="rounded-3xl border border-amber-500/30 bg-[#0E0F14] hover:border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all overflow-hidden"
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="rounded-3xl border border-amber-500/30 bg-[#0E0F14] hover:border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-colors overflow-hidden"
                 >
                   <div className="flex flex-col lg:flex-row items-stretch justify-between p-5 sm:p-6 gap-6">
                     

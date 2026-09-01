@@ -233,94 +233,101 @@ export function ReadyOrdersBanner({
             transition={{ duration: 0.25 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-3.5 overflow-hidden"
           >
-            {readyOrders.map((order) => {
-              const tableNum = order.table_id 
-                ? `Table ${String(order.table_id).replace(/^table\s*/i, '')}` 
-                : 'Pickup Counter';
+            <AnimatePresence mode="popLayout">
+              {readyOrders.map((order) => {
+                const tableNum = order.table_id 
+                  ? `Table ${String(order.table_id).replace(/^table\s*/i, '')}` 
+                  : 'Pickup Counter';
 
-              const isDineIn = order.order_type === 'dine_in' || !order.order_type;
+                const isDineIn = order.order_type === 'dine_in' || !order.order_type;
 
-              return (
-                <div
-                  key={order.id}
-                  className="flex flex-col justify-between rounded-2xl border border-amber-500/30 bg-[#14121A] p-4 shadow-lg hover:border-amber-400 transition-all group"
-                >
-                  {/* Card Header: Table & Token */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-serif font-bold text-white tracking-tight bg-primary/20 border border-primary/30 text-primary px-2.5 py-0.5 rounded-lg">
-                          {tableNum}
+                return (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    key={order.id}
+                    className="flex flex-col justify-between rounded-2xl border border-amber-500/30 bg-[#14121A] p-4 shadow-lg hover:border-amber-400 transition-colors group"
+                  >
+                    {/* Card Header: Table & Token */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-serif font-bold text-white tracking-tight bg-primary/20 border border-primary/30 text-primary px-2.5 py-0.5 rounded-lg">
+                            {tableNum}
+                          </span>
+                          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-lg border border-amber-400/20">
+                            #{order.token}
+                          </span>
+                        </div>
+                        {order.customer_name && (
+                          <p className="text-xs text-white/80 font-medium mt-1">
+                            Guest: <span className="text-white font-bold">{order.customer_name}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col items-end">
+                        <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-300/80">
+                          <Clock size={11} /> {formatElapsed(order.created_at)}
                         </span>
-                        <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-lg border border-amber-400/20">
-                          #{order.token}
+                        <span className="text-[9px] uppercase font-bold tracking-widest text-emerald-400 mt-0.5">
+                          Ready to Serve
                         </span>
                       </div>
-                      {order.customer_name && (
-                        <p className="text-xs text-white/80 font-medium mt-1">
-                          Guest: <span className="text-white font-bold">{order.customer_name}</span>
+                    </div>
+
+                    {/* Items List Preview */}
+                    <div className="my-3 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 flex flex-col gap-1 text-xs">
+                      <span className="text-[9px] uppercase font-bold tracking-wider text-white/30">
+                        Dishes Ready ({normalizeOrderItems(order.items).length}):
+                      </span>
+                      <div className="flex flex-col gap-1 max-h-24 overflow-y-auto custom-scrollbar">
+                        {normalizeOrderItems(order.items).map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-white/90">
+                            <span className="font-medium text-xs">
+                              <span className="text-primary font-bold mr-1.5">{item.quantity}x</span>
+                              {item.name}
+                            </span>
+                            <span className="text-white/40 text-[11px]">₹{(item.price * item.quantity).toFixed(0)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {order.notes && (
+                        <p className="text-[10px] text-amber-300/80 italic mt-1 pt-1 border-t border-white/5">
+                          Note: {order.notes}
                         </p>
                       )}
                     </div>
 
-                    <div className="flex flex-col items-end">
-                      <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-300/80">
-                        <Clock size={11} /> {formatElapsed(order.created_at)}
-                      </span>
-                      <span className="text-[9px] uppercase font-bold tracking-widest text-emerald-400 mt-0.5">
-                        Ready to Serve
-                      </span>
+                    {/* Actions: Mark as Served */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => handleMarkServed(order)}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black py-2 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.25)] active:scale-98"
+                      >
+                        <CheckCircle2 size={14} />
+                        <span>Mark Served</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          soundService.playReadyChime();
+                          soundService.triggerVibration([200, 100, 200]);
+                          toast.info(`🔔 Alert re-sent for ${tableNum} (Token: ${order.token})`);
+                        }}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-amber-300 transition-all cursor-pointer"
+                        title="Re-ring bell to alert waiters"
+                      >
+                        <Bell size={14} />
+                      </button>
                     </div>
-                  </div>
-
-                  {/* Items List Preview */}
-                  <div className="my-3 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 flex flex-col gap-1 text-xs">
-                    <span className="text-[9px] uppercase font-bold tracking-wider text-white/30">
-                      Dishes Ready ({normalizeOrderItems(order.items).length}):
-                    </span>
-                    <div className="flex flex-col gap-1 max-h-24 overflow-y-auto custom-scrollbar">
-                      {normalizeOrderItems(order.items).map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-white/90">
-                          <span className="font-medium text-xs">
-                            <span className="text-primary font-bold mr-1.5">{item.quantity}x</span>
-                            {item.name}
-                          </span>
-                          <span className="text-white/40 text-[11px]">₹{(item.price * item.quantity).toFixed(0)}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {order.notes && (
-                      <p className="text-[10px] text-amber-300/80 italic mt-1 pt-1 border-t border-white/5">
-                        Note: {order.notes}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Actions: Mark as Served */}
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      onClick={() => handleMarkServed(order)}
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black py-2 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.25)] active:scale-98"
-                    >
-                      <CheckCircle2 size={14} />
-                      <span>Mark Served</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        soundService.playReadyChime();
-                        soundService.triggerVibration([200, 100, 200]);
-                        toast.info(`🔔 Alert re-sent for ${tableNum} (Token: ${order.token})`);
-                      }}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-amber-300 transition-all cursor-pointer"
-                      title="Re-ring bell to alert waiters"
-                    >
-                      <Bell size={14} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
