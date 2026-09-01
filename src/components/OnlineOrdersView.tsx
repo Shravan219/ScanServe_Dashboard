@@ -849,13 +849,13 @@ export function OnlineOrdersView({
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0A0A0A] border border-white/5 rounded-2xl p-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0A0A0A] border border-white/10 rounded-2xl p-4">
         {/* Search */}
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70" />
           <Input 
             placeholder="Search Token, Swiggy/Zomato ID..." 
-            className="pl-11 bg-black border-white/5 rounded-full h-11 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+            className="pl-11 bg-black border-white/10 rounded-full h-11 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all text-white placeholder:text-white/50"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -864,27 +864,27 @@ export function OnlineOrdersView({
         {/* Platform & Status Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Platform Pills */}
-          <div className="flex items-center bg-black p-1 rounded-full border border-white/5 gap-1">
+          <div className="flex items-center bg-black p-1 rounded-full border border-white/10 gap-1">
             <button
               onClick={() => setPlatformFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all ${
-                platformFilter === 'all' ? 'bg-primary text-black' : 'text-white/40 hover:text-white'
+              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                platformFilter === 'all' ? 'bg-primary text-black font-extrabold shadow-[0_0_10px_rgba(197,160,89,0.3)]' : 'text-white/70 hover:text-white'
               }`}
             >
               All Channels
             </button>
             <button
               onClick={() => setPlatformFilter('swiggy')}
-              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all ${
-                platformFilter === 'swiggy' ? 'bg-[#FC8019] text-white' : 'text-[#FC8019]/70 hover:text-[#FC8019]'
+              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                platformFilter === 'swiggy' ? 'bg-[#FC8019] text-white font-extrabold shadow-[0_0_10px_rgba(252,128,25,0.4)]' : 'text-[#FC8019]/80 hover:text-[#FC8019]'
               }`}
             >
               Swiggy
             </button>
             <button
               onClick={() => setPlatformFilter('zomato')}
-              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all ${
-                platformFilter === 'zomato' ? 'bg-[#E23744] text-white' : 'text-[#E23744]/70 hover:text-[#E23744]'
+              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                platformFilter === 'zomato' ? 'bg-[#E23744] text-white font-extrabold shadow-[0_0_10px_rgba(226,55,68,0.4)]' : 'text-[#E23744]/80 hover:text-[#E23744]'
               }`}
             >
               Zomato
@@ -892,19 +892,19 @@ export function OnlineOrdersView({
           </div>
 
           {/* Status Pills */}
-          <div className="flex items-center bg-black p-1 rounded-full border border-white/5 gap-1">
+          <div className="flex items-center bg-black p-1 rounded-full border border-white/10 gap-1">
             <button
               onClick={() => setStatusFilter('active')}
-              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all ${
-                statusFilter === 'active' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white'
+              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                statusFilter === 'active' ? 'bg-white/20 text-white font-extrabold' : 'text-white/70 hover:text-white'
               }`}
             >
               Active
             </button>
             <button
               onClick={() => setStatusFilter('all_history')}
-              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all ${
-                statusFilter === 'all_history' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white'
+              className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                statusFilter === 'all_history' ? 'bg-white/20 text-white font-extrabold' : 'text-white/70 hover:text-white'
               }`}
             >
               All History
@@ -923,11 +923,27 @@ export function OnlineOrdersView({
           </div>
         ) : (
           <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl border border-white/5 bg-[#0A0A0A] p-6 text-center w-full">
-            <Globe size={40} strokeWidth={1} className="mb-4 text-primary/20" />
-            <p className="text-[10px] uppercase tracking-[0.4em] text-white/20 font-bold mb-2">No Online Orders Found</p>
-            <p className="text-xs text-white/40 max-w-md">
-              Swiggy and Zomato orders sent to your webhook URL or placed via the tester will appear here in real-time.
+            <Globe size={40} strokeWidth={1} className="mb-4 text-primary/30" />
+            <p className="text-[10px] uppercase tracking-[0.3em] text-white/80 font-bold mb-2">No Online Orders Found</p>
+            <p className="text-xs text-white/60 max-w-md mb-4">
+              {searchQuery || platformFilter !== 'all' || statusFilter !== 'active'
+                ? 'No online orders match your active search or filter criteria.'
+                : 'Swiggy and Zomato orders sent to your webhook URL or placed via the tester will appear here in real-time.'}
             </p>
+            {(searchQuery || platformFilter !== 'all' || statusFilter !== 'active') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery('');
+                  setPlatformFilter('all');
+                  setStatusFilter('active');
+                }}
+                className="rounded-full border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-black text-[10px] font-bold uppercase tracking-wider h-9 px-4 transition-all"
+              >
+                <RefreshCw size={12} className="mr-2" /> Reset Filters & Search
+              </Button>
+            )}
           </div>
         )}
       </div>
