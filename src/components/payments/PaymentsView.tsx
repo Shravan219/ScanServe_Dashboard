@@ -245,27 +245,27 @@ export function PaymentsView({
         {/* Filter Controls & Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Segment Filter */}
-          <div className="flex items-center bg-[#141620] border border-white/10 rounded-xl p-1 shrink-0">
+          <div className="flex items-center bg-[#141620] border border-white/10 rounded-xl p-1 shrink-0 overflow-x-auto custom-scrollbar">
             <button
               onClick={() => setSelectedFilter('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                selectedFilter === 'all' ? 'bg-primary text-black shadow-md' : 'text-white/40 hover:text-white'
+              className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                selectedFilter === 'all' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
               All ({pendingPaymentOrders.length})
             </button>
             <button
               onClick={() => setSelectedFilter('dine_in')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                selectedFilter === 'dine_in' ? 'bg-primary text-black shadow-md' : 'text-white/40 hover:text-white'
+              className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                selectedFilter === 'dine_in' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
               Dine-In ({totalDineInWaiting})
             </button>
             <button
               onClick={() => setSelectedFilter('counter')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                selectedFilter === 'counter' ? 'bg-primary text-black shadow-md' : 'text-white/40 hover:text-white'
+              className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                selectedFilter === 'counter' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
               Takeaway ({pendingPaymentOrders.length - totalDineInWaiting})
@@ -437,37 +437,37 @@ export function PaymentsView({
                         <div className="grid grid-cols-3 gap-1.5 bg-[#14161C] p-1 rounded-xl border border-white/10">
                           <button
                             onClick={() => setMethodForOrder(order.id, 'upi')}
-                            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                            className={`min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
                               selectedMethod === 'upi'
                                 ? 'bg-primary text-black shadow-md'
                                 : 'text-white/70 hover:text-white'
                             }`}
                           >
-                            <QrCode size={12} />
+                            <QrCode size={13} />
                             <span>UPI / QR</span>
                           </button>
 
                           <button
                             onClick={() => setMethodForOrder(order.id, 'cash')}
-                            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                            className={`min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
                               selectedMethod === 'cash'
                                 ? 'bg-emerald-500 text-black shadow-md'
                                 : 'text-white/70 hover:text-white'
                             }`}
                           >
-                            <Banknote size={12} />
+                            <Banknote size={13} />
                             <span>Cash</span>
                           </button>
 
                           <button
                             onClick={() => setMethodForOrder(order.id, 'card')}
-                            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                            className={`min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
                               selectedMethod === 'card'
                                 ? 'bg-blue-500 text-white shadow-md'
                                 : 'text-white/70 hover:text-white'
                             }`}
                           >
-                            <CreditCard size={12} />
+                            <CreditCard size={13} />
                             <span>Card</span>
                           </button>
                         </div>
@@ -477,7 +477,7 @@ export function PaymentsView({
                       <button
                         onClick={() => handlePaymentDone(order)}
                         disabled={isProcessing}
-                        className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3.5 px-6 text-sm font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-98 cursor-pointer disabled:opacity-50"
+                        className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3.5 px-6 text-sm font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-98 cursor-pointer disabled:opacity-50 touch-manipulation"
                       >
                         {isProcessing ? (
                           <>

@@ -88,6 +88,14 @@
   
   html {
     color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
   }
 
   body {
@@ -98,6 +106,9 @@
       radial-gradient(at 50% 0%, rgba(197, 160, 89, 0.04) 0, transparent 65%),
       radial-gradient(at 100% 100%, rgba(197, 160, 89, 0.02) 0, transparent 50%);
     background-attachment: fixed;
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   button, a, input, select, textarea {
@@ -106,6 +117,13 @@
 
   button:not(:disabled), a, [role="button"]:not([aria-disabled="true"]) {
     cursor: pointer;
+  }
+
+  /* Touch Ergonomics: Ensure coarse pointers get comfortable minimum hit targets */
+  @media (pointer: coarse) {
+    button, a, input, select {
+      min-height: 38px;
+    }
   }
 }
 
