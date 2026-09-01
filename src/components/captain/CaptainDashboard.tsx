@@ -272,61 +272,61 @@ export function CaptainDashboard({
     <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 p-3 sm:p-6 md:p-10 max-w-7xl mx-auto w-full">
       
       {/* Captain Top Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0F1014] p-4 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0F1016] p-4 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
         {/* Background Ambient Glow */}
         <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
         <div className="flex items-center gap-3 sm:gap-5 z-10">
-          <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-[0_0_20px_rgba(197,160,89,0.15)] shrink-0">
-            <Utensils size={22} className="sm:w-7 sm:h-7" />
+          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25 text-primary shadow-[0_0_25px_rgba(197,160,89,0.15)] shrink-0">
+            <Utensils size={24} className="sm:w-7 sm:h-7" />
           </div>
 
           <div>
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-3xl font-serif font-bold text-white tracking-tight">Captain Service Desk</h1>
               {isKioskLocked ? (
-                <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-red-400">
-                  <Lock size={10} className="animate-pulse sm:w-3 sm:h-3" /> Kiosk Locked
+                <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/30 px-3 py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-red-400">
+                  <Lock size={11} className="animate-pulse" /> Kiosk Locked
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-                  <Unlock size={10} className="sm:w-3 sm:h-3" /> Dashboard Unlocked
+                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                  <Unlock size={11} /> Dashboard Unlocked
                 </span>
               )}
               {readyCount > 0 && (
-                <span className="flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-amber-300 animate-pulse">
-                  <BellRing size={10} className="animate-bounce" /> {readyCount} Ready to Serve
+                <span className="flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-amber-300 animate-pulse">
+                  <BellRing size={11} className="animate-bounce" /> {readyCount} Ready to Serve
                 </span>
               )}
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 sm:mt-1">Live table layout, order taking & kitchen dispatch</p>
+            <p className="text-[11px] sm:text-xs text-white/50 mt-1 font-sans">Live table floor layout, waiter ready-order alert hub &amp; kitchen dispatch</p>
           </div>
         </div>
 
         {/* Action Controls & Quick Stats */}
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 z-10">
           {/* Quick Metrics */}
-          <div className="flex items-center justify-around w-full sm:w-auto gap-3 sm:gap-4 rounded-2xl border border-white/5 bg-[#14161C] px-4 sm:px-5 py-2 sm:py-2.5">
+          <div className="flex items-center justify-around w-full sm:w-auto gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-[#141620] px-4 sm:px-5 py-2.5">
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Total</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-white">{totalTables}</span>
+              <span className="text-xs sm:text-sm font-serif font-bold text-white font-mono">{totalTables}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Available</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-emerald-400">{availableCount}</span>
+              <span className="text-xs sm:text-sm font-serif font-bold text-emerald-400 font-mono">{availableCount}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-amber-400">Occupied</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-amber-400">{occupiedCount}</span>
+              <span className="text-xs sm:text-sm font-serif font-bold text-amber-400 font-mono">{occupiedCount}</span>
             </div>
             {readyCount > 0 && (
               <>
                 <div className="h-5 w-px bg-white/10" />
                 <div className="flex flex-col items-center">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-amber-300">Ready</span>
-                  <span className="text-xs sm:text-sm font-serif font-bold text-amber-300 animate-pulse">{readyCount}</span>
+                  <span className="text-xs sm:text-sm font-serif font-bold text-amber-300 animate-pulse font-mono">{readyCount}</span>
                 </div>
               </>
             )}
@@ -335,7 +335,7 @@ export function CaptainDashboard({
           {/* Place Dine-in Order Button */}
           <button
             onClick={() => handleOpenOrderSheet()}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 transition-all cursor-pointer min-h-[44px]"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 transition-all cursor-pointer min-h-[44px] active:scale-95"
           >
             <PlusCircle size={16} />
             <span>Take New Order</span>
@@ -345,7 +345,7 @@ export function CaptainDashboard({
           {isKioskLocked ? (
             <button
               onClick={() => openLockPrompt('unlock')}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 sm:py-3 text-xs font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/20 transition-all cursor-pointer shadow-lg min-h-[44px]"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/20 transition-all cursor-pointer shadow-lg min-h-[44px] active:scale-95"
               title="Unlock Kiosk Mode with Admin Password"
             >
               <Unlock size={16} />
@@ -354,7 +354,7 @@ export function CaptainDashboard({
           ) : (
             <button
               onClick={() => openLockPrompt('lock')}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 sm:py-3 text-xs font-bold uppercase tracking-wider text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer shadow-lg min-h-[44px]"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs font-bold uppercase tracking-wider text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer shadow-lg min-h-[44px] active:scale-95"
               title="Lock Interface into Captain Kiosk Mode"
             >
               <Lock size={16} />
@@ -419,7 +419,7 @@ export function CaptainDashboard({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#0F1014] p-6 shadow-2xl text-white font-sans overflow-hidden"
+              className="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#0F1016] p-6 shadow-2xl text-white font-sans overflow-hidden"
             >
               {/* Header */}
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
@@ -455,7 +455,7 @@ export function CaptainDashboard({
                     onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="Enter password..."
                     autoFocus
-                    className="w-full rounded-2xl bg-[#14161C] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+                    className="w-full rounded-2xl bg-[#141620] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
                   />
                 </div>
 

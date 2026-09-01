@@ -64,8 +64,8 @@ export function ReadyOrdersBanner({
         ? `Table ${String(newlyReadyOrder.table_id).replace(/^table\s*/i, '')}` 
         : 'Counter Pickup';
 
-      toast.success(`🛎️ ORDER READY TO SERVE!`, {
-        description: `${tableText} (Token: ${newlyReadyOrder.token}) is cooked and ready for pickup!`,
+      toast.success(`Order Ready to Serve`, {
+        description: `${tableText} (Token: ${newlyReadyOrder.token}) is freshly cooked and ready for delivery!`,
         duration: 8000
       });
     }
@@ -88,7 +88,7 @@ export function ReadyOrdersBanner({
   const handleTestChime = () => {
     soundService.playReadyChime();
     soundService.triggerVibration([200, 100, 200]);
-    toast.success('🔔 Bell Chime Tested: Ready signal played!');
+    toast.success('Bell Chime Tested: Ready signal played');
   };
 
   const handleMarkServed = (order: Order) => {
@@ -114,21 +114,21 @@ export function ReadyOrdersBanner({
 
   if (readyOrders.length === 0) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-[#0D0E12] px-4 py-3 text-xs text-white/50">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-white/40">
-            <Bell size={15} />
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#0D0E14] px-4 py-3.5 text-xs text-white/50 shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/60">
+            <Bell size={16} />
           </div>
           <div>
-            <span className="font-medium text-white/70">Waiter Notification System Active</span>
-            <span className="hidden sm:inline text-white/30 text-[11px] ml-2">• Automatic chime will ring when kitchen marks food ready</span>
+            <span className="font-semibold text-white/80">Waiter Notification System Active</span>
+            <span className="hidden sm:inline text-white/40 text-[11px] ml-2">• Automatic chime rings whenever kitchen marks food as ready</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleTestChime}
-            className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer active:scale-95"
             title="Test the waiter ready chime sound"
           >
             Test Chime
@@ -136,14 +136,14 @@ export function ReadyOrdersBanner({
 
           <button
             onClick={toggleSound}
-            className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-all cursor-pointer ${
+            className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 ${
               isMuted 
                 ? 'border-red-500/20 bg-red-500/10 text-red-400' 
                 : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
             }`}
             title={isMuted ? 'Unmute Waiter Ready Chimes' : 'Mute Waiter Ready Chimes'}
           >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           </button>
         </div>
       </div>

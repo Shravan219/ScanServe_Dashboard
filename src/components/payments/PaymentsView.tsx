@@ -148,95 +148,95 @@ export function PaymentsView({
       {/* Top Banner & KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Pending Collections */}
-        <div className="rounded-3xl border border-amber-500/20 bg-gradient-to-br from-[#1A150B] to-[#0E0E11] p-5 shadow-xl relative overflow-hidden">
+        <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#1E170C] to-[#0E0E14] p-5 shadow-2xl relative overflow-hidden backdrop-blur-md">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300/70">Awaiting Settlement</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20">
-              <Banknote size={16} />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300/80">Awaiting Settlement</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+              <Banknote size={17} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-amber-400">
+            <span className="text-3xl sm:text-4xl font-serif font-bold text-amber-400 font-mono">
               ₹{totalPendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1">
+          <p className="text-[11px] text-white/50 mt-1 font-sans">
             {pendingPaymentOrders.length} {pendingPaymentOrders.length === 1 ? 'bill' : 'bills'} currently waiting
           </p>
         </div>
 
         {/* KPI 2: Active Tables Finishing */}
-        <div className="rounded-3xl border border-white/5 bg-[#0F1014] p-5 shadow-xl">
+        <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Dine-in Tables</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
-              <Utensils size={16} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/25 shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+              <Utensils size={17} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-white">
+            <span className="text-3xl sm:text-4xl font-serif font-bold text-white font-mono">
               {totalDineInWaiting}
             </span>
-            <span className="text-xs text-white/40 font-medium">served tables</span>
+            <span className="text-xs text-white/40 font-medium font-sans">served tables</span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1">
+          <p className="text-[11px] text-white/40 mt-1 font-sans">
             Food served • Awaiting guest payment
           </p>
         </div>
 
         {/* KPI 3: Settled Today Count */}
-        <div className="rounded-3xl border border-white/5 bg-[#0F1014] p-5 shadow-xl">
+        <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Settled Today</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <CheckCircle2 size={16} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+              <CheckCircle2 size={17} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-emerald-400">
+            <span className="text-3xl sm:text-4xl font-serif font-bold text-emerald-400 font-mono">
               {settledTodayCount}
             </span>
-            <span className="text-xs text-emerald-500/60 font-medium">orders completed</span>
+            <span className="text-xs text-emerald-500/60 font-medium font-sans">orders completed</span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1">
+          <p className="text-[11px] text-white/40 mt-1 font-sans">
             Successfully closed transactions
           </p>
         </div>
 
         {/* KPI 4: Settled Revenue Today */}
-        <div className="rounded-3xl border border-white/5 bg-[#0F1014] p-5 shadow-xl">
+        <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Revenue Collected</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              <TrendingUp size={16} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/25 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+              <TrendingUp size={17} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-white">
+            <span className="text-3xl sm:text-4xl font-serif font-bold text-white font-mono">
               ₹{settledTodayAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1">
+          <p className="text-[11px] text-white/40 mt-1 font-sans">
             Total realized sales today
           </p>
         </div>
       </div>
 
       {/* Action Header & Search Filter Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#0F1014] border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#0F1016] border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+          <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
             <CreditCard size={22} />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg sm:text-2xl font-serif font-bold text-white">Payments Desk</h2>
-              <span className="rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-amber-300">
+              <h2 className="text-lg sm:text-2xl font-serif font-bold text-white tracking-tight">Payments Desk</h2>
+              <span className="rounded-full bg-amber-500/20 border border-amber-500/35 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-amber-300">
                 {pendingPaymentOrders.length} Waiting for Payment
               </span>
             </div>
-            <p className="text-[11px] text-white/40">
+            <p className="text-[11px] text-white/40 font-sans">
               Orders marked as Served by captain • Click &quot;Payment Done&quot; to finalize bill
             </p>
           </div>
@@ -245,7 +245,7 @@ export function PaymentsView({
         {/* Filter Controls & Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Segment Filter */}
-          <div className="flex items-center bg-[#14161C] border border-white/10 rounded-xl p-1 shrink-0">
+          <div className="flex items-center bg-[#141620] border border-white/10 rounded-xl p-1 shrink-0">
             <button
               onClick={() => setSelectedFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
@@ -274,13 +274,13 @@ export function PaymentsView({
 
           {/* Search Box */}
           <div className="relative min-w-[220px]">
-            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
             <input
               type="text"
               placeholder="Search table, name, token..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#14161C] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+              className="w-full bg-[#141620] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-sans"
             />
           </div>
         </div>

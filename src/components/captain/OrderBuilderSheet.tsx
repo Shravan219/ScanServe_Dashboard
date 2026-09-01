@@ -629,7 +629,7 @@ export function OrderBuilderSheet({
 
               {/* Menu Grid */}
               <div className="flex-1 overflow-y-auto custom-scrollbar pr-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-6">
                   {filteredMenuItems.map(menuItem => {
                     const cartItem = cart[menuItem.id];
                     const qty = cartItem ? cartItem.quantity : 0;
@@ -637,34 +637,37 @@ export function OrderBuilderSheet({
                     return (
                       <div
                         key={menuItem.id}
-                        className={`flex flex-col justify-between rounded-2xl border p-3.5 transition-all ${
+                        className={`flex flex-col justify-between rounded-2xl border p-4 transition-all duration-300 ${
                           qty > 0 
-                            ? 'border-primary/50 bg-[#161821] shadow-[0_0_15px_rgba(197,160,89,0.08)]' 
-                            : 'border-white/10 bg-[#12141A] hover:border-white/20'
+                            ? 'border-primary/50 bg-[#161822] shadow-[0_0_20px_rgba(197,160,89,0.12)]' 
+                            : 'border-white/10 bg-[#12141C] hover:border-white/20'
                         } ${menuItem.is_sold_out ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-3.5 items-start">
                           {menuItem.image ? (
                             <img
                               src={menuItem.image}
                               alt={menuItem.name}
-                              className="h-16 w-16 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                              className="h-16 w-16 rounded-xl object-cover border border-white/10 shrink-0 bg-black/40"
                             />
                           ) : (
-                            <div className="h-16 w-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 flex-shrink-0">
+                            <div className="h-16 w-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 shrink-0">
                               <Utensils size={20} />
                             </div>
                           )}
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-xs font-bold text-white truncate">{menuItem.name}</h3>
+                            <h3 className="text-xs font-bold text-white tracking-tight leading-snug">{menuItem.name}</h3>
                             {menuItem.description && (
-                              <p className="text-[10px] text-white/40 line-clamp-2 mt-0.5">{menuItem.description}</p>
+                              <p className="text-[10px] text-white/40 line-clamp-2 mt-0.5 leading-relaxed">{menuItem.description}</p>
                             )}
-                            <div className="mt-1 flex items-center gap-2">
-                              <span className="text-sm font-bold text-primary">₹{menuItem.price}</span>
+                            <div className="mt-1.5 flex items-center gap-2">
+                              <span className="text-sm font-bold text-primary font-mono">₹{menuItem.price.toFixed(2)}</span>
                               {menuItem.category && (
-                                <span className="text-[9px] font-semibold text-white/30 uppercase tracking-wider">
+                                <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
                                   {menuItem.category}
                                 </span>
                               )}
@@ -673,7 +676,7 @@ export function OrderBuilderSheet({
                         </div>
 
                         {/* Quantity Add / Sub Controls */}
-                        <div className="mt-3 flex items-center justify-between pt-2 border-t border-white/5">
+                        <div className="mt-3.5 flex items-center justify-between pt-2.5 border-t border-white/5">
                           <span className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">
                             {menuItem.is_sold_out ? 'Sold Out' : qty > 0 ? `${qty} in cart` : 'Add to order'}
                           </span>
@@ -683,22 +686,24 @@ export function OrderBuilderSheet({
                               <button
                                 type="button"
                                 onClick={() => handleQuantityChange(menuItem, -1)}
-                                className="h-7 w-7 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
+                                className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                                aria-label="Decrease quantity"
                               >
-                                <Minus size={12} />
+                                <Minus size={13} />
                               </button>
                             )}
 
                             <button
                               type="button"
                               onClick={() => handleQuantityChange(menuItem, 1)}
-                              className={`flex items-center justify-center rounded-xl px-3 h-7 text-xs font-bold transition-all cursor-pointer ${
+                              className={`flex items-center justify-center rounded-xl px-3.5 h-8 text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                                 qty > 0 
-                                  ? 'bg-primary text-black hover:bg-primary/90' 
+                                  ? 'bg-primary text-black hover:bg-primary/90 font-mono shadow-sm' 
                                   : 'bg-white/10 text-white hover:bg-primary hover:text-black'
                               }`}
+                              aria-label="Add item"
                             >
-                              {qty > 0 ? `${qty}` : <Plus size={14} />}
+                              {qty > 0 ? `${qty}` : <Plus size={15} />}
                             </button>
                           </div>
                         </div>
@@ -718,17 +723,17 @@ export function OrderBuilderSheet({
 
               {/* Mobile Sticky Floating Cart Action Bar */}
               {totalItemCount > 0 && mobileTab === 'menu' && (
-                <div className="md:hidden shrink-0 p-3 bg-[#12141A] border border-primary/30 rounded-2xl shadow-[0_0_20px_rgba(197,160,89,0.15)] flex items-center justify-between z-10">
+                <div className="md:hidden shrink-0 p-3.5 bg-[#12141C] border border-primary/40 rounded-2xl shadow-[0_0_25px_rgba(197,160,89,0.2)] flex items-center justify-between z-10 backdrop-blur-md">
                   <div>
                     <span className="text-[9px] font-bold uppercase tracking-widest text-primary block">Selected Items ({totalItemCount})</span>
-                    <span className="text-sm font-serif font-bold text-white">Total: ₹{totalAmount}</span>
+                    <span className="text-sm font-serif font-bold text-white font-mono">Total: ₹{totalAmount.toFixed(2)}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setMobileTab('cart')}
-                    className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black shadow hover:bg-primary/90 transition-all cursor-pointer"
+                    className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black shadow hover:bg-primary/90 transition-all cursor-pointer active:scale-95"
                   >
-                    <span>View Cart & Table</span>
+                    <span>View Cart</span>
                     <ShoppingBag size={14} />
                   </button>
                 </div>
