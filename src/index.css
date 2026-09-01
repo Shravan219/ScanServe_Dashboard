@@ -221,8 +221,12 @@
   }
 }
 
+/* Rendering Performance: Offscreen content virtualization */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 120px;
+}
+
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-
-

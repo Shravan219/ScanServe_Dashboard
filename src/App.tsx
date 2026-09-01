@@ -693,6 +693,9 @@ export default function App() {
 
     // 2. Periodic sync polling (every 3.5s) to guarantee zero missed orders
     const pollInterval = setInterval(async () => {
+      // Performance optimization: skip network poll when document is backgrounded
+      if (typeof document !== 'undefined' && document.hidden) return;
+
       try {
         const res = await fetch('/api/orders');
         if (res.ok) {
@@ -763,6 +766,14 @@ export default function App() {
         // silent poll error
       }
     }, 3500);
+
+    // Instant foreground synchronization when staff re-opens / focuses tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // 3. Supabase real-time updates subscription
     const ordersSubscription = supabase
@@ -843,6 +854,7 @@ export default function App() {
       .subscribe();
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (eventSource) eventSource.close();
       clearInterval(pollInterval);
       supabase.removeChannel(ordersSubscription);
