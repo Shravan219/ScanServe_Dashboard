@@ -359,8 +359,8 @@ export default function App() {
   const activeTab = useMemo(() => {
     if (isKioskLocked) return 'captain';
     const path = location.pathname.split('/')[1];
-    const validTabs = ['service', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'captain', 'online', 'invoices'];
-    return validTabs.includes(path) ? path : 'service';
+    const validTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices'];
+    return validTabs.includes(path) ? path : 'captain';
   }, [location.pathname, isKioskLocked]);
 
   const waitingForPaymentCount = useMemo(() => {
@@ -459,8 +459,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (location.pathname === '/' || location.pathname === '') {
-      navigate('/service', { replace: true });
+    if (location.pathname === '/' || location.pathname === '' || location.pathname === '/service') {
+      navigate('/captain', { replace: true });
     }
   }, [location.pathname, navigate]);
 
@@ -1065,7 +1065,7 @@ export default function App() {
     return uniqueBase;
   }, [dineInOrders, searchToken]);
 
-  const serviceRailOrders = useMemo(() => {
+  const counterOrders = useMemo(() => {
     return filteredOrders.filter(o => o.status === 'pending');
   }, [filteredOrders]);
 
@@ -1152,12 +1152,6 @@ export default function App() {
         <nav className="flex flex-col gap-6 items-center w-full px-2">
           {!isKioskLocked && (
             <>
-              <NavItem 
-                icon={<RefreshCcw size={18} strokeWidth={1.5} />} 
-                label="Service" 
-                active={activeTab === 'service'} 
-                onClick={() => setActiveTab('service')}
-              />
               <NavItem 
                 icon={<LayoutDashboard size={18} strokeWidth={1.5} />} 
                 label="Counter" 
@@ -1291,16 +1285,6 @@ export default function App() {
                 Counter
               </button>
               <button
-                onClick={() => setActiveTab('service')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
-                  activeTab === 'service'
-                    ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
-                    : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
-                }`}
-              >
-                Service Rail
-              </button>
-              <button
                 onClick={() => setActiveTab('kitchen')}
                 className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'kitchen'
@@ -1392,14 +1376,6 @@ export default function App() {
               {!isKioskLocked && (
                 <>
                   <button
-                    onClick={() => setActiveTab('service')}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                      activeTab === 'service' ? 'bg-primary text-black' : 'bg-white/5 text-white'
-                    }`}
-                  >
-                    <RefreshCcw size={16} /> Service Rail
-                  </button>
-                  <button
                     onClick={() => setActiveTab('counter')}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                       activeTab === 'counter' ? 'bg-primary text-black' : 'bg-white/5 text-white'
@@ -1483,7 +1459,6 @@ export default function App() {
               <TabsTrigger value="captain" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Captain</TabsTrigger>
               {!isKioskLocked && (
                 <>
-                  <TabsTrigger value="service" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
                   <TabsTrigger value="counter" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
                   <TabsTrigger value="kitchen" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
                   <TabsTrigger value="pickup" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
@@ -1550,7 +1525,7 @@ export default function App() {
               <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
                 <div className="flex flex-col gap-6 sm:gap-8 pb-10 max-w-4xl mx-auto">
                   <AnimatePresence mode="popLayout">
-                    {serviceRailOrders.map((order, index) => (
+                    {counterOrders.map((order, index) => (
                       <OrderCard 
                         key={order.id} 
                         order={order} 
@@ -1563,60 +1538,10 @@ export default function App() {
                       />
                     ))}
                   </AnimatePresence>
-                  {serviceRailOrders.length === 0 && (
+                  {counterOrders.length === 0 && (
                     <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
                       <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/30 sm:w-12 sm:h-12" />
                       <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">No new orders</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="service" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Service Rail</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-bold">Full Order Lifecycle</p>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
-                <div className="flex flex-col gap-6 sm:gap-8 pb-10 max-w-4xl mx-auto">
-                  <AnimatePresence mode="popLayout">
-                    {filteredOrders.map((order, index) => {
-                      let actionLabel = "Start Crafting";
-                      let nextStatus: OrderStatus = "preparing";
-                      
-                      if (order.status === 'preparing') {
-                        actionLabel = "Mark Ready";
-                        nextStatus = "ready";
-                      } else if (order.status === 'ready') {
-                        actionLabel = "Mark Served";
-                        nextStatus = "waiting for payment";
-                      } else if (order.status === 'waiting for payment') {
-                        actionLabel = "Payment Done";
-                        nextStatus = "completed";
-                      }
-
-                      return (
-                        <OrderCard 
-                          key={order.id} 
-                          order={order} 
-                          actionLabel={actionLabel} 
-                          actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
-                          onAction={() => updateOrderStatus(order.id, nextStatus)}
-                          variant={order.status as any}
-                          index={index}
-                          discountInfo={getOrderDiscountInfo(order)}
-                        />
-                      );
-                    })}
-                  </AnimatePresence>
-                  {filteredOrders.length === 0 && (
-                    <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
-                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/30 sm:w-12 sm:h-12" />
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">No active orders</p>
                     </div>
                   )}
                 </div>
