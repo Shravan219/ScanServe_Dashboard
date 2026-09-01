@@ -150,6 +150,8 @@ export function OrderBuilderSheet({
 
   // Submit Order handler
   const handleSendToCounter = async () => {
+    if (isSubmitting) return;
+
     if (cartEntries.length === 0) {
       toast.error('Please add at least one item to the order!');
       return;
@@ -540,28 +542,30 @@ export function OrderBuilderSheet({
                 {/* Customer Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider flex items-center gap-1">
+                    <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider flex items-center gap-1">
                       <User size={10} /> Customer Name
                     </label>
                     <input
                       type="text"
+                      maxLength={50}
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Rahul (Optional)"
-                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-medium text-white/50 uppercase tracking-wider flex items-center gap-1">
+                    <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider flex items-center gap-1">
                       <Phone size={10} /> Phone Number
                     </label>
                     <input
                       type="tel"
+                      maxLength={15}
                       value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+ ]/g, ''))}
                       placeholder="+91 98765..."
-                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-mono"
                     />
                   </div>
                 </div>
@@ -574,11 +578,12 @@ export function OrderBuilderSheet({
                 </span>
 
                 <textarea
+                  maxLength={250}
                   value={customInstructions}
                   onChange={(e) => setCustomInstructions(e.target.value)}
                   placeholder="e.g. Less spicy, extra napkins, serve beverages first..."
                   rows={2}
-                  className="w-full rounded-xl bg-[#14161C] border border-white/10 p-2.5 text-xs font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 resize-none transition-all"
+                  className="w-full rounded-xl bg-[#14161C] border border-white/10 p-2.5 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 resize-none transition-all"
                 />
 
                 {/* Quick Instruction Tags */}
@@ -725,9 +730,21 @@ export function OrderBuilderSheet({
 
                   {filteredMenuItems.length === 0 && (
                     <div className="col-span-full flex h-48 flex-col items-center justify-center text-center p-6 rounded-2xl border border-white/5 bg-[#12141A]">
-                      <Search size={32} className="mb-2 text-white/20" />
-                      <p className="text-xs font-semibold text-white/60">No menu items found</p>
-                      <p className="text-[10px] text-white/30 mt-1">Try searching with a different keyword or category</p>
+                      <Search size={32} className="mb-2 text-white/40" />
+                      <p className="text-xs font-semibold text-white/80">No menu items match your search</p>
+                      <p className="text-[10px] text-white/50 mt-1">Try a different name, category, or spelling</p>
+                      {(searchQuery || activeCategory !== 'all') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setActiveCategory('all');
+                          }}
+                          className="mt-3.5 px-3.5 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all cursor-pointer active:scale-95"
+                        >
+                          Reset Filters &amp; Search
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

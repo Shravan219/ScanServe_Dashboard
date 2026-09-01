@@ -108,6 +108,7 @@ export function PaymentsView({
   }, [allOrders]);
 
   const handlePaymentDone = async (order: Order) => {
+    if (isSettlingId) return;
     const method = paymentMethods[order.id] || 'upi';
     setIsSettlingId(order.id);
     try {

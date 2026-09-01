@@ -140,6 +140,7 @@ export default function App() {
 
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [dbCustomers, setDbCustomers] = useState<any[]>([]);
+  const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
@@ -853,7 +854,23 @@ export default function App() {
       })
       .subscribe();
 
+    // Network connection status listeners
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('Internet connection restored. Synchronizing live orders...');
+      fetchData();
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.error('Network disconnected. Operating in offline cached mode.');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (eventSource) eventSource.close();
       clearInterval(pollInterval);
@@ -1211,7 +1228,23 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden flex flex-col">
+      <main className="flex-1 overflow-hidden flex flex-col relative">
+        {/* Offline Connection Alert Bar */}
+        {!isOnline && (
+          <div className="bg-red-500 text-white px-4 py-2 text-xs font-bold flex items-center justify-between z-50 shrink-0 shadow-lg animate-pulse">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-white animate-ping" />
+              <span>Offline Mode: Internet connection lost. Serving from local cache.</span>
+            </div>
+            <button
+              onClick={() => fetchData()}
+              className="px-3 py-1 bg-black text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-black/80 transition-all cursor-pointer"
+            >
+              Retry Connection
+            </button>
+          </div>
+        )}
+
         {/* Mobile Top Header */}
         <header className="flex md:hidden h-14 items-center justify-between border-b border-white/10 bg-[#0A0A0A] px-4 z-20 shrink-0">
           <div className="flex items-center gap-2.5">
