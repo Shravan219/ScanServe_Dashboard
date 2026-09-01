@@ -120,7 +120,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({
 
       {/* Brand Header */}
       <div className="text-center mb-4">
-        <h1 className="text-lg font-bold tracking-tight uppercase">Xtra Rooftop Lounge and Cafe</h1>
+        <h1 className="text-lg font-bold tracking-tight uppercase">Vyoma Rooftop Lounge &amp; Cafe</h1>
         <p className="text-[9px] uppercase tracking-wider text-gray-500">Contactless Table Ordering</p>
         <p className="text-[10px] text-gray-600 font-bold mt-1">
           {hasGstin ? 'TAX INVOICE' : 'RETAIL BILL'}
