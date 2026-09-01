@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { RestaurantTable, TableStatus, Order, OrderStatus } from '@/src/types';
 import { 
   Users, 
@@ -45,15 +45,39 @@ export function TableStatusGrid({
   const [filterSection, setFilterSection] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  // Available sections
-  const sections = Array.from(new Set(tables.map(t => t.section || 'Main Dining')));
+  // Available sections (memoized)
+  const sections = useMemo(() => {
+    return Array.from(new Set(tables.map(t => t.section || 'Main Dining')));
+  }, [tables]);
 
-  // Filtered tables
-  const filteredTables = tables.filter(t => {
-    const matchesSection = filterSection === 'all' || (t.section || 'Main Dining') === filterSection;
-    const matchesStatus = filterStatus === 'all' || t.status === filterStatus;
-    return matchesSection && matchesStatus;
-  });
+  // Filtered tables (memoized)
+  const filteredTables = useMemo(() => {
+    return tables.filter(t => {
+      const matchesSection = filterSection === 'all' || (t.section || 'Main Dining') === filterSection;
+      const matchesStatus = filterStatus === 'all' || t.status === filterStatus;
+      return matchesSection && matchesStatus;
+    });
+  }, [tables, filterSection, filterStatus]);
+
+  // Map of ready orders by table identifier for fast O(1) lookup
+  const readyOrdersByTable = useMemo(() => {
+    const map = new Map<string, Order[]>();
+    for (const o of readyOrders) {
+      if (!o.table_id) continue;
+      const raw = String(o.table_id).toLowerCase().trim();
+      const plain = raw.replace(/^table\s*/, '').trim();
+      
+      const keys = [raw, plain, `table ${plain}`];
+      for (const k of keys) {
+        const existing = map.get(k) || [];
+        if (!existing.some(item => item.id === o.id)) {
+          existing.push(o);
+          map.set(k, existing);
+        }
+      }
+    }
+    return map;
+  }, [readyOrders]);
 
   const getStatusBadge = (status: TableStatus) => {
     switch (status) {
@@ -180,15 +204,11 @@ export function TableStatusGrid({
         {filteredTables.map((table, idx) => {
           const isOccupied = table.status === 'occupied';
           
-          // Match ready orders for this specific table
-          const tableReadyOrders = readyOrders.filter(o => {
-            if (!o.table_id) return false;
-            const tId = String(table.id).toLowerCase();
-            const tNum = table.table_number.toLowerCase();
-            const oTable = String(o.table_id).toLowerCase().trim();
-            const tNumPlain = tNum.replace(/^table\s*/, '').trim();
-            return oTable === tId || oTable === tNum || oTable === tNumPlain || tNum.includes(oTable);
-          });
+          // Fast O(1) match of ready orders for this table
+          const tId = String(table.id).toLowerCase();
+          const tNum = table.table_number.toLowerCase();
+          const tNumPlain = tNum.replace(/^table\s*/, '').trim();
+          const tableReadyOrders = readyOrdersByTable.get(tNumPlain) || readyOrdersByTable.get(tId) || readyOrdersByTable.get(tNum) || [];
           const hasReadyFood = tableReadyOrders.length > 0;
 
           return (

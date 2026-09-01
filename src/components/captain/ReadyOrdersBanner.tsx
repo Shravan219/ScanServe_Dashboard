@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Order, OrderStatus, normalizeOrderItems } from '@/src/types';
 import { soundService } from '@/src/lib/sound';
 import { 
@@ -27,15 +27,19 @@ export function ReadyOrdersBanner({
   orders,
   onUpdateStatus
 }: ReadyOrdersBannerProps) {
-  const readyOrders = orders.filter(o => o.status === 'ready');
+  const readyOrders = useMemo(() => orders.filter(o => o.status === 'ready'), [orders]);
   const [isMuted, setIsMuted] = useState<boolean>(soundService.getMuted());
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const prevReadyIdsRef = useRef<Set<string>>(new Set());
   const [now, setNow] = useState<number>(Date.now());
 
-  // Update time counter every 15 seconds
+  // Update time counter every 15 seconds (skip when document is backgrounded)
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 15000);
+    const timer = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        setNow(Date.now());
+      }
+    }, 15000);
     return () => clearInterval(timer);
   }, []);
 
