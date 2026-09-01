@@ -1063,7 +1063,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-4xl font-serif tracking-tight mb-2">Staff <span className="italic opacity-60 text-primary">Access</span></h1>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-bold">Secure Dashboard Entry</p>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 font-bold">Secure Dashboard Entry</p>
             </div>
             
             <form onSubmit={handleLogin} className="w-full space-y-6 mt-4">
@@ -1089,7 +1089,7 @@ export default function App() {
               </Button>
             </form>
             
-            <p className="text-[9px] text-white/10 uppercase tracking-[0.2em] font-bold mt-8">
+            <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-semibold mt-8">
               Authorized Personnel Only
             </p>
           </div>
@@ -1111,24 +1111,21 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-black font-sans text-white selection:bg-primary selection:text-black">
-      <Toaster position="top-right" theme="dark" richColors />
-      
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-20 flex-col items-center border-r border-white/5 bg-[#0A0A0A] py-10 md:w-64">
-        <div className="mb-16 flex items-center gap-3 px-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-transparent shadow-[0_0_15px_rgba(197,160,89,0.1)]">
-            <Coffee size={20} strokeWidth={1.5} className="text-primary" />
+    <div className="flex h-screen w-full bg-black text-white overflow-hidden font-sans select-none">
+      {/* Sidebar Navigation */}
+      <aside className="hidden md:flex w-20 flex-col items-center justify-between border-r border-white/5 bg-[#0A0A0A] py-8 z-20 shrink-0">
+        <div className="flex flex-col items-center gap-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[0_0_20px_rgba(197,160,89,0.1)]">
+            <Coffee size={24} className="text-primary" />
           </div>
-          <h1 className="hidden text-2xl font-serif tracking-tight md:block">Vy<span className="italic opacity-60 text-primary">oma</span></h1>
         </div>
 
-        <nav className="flex w-full flex-1 flex-col gap-2 px-4">
+        <nav className="flex flex-col gap-6 items-center w-full px-2">
           {!isKioskLocked && (
             <>
               <NavItem 
                 icon={<RefreshCcw size={18} strokeWidth={1.5} />} 
-                label="Service Rail" 
+                label="Service" 
                 active={activeTab === 'service'} 
                 onClick={() => setActiveTab('service')}
               />
@@ -1153,9 +1150,9 @@ export default function App() {
               <NavItem 
                 icon={<CreditCard size={18} strokeWidth={1.5} />} 
                 label="Payments" 
-                badge={waitingForPaymentCount}
                 active={activeTab === 'payments'} 
                 onClick={() => setActiveTab('payments')}
+                badge={waitingForPaymentCount > 0 ? waitingForPaymentCount : undefined}
               />
               <NavItem 
                 icon={<MenuIcon size={18} strokeWidth={1.5} />} 
@@ -1171,7 +1168,7 @@ export default function App() {
               />
               <NavItem 
                 icon={<Globe size={18} strokeWidth={1.5} />} 
-                label="Online Orders" 
+                label="Online" 
                 active={activeTab === 'online'} 
                 onClick={() => setActiveTab('online')}
               />
@@ -1195,7 +1192,7 @@ export default function App() {
             <div className="mt-auto hidden md:flex flex-col items-center gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-center">
               <Lock size={18} className="text-red-400 animate-pulse" />
               <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">Kiosk Mode Locked</span>
-              <p className="text-[9px] text-white/30">Staff access restricted to Captain View.</p>
+              <p className="text-[10px] text-white/60 font-medium">Staff access restricted to Captain View.</p>
             </div>
           )}
         </nav>
@@ -1437,15 +1434,15 @@ export default function App() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col min-h-0 flex-1">
           {/* Desktop Header */}
           <header className="hidden md:flex h-24 items-center justify-between border-b border-white/5 px-10 backdrop-blur-xl sticky top-0 z-10 animate-fade-in shrink-0">
-            <TabsList className="bg-transparent p-0 gap-10">
-              <TabsTrigger value="captain" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Captain</TabsTrigger>
+            <TabsList className="bg-transparent p-0 gap-8 lg:gap-10">
+              <TabsTrigger value="captain" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Captain</TabsTrigger>
               {!isKioskLocked && (
                 <>
-                  <TabsTrigger value="service" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
-                  <TabsTrigger value="counter" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
-                  <TabsTrigger value="kitchen" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
-                  <TabsTrigger value="pickup" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
-                  <TabsTrigger value="payments" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all flex items-center gap-2">
+                  <TabsTrigger value="service" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Service Rail</TabsTrigger>
+                  <TabsTrigger value="counter" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
+                  <TabsTrigger value="kitchen" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
+                  <TabsTrigger value="pickup" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
+                  <TabsTrigger value="payments" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all flex items-center gap-2">
                     Payments
                     {waitingForPaymentCount > 0 && (
                       <span className="flex h-4 px-1.5 items-center justify-center rounded-full bg-amber-500 text-black text-[9px] font-extrabold shadow-[0_0_10px_rgba(245,158,11,0.4)]">
@@ -1453,10 +1450,10 @@ export default function App() {
                       </span>
                     )}
                   </TabsTrigger>
-                  <TabsTrigger value="menu" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
-                  <TabsTrigger value="customers" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
-                  <TabsTrigger value="online" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
-                  <TabsTrigger value="invoices" className="text-white/30 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Invoices</TabsTrigger>
+                  <TabsTrigger value="menu" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
+                  <TabsTrigger value="customers" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customer Database</TabsTrigger>
+                  <TabsTrigger value="online" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
+                  <TabsTrigger value="invoices" className="text-white/60 hover:text-white/90 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-24 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Invoices</TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -1464,22 +1461,22 @@ export default function App() {
             <div className="flex items-center gap-12">
               <div className="flex items-center gap-8">
                 <div className="flex flex-col items-end">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20">Prepared Today</span>
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Prepared Today</span>
                   <div className="flex items-center gap-2">
-                    <TrendingUp size={12} className="text-primary/60" />
-                    <span className="text-xl font-serif text-primary">{stats.preparedToday}</span>
+                    <TrendingUp size={12} className="text-primary/70" />
+                    <span className="text-xl font-serif text-primary font-mono">{stats.preparedToday}</span>
                   </div>
                 </div>
-                <div className="flex flex-col items-end border-l border-white/5 pl-8">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20">Avg Crafting</span>
+                <div className="flex flex-col items-end border-l border-white/10 pl-8">
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Avg Crafting</span>
                   <div className="flex items-center gap-2">
-                    <Timer size={12} className="text-primary/60" />
-                    <span className="text-xl font-serif text-primary">{stats.avgTime}</span>
+                    <Timer size={12} className="text-primary/70" />
+                    <span className="text-xl font-serif text-primary font-mono">{stats.avgTime}</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-3 rounded-full border border-primary/20 px-5 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
+                <div className="flex items-center gap-3 rounded-full border border-primary/20 bg-primary/5 px-5 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/90">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(197,160,89,0.8)]" />
                   SYSTEM ONLINE
                 </div>
@@ -1492,13 +1489,13 @@ export default function App() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Counter</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Incoming orders & Verification</p>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-bold">Incoming orders & Verification</p>
                 </div>
                 <div className="relative w-full sm:w-80">
-                  <Search className="absolute left-4 sm:left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+                  <Search className="absolute left-4 sm:left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/60" />
                   <Input 
                     placeholder="Search Token ID..." 
-                    className="pl-12 sm:pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-11 sm:h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+                    className="pl-12 sm:pl-14 bg-[#0A0A0A] border-white/10 rounded-full h-11 sm:h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all text-white placeholder:text-white/40"
                     value={searchToken}
                     onChange={(e) => setSearchToken(e.target.value)}
                   />
@@ -1523,8 +1520,8 @@ export default function App() {
                   </AnimatePresence>
                   {serviceRailOrders.length === 0 && (
                     <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
-                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No new orders</p>
+                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/30 sm:w-12 sm:h-12" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">No new orders</p>
                     </div>
                   )}
                 </div>
@@ -1535,7 +1532,7 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Service Rail</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Full Order Lifecycle</p>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-bold">Full Order Lifecycle</p>
                 </div>
               </div>
 
@@ -1573,8 +1570,8 @@ export default function App() {
                   </AnimatePresence>
                   {filteredOrders.length === 0 && (
                     <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
-                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No active orders</p>
+                      <Clock size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/30 sm:w-12 sm:h-12" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">No active orders</p>
                     </div>
                   )}
                 </div>
@@ -1584,7 +1581,7 @@ export default function App() {
             <TabsContent value="kitchen" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
               <div>
                 <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Kitchen</h2>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Active Preparations</p>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-bold">Active Preparations</p>
               </div>
 
               <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
@@ -1605,8 +1602,8 @@ export default function App() {
                   </AnimatePresence>
                   {dineInOrders.filter(o => o.status === 'preparing').length === 0 && (
                     <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
-                      <ChefHat size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">Kitchen is clear</p>
+                      <ChefHat size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/30 sm:w-12 sm:h-12" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">Kitchen is clear</p>
                     </div>
                   )}
                 </div>
@@ -1616,7 +1613,7 @@ export default function App() {
             <TabsContent value="pickup" className="m-0 h-full flex flex-col gap-4 sm:gap-6 md:gap-10 p-3.5 sm:p-6 md:p-10 outline-none data-[state=inactive]:hidden">
               <div>
                 <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Pickup</h2>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Awaiting Collection</p>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-bold">Awaiting Collection</p>
               </div>
 
               <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
@@ -1637,8 +1634,8 @@ export default function App() {
                   </AnimatePresence>
                   {dineInOrders.filter(o => o.status === 'ready').length === 0 && (
                     <div className="flex h-64 sm:h-80 flex-col items-center justify-center rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-4 text-center">
-                      <PackageCheck size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/20 sm:w-12 sm:h-12" />
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No orders waiting</p>
+                      <PackageCheck size={40} strokeWidth={1} className="mb-4 sm:mb-6 text-primary/30 sm:w-12 sm:h-12" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">No orders waiting</p>
                     </div>
                   )}
                 </div>
@@ -1658,13 +1655,13 @@ export default function App() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Menu</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-1 sm:mt-2 font-bold">Inventory & Availability</p>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-bold">Inventory & Availability</p>
                 </div>
                 <div className="relative w-full sm:w-80">
-                  <Search className="absolute left-4 sm:left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+                  <Search className="absolute left-4 sm:left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/60" />
                   <Input 
                     placeholder="Search Menu..." 
-                    className="pl-12 sm:pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-11 sm:h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all"
+                    className="pl-12 sm:pl-14 bg-[#0A0A0A] border-white/10 rounded-full h-11 sm:h-14 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all text-white placeholder:text-white/40"
                     value={menuSearch}
                     onChange={(e) => setMenuSearch(e.target.value)}
                   />
@@ -1680,16 +1677,16 @@ export default function App() {
                           <MenuItemImage src={item.image} name={item.name} category={item.category} />
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <h4 className="text-lg font-serif tracking-tight text-white/90 group-hover:text-primary transition-colors">{item.name}</h4>
-                          <p className="text-[9px] text-white/20 uppercase tracking-[0.2em] mt-2 font-bold">{item.category}</p>
+                          <h4 className="text-lg font-serif tracking-tight text-white/95 group-hover:text-primary transition-colors font-semibold">{item.name}</h4>
+                          <p className="text-[10px] text-white/60 uppercase tracking-[0.2em] mt-2 font-bold">{item.category}</p>
                           <div className="flex items-baseline gap-2 mt-3">
                             {item.discount_price && item.discount_price > 0 ? (
                               <>
-                                <p className="text-sm font-medium text-primary tracking-tight">₹{item.discount_price.toFixed(2)}</p>
-                                <p className="text-[10px] text-white/20 line-through tracking-tight">₹{item.price.toFixed(2)}</p>
+                                <p className="text-sm font-medium text-primary tracking-tight font-mono font-bold">₹{item.discount_price.toFixed(2)}</p>
+                                <p className="text-[11px] text-white/50 line-through tracking-tight font-mono">₹{item.price.toFixed(2)}</p>
                               </>
                             ) : (
-                              <p className="text-sm font-medium text-primary tracking-tight">₹{(item.price || 0).toFixed(2)}</p>
+                              <p className="text-sm font-medium text-primary tracking-tight font-mono font-bold">₹{(item.price || 0).toFixed(2)}</p>
                             )}
                           </div>
                         </div>
@@ -1697,16 +1694,16 @@ export default function App() {
                           <div className="flex flex-col items-end gap-2">
                             <EditMenuItemDialog item={item} onSave={(updates) => updateMenuItem(item.id, updates)} />
                             {item.discount_price && item.discount_price > 0 && (
-                              <span className="text-[7px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                              <span className="text-[8px] font-bold uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25">
                                 Discount Active
                               </span>
                             )}
                           </div>
                           <span className={cn(
-                            "text-[8px] font-bold uppercase tracking-[0.25em] px-3 py-1 rounded-full border mt-auto",
+                            "text-[8px] font-bold uppercase tracking-[0.25em] px-3 py-1 rounded-full border mt-auto font-semibold",
                             item.is_sold_out 
-                              ? "text-red-500/60 border-red-500/10 bg-red-500/5" 
-                              : "text-primary/80 border-primary/10 bg-primary/5"
+                              ? "text-red-400 border-red-500/20 bg-red-500/10" 
+                              : "text-primary border-primary/20 bg-primary/10"
                           )}>
                             {item.is_sold_out ? "Sold Out" : "Active"}
                           </span>
@@ -1716,8 +1713,8 @@ export default function App() {
                   ))}
                   {filteredMenuItems.length === 0 && (
                     <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0A0A0A]">
-                      <Search size={48} strokeWidth={1} className="mb-6 text-primary/20" />
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-white/10 font-bold">No items match your search</p>
+                      <Search size={48} strokeWidth={1} className="mb-6 text-primary/30" />
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">No items match your search</p>
                     </div>
                   )}
                 </div>
@@ -1728,13 +1725,13 @@ export default function App() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in flex-shrink-0">
                 <div>
                   <h2 className="text-3xl md:text-4xl font-serif tracking-tight">Customer Database</h2>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/20 mt-2 font-bold font-sans">Loyalty & Historical Statistics</p>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-2 font-bold font-sans">Loyalty & Historical Statistics</p>
                 </div>
                 <div className="relative w-full md:w-80">
-                  <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/40" />
+                  <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/60" />
                   <Input 
                     placeholder="Search Customers..." 
-                    className="pl-14 bg-[#0A0A0A] border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all font-sans"
+                    className="pl-14 bg-[#0A0A0A] border-white/10 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all font-sans text-white placeholder:text-white/40"
                     value={customerSearch}
                     onChange={(e) => setCustomerSearch(e.target.value)}
                   />
@@ -1749,11 +1746,11 @@ export default function App() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary">
                         <TrendingUp size={12} />
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Automatic Checkout Promotion</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary">Automatic Checkout Promotion</span>
                     </div>
                     <div>
                       <h3 className="text-xl font-serif tracking-tight text-white mb-1">Loyal Customer Checkout Discounts</h3>
-                      <p className="text-xs text-white/40 leading-relaxed font-sans">
+                      <p className="text-xs text-white/70 leading-relaxed font-sans">
                         Encourage repeat visits by automatically applying percentage-based discounts to customers on checkout once they reach a set order threshold.
                       </p>
                     </div>
@@ -1762,23 +1759,23 @@ export default function App() {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-6 lg:self-end">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-[8px] font-bold uppercase tracking-[0.25em] text-white/30 ml-1 font-sans">Min Orders Needed</label>
+                        <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1 font-sans">Min Orders Needed</label>
                         <Input 
                           type="number"
                           min="1"
-                          className="bg-black border-white/5 rounded-full h-11 w-28 text-center text-xs font-bold font-sans"
+                          className="bg-black border-white/10 rounded-full h-11 w-28 text-center text-xs font-bold font-sans text-white"
                           value={minOrdersForDiscount}
                           onChange={(e) => setMinOrdersForDiscount(Math.max(1, parseInt(e.target.value) || 0))}
                           disabled={!frequentDiscountEnabled}
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-[8px] font-bold uppercase tracking-[0.25em] text-white/30 ml-1 font-sans">Discount Percentage (%)</label>
+                        <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1 font-sans">Discount Percentage (%)</label>
                         <Input 
                           type="number"
                           min="1"
                           max="100"
-                          className="bg-black border-white/5 rounded-full h-11 w-28 text-center text-xs font-bold font-sans text-primary"
+                          className="bg-black border-white/10 rounded-full h-11 w-28 text-center text-xs font-bold font-sans text-primary font-mono"
                           value={discountPercentage}
                           onChange={(e) => {
                             const val = Math.min(100, Math.max(1, parseInt(e.target.value) || 0));
@@ -1794,11 +1791,11 @@ export default function App() {
                     <button 
                       type="button"
                       onClick={toggleFrequentDiscount}
-                      className="flex items-center gap-4 bg-black/40 hover:bg-black/60 border border-white/5 rounded-full px-6 py-3 self-center sm:self-auto h-11 mt-auto cursor-pointer select-none transition-all"
+                      className="flex items-center gap-4 bg-black/60 hover:bg-black/80 border border-white/10 rounded-full px-6 py-3 self-center sm:self-auto h-11 mt-auto cursor-pointer select-none transition-all"
                     >
                       <span className={cn(
                         "text-[9px] font-bold uppercase tracking-[0.2em] font-sans",
-                        frequentDiscountEnabled ? "text-primary/90" : "text-white/20"
+                        frequentDiscountEnabled ? "text-primary font-bold" : "text-white/60"
                       )}>
                         {frequentDiscountEnabled ? "SYSTEM ACTIVE" : "DISABLED"}
                       </span>
@@ -1817,7 +1814,7 @@ export default function App() {
                 <div className="overflow-x-auto flex-1 custom-scrollbar">
                   <table className="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
-                      <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.25em] text-white/30 font-bold font-sans">
+                      <tr className="border-b border-white/10 text-[9px] uppercase tracking-[0.2em] text-white/70 font-bold font-sans">
                         <th className="px-4 pb-4 text-left whitespace-nowrap">Customer Name</th>
                         <th className="px-4 pb-4 text-left whitespace-nowrap">Phone Number</th>
                         <th className="px-4 pb-4 text-center whitespace-nowrap">Order Count</th>
@@ -2359,11 +2356,10 @@ function OrderCard({
         variant === 'pending' && "animate-pulse-subtle",
         isOldReady ? "border-primary/40 shadow-[0_0_50px_rgba(197,160,89,0.15)]" : "hover:border-primary/30 hover:shadow-[0_0_40px_rgba(197,160,89,0.05)]"
       )}>
-        <div className="flex flex-col">
-          {/* Top Header Bar */}
+                {/* Top Header Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2.5 bg-black/60 px-4 py-3 border-b border-white/5">
             <div className="flex items-center gap-2.5">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">TOKEN</span>
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">TOKEN</span>
               <span className="text-xl sm:text-2xl font-serif text-primary tracking-widest font-bold">{order.token}</span>
               {order.table_id && (
                 <div className="px-2 py-0.5 rounded-full border border-primary/20 bg-primary/5 text-[9px] font-bold uppercase tracking-[0.15em] text-primary whitespace-nowrap">
@@ -2406,13 +2402,13 @@ function OrderCard({
                   variant === 'waiting for payment' ? "bg-amber-400 animate-pulse" : 
                   "bg-green-500"
                 )} />
-                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/60">
+                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/70">
                   {variant === 'waiting for payment' ? 'WAITING FOR PAYMENT' : variant}
                 </span>
               </div>
 
-              <div className="flex items-center gap-1 text-[10px] text-white/30 font-bold uppercase tracking-[0.15em] ml-1">
-                <Clock size={11} strokeWidth={2} className="text-primary/50" />
+              <div className="flex items-center gap-1 text-[10px] text-white/60 font-bold uppercase tracking-[0.15em] ml-1">
+                <Clock size={11} strokeWidth={2} className="text-primary/70" />
                 {timeAgo(order.created_at)}
               </div>
             </div>
@@ -2422,24 +2418,25 @@ function OrderCard({
           <div className="p-4 sm:p-5 flex flex-col justify-between min-w-0 flex-1">
             <div>
               <div className="mb-3">
-                <span className="text-lg font-serif text-white/90 block font-semibold">{displayCustomerName}</span>
+                <span className="text-lg font-serif text-white/95 block font-semibold">{displayCustomerName}</span>
                 {isPhoneMasked ? (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/10 w-fit text-[9px] text-white/50 tracking-wider font-mono mt-1.5">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/10 w-fit text-[10px] text-white/70 tracking-wider font-mono mt-1.5">
                     <ShieldCheck size={11} className="text-primary/70 shrink-0" />
                     <span>Masked Number (Privacy Protected)</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-white/60 tracking-wider font-mono block">{order.customer_phone}</span>
+                    <span className="text-[11px] text-white/80 tracking-wider font-mono block">{order.customer_phone}</span>
                     <button
                       type="button"
+                      aria-label="Copy customer phone number"
                       onClick={() => {
                         if (order.customer_phone) {
                           navigator.clipboard.writeText(order.customer_phone);
                           toast.success('Customer phone copied!');
                         }
                       }}
-                      className="p-1 text-white/30 hover:text-primary rounded transition-colors"
+                      className="p-1 text-white/60 hover:text-primary rounded transition-colors cursor-pointer"
                       title="Copy Phone"
                     >
                       <Copy size={11} />
@@ -2456,21 +2453,21 @@ function OrderCard({
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-[9px] font-bold text-primary">
                         {item.quantity}
                       </span>
-                      <span className="text-white/80 group-hover/item:text-white transition-colors tracking-tight font-medium truncate">
+                      <span className="text-white/90 group-hover/item:text-white transition-colors tracking-tight font-medium truncate">
                         {item.name}
                       </span>
                     </div>
                     {Number(item.price) > 0 ? (
-                      <span className="text-[10px] font-mono text-white/40 shrink-0 ml-2">₹{(Number(item.price) * (Number(item.quantity) || 1)).toFixed(2)}</span>
+                      <span className="text-[11px] font-mono text-white/70 shrink-0 ml-2 font-medium">₹{(Number(item.price) * (Number(item.quantity) || 1)).toFixed(2)}</span>
                     ) : (
-                      <span className="text-[9px] font-mono text-white/20 shrink-0 ml-2 italic">Included</span>
+                      <span className="text-[10px] font-mono text-white/50 shrink-0 ml-2 italic">Included</span>
                     )}
                   </div>
                 ))}
               </div>
 
               {order.notes && (
-                <p className="text-[10px] italic text-amber-400/80 bg-amber-400/5 border border-amber-400/10 p-2.5 rounded-lg mt-2">
+                <p className="text-[10px] italic text-amber-300/90 bg-amber-400/5 border border-amber-400/10 p-2.5 rounded-lg mt-2 font-medium">
                   Note: {order.notes}
                 </p>
               )}
@@ -2479,19 +2476,19 @@ function OrderCard({
             {/* Bottom Bar: Total Amount & Action Buttons in a clean, non-overlapping row */}
             <div className="border-t border-white/5 pt-4 mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col">
-                <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 block mb-0.5">Total Amount</span>
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60 block mb-0.5">Total Amount</span>
                 {discountInfo && discountInfo.isDiscounted ? (
                   <div className="flex flex-col">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-xs text-white/20 line-through">{formatPrice(discountInfo.originalTotal)}</span>
-                      <span className="text-2xl font-serif text-primary font-bold">{formatPrice(discountInfo.finalTotal)}</span>
+                      <span className="text-xs text-white/50 line-through font-mono">₹{discountInfo.originalTotal.toFixed(2)}</span>
+                      <span className="text-2xl font-serif text-primary font-bold">₹{discountInfo.finalTotal.toFixed(2)}</span>
                     </div>
-                    <span className="text-[8px] font-bold uppercase text-green-500 tracking-wider mt-0.5">
+                    <span className="text-[9px] font-bold uppercase text-emerald-400 tracking-wider mt-0.5">
                       {discountInfo.discountPercentage}% Loyalty Discount ({discountInfo.orderCount} Orders)
                     </span>
                   </div>
                 ) : (
-                  <span className="text-2xl font-serif text-primary font-bold">{formatPrice(order.total)}</span>
+                  <span className="text-2xl font-serif text-primary font-bold">₹{Number(order.total || 0).toFixed(2)}</span>
                 )}
               </div>
 
@@ -2500,7 +2497,7 @@ function OrderCard({
                   <DialogTrigger asChild>
                     <Button 
                       variant="outline"
-                      className="border border-white/10 text-white/70 hover:text-primary hover:border-primary/40 rounded-full px-5 h-11 text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-300 hover:scale-105"
+                      className="border border-white/10 text-white/80 hover:text-primary hover:border-primary/40 rounded-full px-5 h-11 text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-300 hover:scale-105"
                     >
                       <span className="flex items-center gap-2">
                         <Printer size={14} strokeWidth={1.5} />
@@ -2511,20 +2508,20 @@ function OrderCard({
                     <DialogContent className="bg-[#0A0A0A] border border-white/5 text-white max-w-[450px] w-full rounded-[2rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col">
                       <DialogHeader>
                         <DialogTitle className="text-3xl font-serif tracking-tight text-white">Receipt Terminal</DialogTitle>
-                        <DialogDescription className="text-[9px] uppercase tracking-[0.3em] text-white/20 font-bold mt-2">
+                        <DialogDescription className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mt-2">
                           Print thermal or invoice copy for Token {order.token}
                         </DialogDescription>
                       </DialogHeader>
 
                       <div className="space-y-6 my-6 border-t border-b border-white/5 py-6 flex-1 overflow-y-auto custom-scrollbar">
                         <div className="grid gap-3">
-                          <label className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">GSTIN (India Compliance)</label>
+                          <label className="text-[10px] uppercase tracking-[0.2em] text-white/70 ml-1 font-bold">GSTIN (India Compliance)</label>
                           <div className="flex gap-2">
                             <Input 
                               placeholder="e.g. 27AAAAA1111A1Z1 (Leave empty for unregistered)" 
                               value={receiptGstin} 
                               onChange={(e) => setReceiptGstin(e.target.value)}
-                              className="bg-black border-white/5 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-white/10 text-white flex-1"
+                              className="bg-black border-white/10 rounded-full h-12 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-white/30 text-white flex-1"
                             />
                             <Button
                               type="button"
@@ -2541,15 +2538,15 @@ function OrderCard({
                         {receiptGstin && (
                           <div className="grid gap-3 animate-fade-in">
                             <div className="flex justify-between items-center px-1">
-                              <label className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">GST Tax Rate</label>
+                              <label className="text-[10px] uppercase tracking-[0.2em] text-white/70 font-bold">GST Tax Rate</label>
                               <span className="text-[10px] font-mono font-bold text-primary">{receiptTaxRate}% (CGST {receiptTaxRate/2}% + SGST {receiptTaxRate/2}%)</span>
                             </div>
-                            <div className="flex items-center bg-black rounded-full h-12 px-6 border border-white/5">
+                            <div className="flex items-center bg-black rounded-full h-12 px-6 border border-white/10">
                               <input 
                                 type="range" 
                                 min="0" 
                                 max="28" 
-                                step="1"
+                                step="1" 
                                 value={receiptTaxRate} 
                                 onChange={(e) => setReceiptTaxRate(Number(e.target.value))}
                                 className="w-full accent-primary bg-white/10 h-1 rounded-lg appearance-none cursor-pointer"
@@ -2559,7 +2556,7 @@ function OrderCard({
                         )}
 
                         <div className="space-y-3">
-                          <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 ml-1 font-bold">Live Receipt Preview</span>
+                          <span className="text-[10px] uppercase tracking-[0.2em] text-white/70 ml-1 font-bold">Live Receipt Preview</span>
                           <div className="border border-white/5 rounded-[1.5rem] bg-zinc-100 p-4 max-h-[300px] overflow-y-auto custom-scrollbar flex justify-center shadow-inner">
                             <div className="receipt-print-wrapper" ref={printRef}>
                               <Receipt 
@@ -2608,8 +2605,7 @@ function OrderCard({
                 </div>
               </div>
             </div>
-          </div>
-        </Card>
-      </motion.div>
+          </Card>
+        </motion.div>
   );
 }

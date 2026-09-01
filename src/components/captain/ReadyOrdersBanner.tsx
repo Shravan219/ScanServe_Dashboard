@@ -114,21 +114,21 @@ export function ReadyOrdersBanner({
 
   if (readyOrders.length === 0) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#0D0E14] px-4 py-3.5 text-xs text-white/50 shadow-sm backdrop-blur-md">
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#0D0E14] px-4 py-3.5 text-xs text-white/70 shadow-sm backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/60">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/80">
             <Bell size={16} />
           </div>
           <div>
-            <span className="font-semibold text-white/80">Waiter Notification System Active</span>
-            <span className="hidden sm:inline text-white/40 text-[11px] ml-2">• Automatic chime rings whenever kitchen marks food as ready</span>
+            <span className="font-semibold text-white/90">Waiter Notification System Active</span>
+            <span className="hidden sm:inline text-white/60 text-[11px] ml-2 font-medium">• Automatic chime rings whenever kitchen marks food as ready</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleTestChime}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer active:scale-95"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer active:scale-95"
             title="Test the waiter ready chime sound"
           >
             Test Chime
@@ -162,7 +162,7 @@ export function ReadyOrdersBanner({
       {/* Top Header Row */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-amber-500/20">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.3)] animate-bounce">
+          <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-pulse-subtle">
             <BellRing size={20} className="animate-wiggle" />
           </div>
 
@@ -179,8 +179,8 @@ export function ReadyOrdersBanner({
                 Pick Up Immediately
               </span>
             </div>
-            <p className="text-[11px] text-amber-200/60 mt-0.5">
-              Kitchen has prepared these dishes. Waiters can pick up from counter & deliver to table.
+            <p className="text-[11px] text-amber-200/80 mt-0.5 font-medium">
+              Kitchen has prepared these dishes. Waiters can pick up from counter &amp; deliver to table.
             </p>
           </div>
         </div>
