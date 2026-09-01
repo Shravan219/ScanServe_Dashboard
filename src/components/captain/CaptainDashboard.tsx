@@ -295,11 +295,11 @@ export function CaptainDashboard({
               )}
               {readyCount > 0 && (
                 <span className="flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-amber-300 animate-pulse">
-                  <BellRing size={11} className="animate-bounce" /> {readyCount} Ready to Serve
+                  <BellRing size={11} /> {readyCount} Ready to Serve
                 </span>
               )}
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 mt-1 font-sans">Live table floor layout, waiter ready-order alert hub &amp; kitchen dispatch</p>
+            <p className="text-[11px] sm:text-xs text-white/70 mt-1 font-sans">Live table floor layout, waiter ready-order alert hub &amp; kitchen dispatch</p>
           </div>
         </div>
 
@@ -308,7 +308,7 @@ export function CaptainDashboard({
           {/* Quick Metrics */}
           <div className="flex items-center justify-around w-full sm:w-auto gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-[#141620] px-4 sm:px-5 py-2.5">
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Total</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/70">Total</span>
               <span className="text-xs sm:text-sm font-serif font-bold text-white font-mono">{totalTables}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
@@ -431,13 +431,14 @@ export function CaptainDashboard({
                     <h3 className="text-base font-serif font-bold text-white">
                       {passwordActionType === 'lock' ? 'Lock into Captain Kiosk' : 'Unlock Admin Dashboard'}
                     </h3>
-                    <p className="text-[10px] text-white/40">Enter Admin Password to proceed</p>
+                    <p className="text-[10px] text-white/70">Enter Admin Password to proceed</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setIsPasswordModalOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/50 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                  aria-label="Close dialog"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -446,7 +447,7 @@ export function CaptainDashboard({
               {/* Form Body */}
               <form onSubmit={handlePasswordSubmit} className="mt-5 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-white/60 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-white/80 uppercase tracking-wider">
                     Admin Password
                   </label>
                   <input
@@ -455,7 +456,7 @@ export function CaptainDashboard({
                     onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="Enter password..."
                     autoFocus
-                    className="w-full rounded-2xl bg-[#141620] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all"
+                    className="w-full rounded-2xl bg-[#141620] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder-white/40 focus:outline-none focus:border-primary/50 transition-all"
                   />
                 </div>
 
@@ -470,7 +471,7 @@ export function CaptainDashboard({
                   <button
                     type="button"
                     onClick={() => setIsPasswordModalOpen(false)}
-                    className="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                    className="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
                   >
                     Cancel
                   </button>

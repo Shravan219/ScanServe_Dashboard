@@ -430,8 +430,8 @@ export function OrderBuilderSheet({
                 {/* Subtotal & Action in Cart Card */}
                 <div className="pt-3 border-t border-white/10 flex flex-col gap-3">
                   <div className="flex items-center justify-between px-1">
-                    <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Grand Total</span>
-                    <span className="text-xl font-serif font-bold text-primary">₹{totalAmount}</span>
+                    <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Grand Total</span>
+                    <span className="text-xl font-serif font-bold text-primary font-mono">₹{totalAmount}</span>
                   </div>
 
                   <button
@@ -439,7 +439,7 @@ export function OrderBuilderSheet({
                     disabled={isSubmitting || cartEntries.length === 0}
                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                   >
-                    <Send size={14} className={isSubmitting ? 'animate-bounce' : ''} />
+                    <Send size={14} className={isSubmitting ? 'animate-spin' : ''} />
                     {isSubmitting ? 'Sending to Kitchen...' : 'Send to Counter / Kitchen'}
                   </button>
                 </div>
@@ -459,7 +459,7 @@ export function OrderBuilderSheet({
                       className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
                         orderChannel === 'dine_in'
                           ? 'bg-primary/20 text-primary border-primary/50'
-                          : 'bg-[#14161C] text-white/50 border-white/5 hover:text-white'
+                          : 'bg-[#14161C] text-white/70 border-white/10 hover:text-white'
                       }`}
                     >
                       Dine-in
@@ -470,7 +470,7 @@ export function OrderBuilderSheet({
                       className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
                         orderChannel === 'takeaway'
                           ? 'bg-primary/20 text-primary border-primary/50'
-                          : 'bg-[#14161C] text-white/50 border-white/5 hover:text-white'
+                          : 'bg-[#14161C] text-white/70 border-white/10 hover:text-white'
                       }`}
                     >
                       Takeaway
@@ -481,7 +481,7 @@ export function OrderBuilderSheet({
                       className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
                         orderChannel === 'swiggy'
                           ? 'bg-[#FC8019] text-white border-[#FC8019]'
-                          : 'bg-[#14161C] text-[#FC8019]/60 border-white/5 hover:text-[#FC8019]'
+                          : 'bg-[#14161C] text-[#FC8019]/80 border-white/10 hover:text-[#FC8019]'
                       }`}
                     >
                       Swiggy
@@ -492,7 +492,7 @@ export function OrderBuilderSheet({
                       className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
                         orderChannel === 'zomato'
                           ? 'bg-[#E23744] text-white border-[#E23744]'
-                          : 'bg-[#14161C] text-[#E23744]/60 border-white/5 hover:text-[#E23744]'
+                          : 'bg-[#14161C] text-[#E23744]/80 border-white/10 hover:text-[#E23744]'
                       }`}
                     >
                       Zomato
@@ -504,7 +504,7 @@ export function OrderBuilderSheet({
                   <>
                     {/* Table Dropdown / Number */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider flex items-center gap-1.5">
                         <TableIcon size={11} className="text-primary" /> Target Table
                       </label>
                       <select

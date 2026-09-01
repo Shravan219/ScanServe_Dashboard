@@ -151,7 +151,7 @@ export function PaymentsView({
         <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#1E170C] to-[#0E0E14] p-5 shadow-2xl relative overflow-hidden backdrop-blur-md">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300/80">Awaiting Settlement</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300/90">Awaiting Settlement</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
               <Banknote size={17} />
             </div>
@@ -161,7 +161,7 @@ export function PaymentsView({
               ₹{totalPendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
           </div>
-          <p className="text-[11px] text-white/50 mt-1 font-sans">
+          <p className="text-[11px] text-white/70 mt-1 font-sans">
             {pendingPaymentOrders.length} {pendingPaymentOrders.length === 1 ? 'bill' : 'bills'} currently waiting
           </p>
         </div>
@@ -169,7 +169,7 @@ export function PaymentsView({
         {/* KPI 2: Active Tables Finishing */}
         <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Dine-in Tables</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Dine-in Tables</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/25 shadow-[0_0_15px_rgba(197,160,89,0.15)]">
               <Utensils size={17} />
             </div>
@@ -178,9 +178,9 @@ export function PaymentsView({
             <span className="text-3xl sm:text-4xl font-serif font-bold text-white font-mono">
               {totalDineInWaiting}
             </span>
-            <span className="text-xs text-white/40 font-medium font-sans">served tables</span>
+            <span className="text-xs text-white/70 font-medium font-sans">served tables</span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1 font-sans">
+          <p className="text-[11px] text-white/70 mt-1 font-sans">
             Food served • Awaiting guest payment
           </p>
         </div>
@@ -188,7 +188,7 @@ export function PaymentsView({
         {/* KPI 3: Settled Today Count */}
         <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Settled Today</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Settled Today</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
               <CheckCircle2 size={17} />
             </div>
@@ -197,9 +197,9 @@ export function PaymentsView({
             <span className="text-3xl sm:text-4xl font-serif font-bold text-emerald-400 font-mono">
               {settledTodayCount}
             </span>
-            <span className="text-xs text-emerald-500/60 font-medium font-sans">orders completed</span>
+            <span className="text-xs text-emerald-400/80 font-medium font-sans">orders completed</span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1 font-sans">
+          <p className="text-[11px] text-white/70 mt-1 font-sans">
             Successfully closed transactions
           </p>
         </div>
@@ -207,7 +207,7 @@ export function PaymentsView({
         {/* KPI 4: Settled Revenue Today */}
         <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Revenue Collected</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Revenue Collected</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/25 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
               <TrendingUp size={17} />
             </div>
@@ -217,7 +217,7 @@ export function PaymentsView({
               ₹{settledTodayAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
           </div>
-          <p className="text-[11px] text-white/40 mt-1 font-sans">
+          <p className="text-[11px] text-white/70 mt-1 font-sans">
             Total realized sales today
           </p>
         </div>
@@ -236,7 +236,7 @@ export function PaymentsView({
                 {pendingPaymentOrders.length} Waiting for Payment
               </span>
             </div>
-            <p className="text-[11px] text-white/40 font-sans">
+            <p className="text-[11px] text-white/70 font-sans">
               Orders marked as Served by captain • Click &quot;Payment Done&quot; to finalize bill
             </p>
           </div>
@@ -348,21 +348,21 @@ export function PaymentsView({
                             <Clock size={11} /> Waiting for Payment
                           </span>
 
-                          <span className="text-[11px] text-white/40 font-mono">
+                          <span className="text-[11px] text-white/70 font-mono">
                             {formatElapsed(order.created_at)}
                           </span>
                         </div>
 
                         {/* Customer Name & Phone */}
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <div className="flex items-center gap-1.5 text-white/90 font-medium text-base">
+                          <div className="flex items-center gap-1.5 text-white/95 font-medium text-base">
                             <User size={15} className="text-primary/70" />
                             <span>{rawName}</span>
                           </div>
 
                           {order.customer_phone && (
-                            <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full text-xs font-mono text-white/60">
-                              <Phone size={12} className="text-white/40" />
+                            <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full text-xs font-mono text-white/80">
+                              <Phone size={12} className="text-white/60" />
                               <span>{order.customer_phone}</span>
                               <button
                                 onClick={() => {
@@ -371,7 +371,8 @@ export function PaymentsView({
                                     toast.success('Phone copied to clipboard');
                                   }
                                 }}
-                                className="text-white/30 hover:text-primary transition-colors cursor-pointer ml-0.5"
+                                aria-label="Copy phone number"
+                                className="text-white/50 hover:text-primary transition-colors cursor-pointer ml-0.5"
                                 title="Copy Phone"
                               >
                                 <Copy size={11} />
@@ -380,7 +381,7 @@ export function PaymentsView({
                           )}
 
                           {order.gstin && (
-                            <span className="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white/50">
+                            <span className="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white/70">
                               GSTIN: {order.gstin}
                             </span>
                           )}
@@ -389,24 +390,24 @@ export function PaymentsView({
 
                       {/* Items Ordered List Preview */}
                       <div className="bg-[#14161C] border border-white/5 rounded-2xl p-3 max-h-32 overflow-y-auto custom-scrollbar">
-                        <div className="text-[9px] uppercase tracking-widest font-bold text-white/30 mb-2">
+                        <div className="text-[9px] uppercase tracking-widest font-bold text-white/60 mb-2">
                           Order Breakdown ({order.items?.length || 0} items)
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {order.items?.map((item, i) => (
-                            <div key={i} className="flex items-center justify-between text-xs text-white/80">
+                            <div key={i} className="flex items-center justify-between text-xs text-white/90">
                               <span className="truncate pr-2">
                                 <span className="font-bold text-amber-300 mr-1.5">{item.quantity}x</span>
                                 {item.name}
                               </span>
-                              <span className="font-mono text-white/40 text-[11px] shrink-0">
+                              <span className="font-mono text-white/70 text-[11px] shrink-0">
                                 ₹{(item.price * item.quantity).toFixed(0)}
                               </span>
                             </div>
                           ))}
                         </div>
                         {order.notes && (
-                          <div className="mt-2 pt-2 border-t border-white/5 text-[10px] text-amber-300/80 italic">
+                          <div className="mt-2 pt-2 border-t border-white/5 text-[10px] text-amber-300/90 italic">
                             Note: {order.notes}
                           </div>
                         )}
@@ -417,20 +418,20 @@ export function PaymentsView({
                     <div className="flex flex-col justify-between items-end border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-6 gap-4 shrink-0 min-w-[280px]">
                       {/* Price Summary */}
                       <div className="w-full text-right">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/40 block mb-0.5">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 block mb-0.5">
                           Total Bill Due
                         </span>
-                        <div className="text-3xl sm:text-4xl font-serif font-bold text-primary tracking-tight">
+                        <div className="text-3xl sm:text-4xl font-serif font-bold text-primary tracking-tight font-mono">
                           ₹{Number(order.total).toFixed(2)}
                         </div>
-                        <span className="text-[10px] text-white/30 block mt-0.5">
-                          Taxes & GST included
+                        <span className="text-[10px] text-white/60 block mt-0.5">
+                          Taxes &amp; GST included
                         </span>
                       </div>
 
                       {/* Payment Method Selector */}
                       <div className="w-full">
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 block mb-1.5 text-left">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/70 block mb-1.5 text-left">
                           Settlement Method
                         </span>
                         <div className="grid grid-cols-3 gap-1.5 bg-[#14161C] p-1 rounded-xl border border-white/10">
@@ -439,7 +440,7 @@ export function PaymentsView({
                             className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                               selectedMethod === 'upi'
                                 ? 'bg-primary text-black shadow-md'
-                                : 'text-white/40 hover:text-white'
+                                : 'text-white/70 hover:text-white'
                             }`}
                           >
                             <QrCode size={12} />
@@ -451,7 +452,7 @@ export function PaymentsView({
                             className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                               selectedMethod === 'cash'
                                 ? 'bg-emerald-500 text-black shadow-md'
-                                : 'text-white/40 hover:text-white'
+                                : 'text-white/70 hover:text-white'
                             }`}
                           >
                             <Banknote size={12} />
@@ -463,7 +464,7 @@ export function PaymentsView({
                             className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                               selectedMethod === 'card'
                                 ? 'bg-blue-500 text-white shadow-md'
-                                : 'text-white/40 hover:text-white'
+                                : 'text-white/70 hover:text-white'
                             }`}
                           >
                             <CreditCard size={12} />
