@@ -2223,14 +2223,14 @@ function NavItem({ icon, label, badge, active = false, onClick }: { icon: React.
     <button 
       onClick={onClick}
       className={cn(
-        "flex w-full items-center justify-between rounded-full px-5 py-3.5 transition-all duration-500 group relative",
+        "flex w-full items-center justify-between rounded-full px-5 py-3.5 transition-all duration-300 group relative cursor-pointer active:scale-[0.98]",
         active 
-          ? "bg-primary text-black shadow-[0_0_30px_rgba(197,160,89,0.2)]" 
-          : "text-white/40 hover:text-primary hover:bg-primary/5"
+          ? "bg-primary text-black font-extrabold shadow-[0_0_30px_rgba(197,160,89,0.25)]" 
+          : "text-white/70 hover:text-primary hover:bg-primary/10"
       )}
     >
       <div className="flex items-center gap-3.5 min-w-0">
-        <span className={cn("transition-transform duration-500 group-hover:scale-110 shrink-0", active ? "text-black" : "text-primary/60 group-hover:text-primary")}>
+        <span className={cn("transition-transform duration-300 group-hover:scale-110 shrink-0", active ? "text-black" : "text-primary/70 group-hover:text-primary")}>
           {icon}
         </span>
         <span className="hidden text-[10px] font-bold md:block uppercase tracking-[0.2em] truncate">{label}</span>

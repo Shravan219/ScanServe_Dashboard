@@ -89,6 +89,9 @@
   html {
     color-scheme: dark;
     -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   :root {
@@ -117,6 +120,11 @@
 
   button:not(:disabled), a, [role="button"]:not([aria-disabled="true"]) {
     cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(197, 160, 89, 0.75);
+    outline-offset: 2px;
   }
 
   /* Touch Ergonomics: Ensure coarse pointers get comfortable minimum hit targets */
