@@ -201,7 +201,7 @@ export function TableStatusGrid({
       </div>
 
       {/* Table Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
         {filteredTables.map((table, idx) => {
           const isOccupied = table.status === 'occupied';
           
@@ -219,24 +219,24 @@ export function TableStatusGrid({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: idx * 0.02 }}
               whileHover={{ y: -3 }}
-              className={`group relative flex flex-col justify-between rounded-2xl border p-5 transition-all duration-300 shadow-xl ${
+              className={`group relative flex flex-col justify-between rounded-2xl border p-4 sm:p-5 transition-all duration-300 shadow-xl ${
                 hasReadyFood
-                  ? 'border-amber-400/80 bg-gradient-to-b from-[#20180B] to-[#121118] shadow-[0_0_30px_rgba(245,158,11,0.25)] ring-1 ring-amber-400/60'
+                  ? 'border-amber-400/80 bg-gradient-to-b from-[#22190B] to-[#100F15] shadow-[0_0_30px_rgba(245,158,11,0.25)] ring-1 ring-amber-400/60'
                   : isOccupied
-                  ? 'border-amber-500/30 bg-[#121118] hover:border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.06)]'
+                  ? 'border-amber-500/30 bg-[#100F15] hover:border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.06)]'
                   : table.status === 'available'
-                  ? 'border-emerald-500/20 bg-[#0C1210] hover:border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.04)]'
-                  : 'border-white/10 bg-[#0F1016] hover:border-white/20'
+                  ? 'border-emerald-500/25 bg-[#09100D] hover:border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.05)]'
+                  : 'border-white/10 bg-[#0E0F16] hover:border-white/20'
               }`}
             >
               {/* Ready Food Notification Tag on Table Card */}
               {hasReadyFood && (
-                <div className="mb-3 -mt-1 flex items-center justify-between gap-1.5 rounded-xl bg-amber-400/20 border border-amber-400/50 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-300 animate-pulse">
+                <div className="mb-3 -mt-1 flex items-center justify-between gap-1.5 rounded-xl bg-amber-400/20 border border-amber-400/50 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-300 animate-pulse shadow-[0_0_15px_rgba(245,158,11,0.2)]">
                   <div className="flex items-center gap-1.5">
                     <BellRing size={13} className="text-amber-300" />
-                    <span>Food Ready to Serve!</span>
+                    <span>Food Ready!</span>
                   </div>
-                  <span className="bg-amber-400 text-black px-2 py-0.5 rounded-md text-[9px] font-black">
+                  <span className="bg-amber-400 text-black px-2 py-0.5 rounded-md text-[9px] font-black font-mono">
                     {tableReadyOrders.length} {tableReadyOrders.length === 1 ? 'Order' : 'Orders'}
                   </span>
                 </div>
@@ -246,7 +246,7 @@ export function TableStatusGrid({
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="text-xl font-serif font-bold text-white tracking-tight">{table.table_number}</h3>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-white/70">{table.section || 'Main Dining'}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/60 block mt-0.5">{table.section || 'Main Dining'}</span>
                 </div>
 
                 <div className="flex flex-col items-end gap-1.5">
@@ -255,7 +255,7 @@ export function TableStatusGrid({
                     value={table.status}
                     aria-label={`Table status for ${table.table_number}`}
                     onChange={(e) => onTableStatusChange(table.id, e.target.value as TableStatus)}
-                    className="min-h-[38px] rounded-full bg-black/60 border border-white/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 cursor-pointer"
+                    className="min-h-[36px] rounded-xl bg-black/70 border border-white/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 cursor-pointer shadow-inner"
                   >
                     <option value="available" className="bg-[#141620] text-emerald-400">Available</option>
                     <option value="occupied" className="bg-[#141620] text-amber-400">Occupied</option>
@@ -264,28 +264,28 @@ export function TableStatusGrid({
                   </select>
 
                   {/* Seats / Capacity adjustment control directly synced to Supabase */}
-                  <div className="flex items-center gap-1.5 bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 mt-0.5">
+                  <div className="flex items-center gap-1.5 bg-black/60 border border-white/10 rounded-xl px-2.5 py-1 mt-0.5 shadow-inner">
                     <Users size={12} className="text-primary" />
                     <span className="text-[10px] font-bold text-white font-mono">{table.capacity} Seats</span>
                     {onTableCapacityChange && (
-                      <div className="flex items-center gap-1.5 ml-1.5 border-l border-white/10 pl-1.5">
+                      <div className="flex items-center gap-1 ml-1.5 border-l border-white/10 pl-1.5">
                         <button
                           type="button"
                           onClick={() => onTableCapacityChange(table.id, Math.max(1, table.capacity - 1))}
-                          className="h-8 w-8 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer active:scale-90 touch-manipulation"
-                          title="Decrease seats in DB"
+                          className="h-7 w-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer active:scale-90"
+                          title="Decrease seats"
                           aria-label={`Decrease seats for ${table.table_number}`}
                         >
-                          <Minus size={13} />
+                          <Minus size={12} />
                         </button>
                         <button
                           type="button"
                           onClick={() => onTableCapacityChange(table.id, table.capacity + 1)}
-                          className="h-8 w-8 flex items-center justify-center rounded-md bg-primary/20 hover:bg-primary text-primary hover:text-black transition-all cursor-pointer active:scale-90 touch-manipulation"
-                          title="Increase seats in DB"
+                          className="h-7 w-7 flex items-center justify-center rounded-lg bg-primary/20 hover:bg-primary text-primary hover:text-black transition-all cursor-pointer active:scale-90 font-bold"
+                          title="Increase seats"
                           aria-label={`Increase seats for ${table.table_number}`}
                         >
-                          <Plus size={13} />
+                          <Plus size={12} />
                         </button>
                       </div>
                     )}
@@ -294,24 +294,24 @@ export function TableStatusGrid({
               </div>
 
               {/* Occupant / Active Info */}
-              <div className="my-3 py-2.5 border-y border-white/5 min-h-[52px] flex flex-col justify-center">
+              <div className="my-3 py-2 border-y border-white/5 min-h-[48px] flex flex-col justify-center">
                 {isOccupied ? (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-0.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-white/70 flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wider">
+                      <span className="text-white/60 flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wider">
                         <User size={11} className="text-amber-400" /> Guest:
                       </span>
-                      <span className="font-semibold text-amber-200 truncate max-w-[130px]">{table.customer_name || 'Occupied Guest'}</span>
+                      <span className="font-semibold text-amber-200 truncate max-w-[130px] font-serif">{table.customer_name || 'Occupied Guest'}</span>
                     </div>
                     {table.total_amount != null && table.total_amount > 0 && (
                       <div className="flex items-center justify-between text-xs mt-0.5">
-                        <span className="text-white/70 font-semibold text-[10px] uppercase tracking-wider">Active Tab:</span>
+                        <span className="text-white/60 font-semibold text-[10px] uppercase tracking-wider">Running Tab:</span>
                         <span className="font-serif font-bold text-primary text-sm font-mono">₹{table.total_amount.toFixed(2)}</span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-white/60 italic font-medium">Table is currently open for guests</p>
+                  <p className="text-[11px] text-white/50 italic">Table available for walk-in or reservation</p>
                 )}
               </div>
 
@@ -326,7 +326,7 @@ export function TableStatusGrid({
                         toast.success(`Served Order #${tableReadyOrders[0].token} for ${table.table_number}! Awaiting payment.`);
                       }
                     }}
-                    className="w-full min-h-[42px] flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.35)] active:scale-98"
+                    className="w-full min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black py-2 px-3 text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.3)] active:scale-95"
                   >
                     <CheckCircle2 size={14} />
                     <span>Serve Food &amp; Bill (#{tableReadyOrders[0].token})</span>
@@ -336,7 +336,7 @@ export function TableStatusGrid({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onNewOrderClick(table)}
-                    className="flex-1 min-h-[42px] flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 border border-primary/25 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer active:scale-98"
+                    className="flex-1 min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 border border-primary/30 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer active:scale-95 shadow-[0_0_15px_rgba(197,160,89,0.1)]"
                   >
                     <PlusCircle size={13} />
                     <span>Take Order</span>
@@ -344,7 +344,7 @@ export function TableStatusGrid({
 
                   <button
                     onClick={() => onTableStatusChange(table.id, isOccupied ? 'available' : 'occupied')}
-                    className={`min-h-[42px] min-w-[58px] flex px-3 items-center justify-center rounded-xl border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
+                    className={`min-h-[40px] min-w-[58px] flex px-3 items-center justify-center rounded-xl border text-[9px] font-extrabold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
                       isOccupied
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
                         : 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
@@ -360,9 +360,10 @@ export function TableStatusGrid({
         })}
 
         {filteredTables.length === 0 && (
-          <div className="col-span-full flex h-60 flex-col items-center justify-center rounded-2xl border border-white/5 bg-[#0D0E14] p-8 text-center">
-            <Utensils size={36} className="mb-3 text-white/20 stroke-1" />
-            <p className="text-xs font-bold text-white/70">No tables match selected filters</p>
+          <div className="col-span-full flex h-60 flex-col items-center justify-center rounded-2xl border border-white/10 bg-[#0E0F16] p-8 text-center shadow-xl">
+            <Utensils size={36} className="mb-3 text-white/30 stroke-1" />
+            <p className="text-sm font-serif font-bold text-white tracking-tight">No Tables Found</p>
+            <p className="text-xs text-white/50 mt-1">No dining tables match your selected section or status filter.</p>
             <button
               onClick={() => { setFilterSection('all'); setFilterStatus('all'); }}
               className="mt-3 text-[10px] font-bold uppercase tracking-wider text-primary hover:underline cursor-pointer"

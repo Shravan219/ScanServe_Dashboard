@@ -171,17 +171,37 @@
 
 /* Glassmorphism & High-End Visual Utilities */
 .glass-panel {
-  background: rgba(10, 10, 14, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(10, 10, 14, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-card {
-  background: rgba(13, 14, 20, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(13, 14, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.luxury-card {
+  background: linear-gradient(180deg, rgba(16, 17, 24, 0.95) 0%, rgba(9, 10, 14, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.6);
+}
+
+.luxury-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card-hover:hover {
+  border-color: rgba(197, 160, 89, 0.35);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.7), 0 0 24px rgba(197, 160, 89, 0.08);
+  transform: translateY(-1px);
+}
+
+.gold-accent-text {
+  color: #C5A059;
 }
 
 .gold-glow {
@@ -190,6 +210,11 @@
 
 .gold-border-glow {
   box-shadow: 0 0 0 1px rgba(197, 160, 89, 0.35), 0 0 18px rgba(197, 160, 89, 0.15);
+}
+
+.luxury-stat-tile {
+  background: radial-gradient(circle at 100% 0%, rgba(197, 160, 89, 0.06) 0%, transparent 60%), #0D0E15;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Custom scrollbars */
