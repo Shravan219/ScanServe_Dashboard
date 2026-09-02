@@ -308,7 +308,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
                           <span className="font-mono font-bold text-primary">
                             {inv.token || `#${(inv.id || '').slice(-4)}`}
                           </span>
-                          <span className="text-[9px] uppercase tracking-wider text-white/30 hidden sm:inline">
+                          <span className="text-[9px] uppercase tracking-wider text-white/40 hidden sm:inline">
                             {inv.id}
                           </span>
                         </div>
@@ -320,7 +320,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
                           <p className="font-semibold text-white group-hover:text-primary transition-colors">
                             {inv.customer_name || 'Guest Customer'}
                           </p>
-                          <p className="text-[10px] text-white/40 font-mono">
+                          <p className="text-[10px] text-white/50 font-mono">
                             {inv.customer_phone || 'Masked Number'}
                           </p>
                         </div>
@@ -328,11 +328,11 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
 
                       {/* Items */}
                       <td className="py-4 px-6">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 text-[10px] text-white/70 font-mono">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 text-[10px] text-white/80 font-mono">
                           {itemsCount} {itemsCount === 1 ? 'item' : 'items'}
                         </span>
                         {items.length > 0 && (
-                          <p className="text-[10px] text-white/30 truncate max-w-xs mt-1">
+                          <p className="text-[10px] text-white/40 truncate max-w-xs mt-1">
                             {items.map((it: any) => it.name || it.itemName).join(', ')}
                           </p>
                         )}

@@ -229,9 +229,9 @@ export function SimulateOrderModal({ trigger }: SimulateOrderModalProps) {
           <TabsContent value="configure" className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block">
                   Aggregator Source
-                </label>
+                </span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -259,11 +259,12 @@ export function SimulateOrderModal({ trigger }: SimulateOrderModalProps) {
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block">
+                <label htmlFor="simulate-order-id" className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block cursor-pointer">
                   Petpooja Order ID
                 </label>
                 <div className="relative">
                   <Input 
+                    id="simulate-order-id"
                     value={orderId}
                     onChange={(e) => setOrderId(e.target.value)}
                     className="bg-black/40 border-white/10 rounded-xl h-10 text-xs font-mono pr-10"
@@ -273,6 +274,7 @@ export function SimulateOrderModal({ trigger }: SimulateOrderModalProps) {
                     onClick={() => setOrderId(`PP-${Math.floor(1000 + Math.random() * 9000)}`)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/80 p-1"
                     title="Randomize ID"
+                    aria-label="Randomize Petpooja Order ID"
                   >
                     <RefreshCw size={12} />
                   </button>
@@ -282,12 +284,13 @@ export function SimulateOrderModal({ trigger }: SimulateOrderModalProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block">
+                <label htmlFor="simulate-customer-name" className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block cursor-pointer">
                   Customer Name
                 </label>
                 <div className="relative">
-                  <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                  <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
                   <Input 
+                    id="simulate-customer-name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className="bg-black/40 border-white/10 rounded-xl h-10 text-xs pl-9"
@@ -296,12 +299,13 @@ export function SimulateOrderModal({ trigger }: SimulateOrderModalProps) {
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block">
+                <label htmlFor="simulate-customer-phone" className="text-[10px] uppercase font-bold tracking-wider text-white/40 mb-1.5 block cursor-pointer">
                   Customer Phone
                 </label>
                 <div className="relative">
-                  <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                  <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
                   <Input 
+                    id="simulate-customer-phone"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     className="bg-black/40 border-white/10 rounded-xl h-10 text-xs font-mono pl-9"
