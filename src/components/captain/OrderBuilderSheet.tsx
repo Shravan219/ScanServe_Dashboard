@@ -518,13 +518,14 @@ export function OrderBuilderSheet({
                   <>
                     {/* Table Dropdown / Number */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider flex items-center gap-1.5">
+                      <label htmlFor="order-builder-table-select" className="text-[10px] font-bold text-white/70 uppercase tracking-wider flex items-center gap-1.5 cursor-pointer">
                         <TableIcon size={11} className="text-primary" /> Target Table
                       </label>
                       <select
+                        id="order-builder-table-select"
                         value={tableNumber}
                         onChange={(e) => setTableNumber(e.target.value)}
-                        className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 transition-all"
+                        className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 transition-all cursor-pointer"
                       >
                         {tables.map(t => (
                           <option key={t.id} value={t.table_number} className="bg-[#14161C] text-white">
@@ -542,10 +543,11 @@ export function OrderBuilderSheet({
                 {/* Customer Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider flex items-center gap-1">
+                    <label htmlFor="order-builder-cust-name" className="text-[10px] font-medium text-white/70 uppercase tracking-wider flex items-center gap-1 cursor-pointer">
                       <User size={10} /> Customer Name
                     </label>
                     <input
+                      id="order-builder-cust-name"
                       type="text"
                       maxLength={50}
                       value={customerName}
@@ -556,10 +558,11 @@ export function OrderBuilderSheet({
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider flex items-center gap-1">
+                    <label htmlFor="order-builder-cust-phone" className="text-[10px] font-medium text-white/70 uppercase tracking-wider flex items-center gap-1 cursor-pointer">
                       <Phone size={10} /> Phone Number
                     </label>
                     <input
+                      id="order-builder-cust-phone"
                       type="tel"
                       maxLength={15}
                       value={customerPhone}
@@ -573,11 +576,12 @@ export function OrderBuilderSheet({
 
               {/* 3. Custom Instructions / Kitchen Notes */}
               <div className="rounded-2xl border border-white/10 bg-[#0F1014] p-4 flex flex-col gap-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-1.5">
+                <label htmlFor="order-builder-kitchen-notes" className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-1.5 cursor-pointer">
                   <MessageSquare size={12} /> Kitchen Notes & Special Instructions
-                </span>
+                </label>
 
                 <textarea
+                  id="order-builder-kitchen-notes"
                   maxLength={250}
                   value={customInstructions}
                   onChange={(e) => setCustomInstructions(e.target.value)}

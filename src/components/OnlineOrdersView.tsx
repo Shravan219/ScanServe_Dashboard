@@ -653,11 +653,12 @@ export function OnlineOrdersView({
                   {/* URL Input & Test Ping Controls */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     <div className="lg:col-span-8 flex flex-col gap-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                      <label htmlFor="target-webhook-url" className="text-[10px] font-bold uppercase tracking-widest text-primary/80 cursor-pointer">
                         Target Tester Callback URL (PETPOOJA_OUTBOUND_WEBHOOK_URL)
                       </label>
                       <div className="flex items-center gap-2">
                         <Input
+                          id="target-webhook-url"
                           placeholder="e.g. https://your-tester-app.run.app/api/pos-callback"
                           value={webhookUrl}
                           onChange={(e) => setWebhookUrl(e.target.value)}

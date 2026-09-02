@@ -447,10 +447,11 @@ export function CaptainDashboard({
               {/* Form Body */}
               <form onSubmit={handlePasswordSubmit} className="mt-5 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-white/80 uppercase tracking-wider">
+                  <label htmlFor="admin-unlock-password" className="text-xs font-semibold text-white/80 uppercase tracking-wider cursor-pointer">
                     Admin Password
                   </label>
                   <input
+                    id="admin-unlock-password"
                     type="password"
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}

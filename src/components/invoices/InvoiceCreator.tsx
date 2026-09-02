@@ -397,11 +397,12 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Customer Name */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
+                <label htmlFor="invoice-customer-name" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5 cursor-pointer">
                   <User size={12} className="text-primary/70" />
                   Customer Name
                 </label>
                 <Input
+                  id="invoice-customer-name"
                   type="text"
                   placeholder="e.g. Shravan Kumar"
                   value={customerName}
@@ -412,11 +413,12 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
               {/* Phone Number */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
+                <label htmlFor="invoice-customer-phone" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5 cursor-pointer">
                   <Phone size={12} className="text-primary/70" />
                   Phone Number
                 </label>
                 <Input
+                  id="invoice-customer-phone"
                   type="tel"
                   placeholder="e.g. +91 98765 43210"
                   value={customerPhone}
@@ -427,10 +429,10 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
               {/* Order Channel */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
                   <ShoppingBag size={12} className="text-primary/70" />
                   Order Channel / Type
-                </label>
+                </span>
                 <div className="grid grid-cols-3 gap-2">
                   {(['WALK_IN', 'TAKEAWAY', 'DINE_IN'] as const).map((ch) => (
                     <button
@@ -451,10 +453,10 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
               {/* Payment Mode Selection */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
                   <CreditCard size={12} className="text-primary/70" />
                   Payment Mode
-                </label>
+                </span>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { id: 'UPI', label: 'UPI', icon: <QrCode size={13} /> },
@@ -482,10 +484,11 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
               {/* Table Number (If Dine In or Walk-in) */}
               {orderChannel === 'DINE_IN' && (
                 <div className="space-y-1.5 animate-fade-in">
-                  <label className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1">
+                  <label htmlFor="invoice-table-number" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 cursor-pointer">
                     Table Number
                   </label>
                   <Input
+                    id="invoice-table-number"
                     type="text"
                     placeholder="e.g. Table 04"
                     value={tableNumber}
@@ -497,11 +500,12 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
               {/* Optional GSTIN for India Tax Invoicing */}
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center justify-between">
+                <label htmlFor="invoice-gstin" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center justify-between cursor-pointer">
                   <span>GSTIN (B2B Tax Invoice)</span>
                   <span className="text-[8px] text-white/30 normal-case">Optional</span>
                 </label>
                 <Input
+                  id="invoice-gstin"
                   type="text"
                   placeholder="e.g. 29AAAAA0000A1Z5"
                   value={gstin}
@@ -616,7 +620,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                               placeholder="Type custom item name..."
                               value={item.name}
                               onChange={(e) => handleUpdateItem(idx, { name: e.target.value })}
-                              className="bg-[#111] border-white/10 rounded-xl h-11 text-xs text-white placeholder:text-white/20 focus-visible:ring-primary/20"
+                              className="bg-[#111] border-white/10 rounded-xl h-11 text-xs text-white placeholder:text-white/40 focus-visible:ring-primary/20"
                             />
                           ) : (
                             <div className="relative">
@@ -632,9 +636,9 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                                   setActiveItemSearchIdx(idx);
                                 }}
                                 onFocus={() => setActiveItemSearchIdx(idx)}
-                                className="bg-[#111] border-white/10 rounded-xl h-11 text-xs text-white pr-8 placeholder:text-white/20 focus-visible:ring-primary/20"
+                                className="bg-[#111] border-white/10 rounded-xl h-11 text-xs text-white pr-8 placeholder:text-white/40 focus-visible:ring-primary/20"
                               />
-                              <Search size={14} className="absolute right-3 top-3.5 text-white/30 pointer-events-none" />
+                              <Search size={14} className="absolute right-3 top-3.5 text-white/40 pointer-events-none" />
 
                               {/* Autocomplete Dropdown */}
                               {activeItemSearchIdx === idx && (
@@ -676,7 +680,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
                         {/* Price Input (2 cols) */}
                         <div className="col-span-4 sm:col-span-2">
-                          <span className="text-[9px] uppercase tracking-[0.2em] text-white/40 font-bold block mb-1">
+                          <span className="text-[9px] uppercase tracking-[0.2em] text-white/50 font-bold block mb-1">
                             Price (₹)
                           </span>
                           <Input

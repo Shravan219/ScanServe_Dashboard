@@ -7,6 +7,7 @@
 
 @theme {
   --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Cormorant Garamond", Georgia, serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
@@ -42,6 +43,30 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-pulse-subtle: pulse-subtle 2.5s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
+  --animate-fade-in: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 
   @keyframes pulse-subtle {
     0%, 100% {
@@ -204,15 +229,20 @@
   background: #C5A059;
 }
 
-/* Reduced Motion Support for Accessibility */
+/* Accessible Reduced Motion: dampens large transforms and infinite loops while preserving gentle opacity & color feedback */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Retain gentle visual feedback for interactive state confirmations */
+  button, input, select, textarea, [role="button"], [role="tab"] {
+    transition-duration: 100ms !important;
+    transform: none !important;
   }
 }
 

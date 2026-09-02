@@ -164,6 +164,7 @@ export function TableStatusGrid({
 
           <select
             value={filterStatus}
+            aria-label="Filter tables by status"
             onChange={(e) => setFilterStatus(e.target.value)}
             className="flex-1 sm:flex-none rounded-xl bg-[#141620] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 min-h-[40px] cursor-pointer"
           >
@@ -252,8 +253,9 @@ export function TableStatusGrid({
                   {/* Status Dropdown selector for live DB updates */}
                   <select
                     value={table.status}
+                    aria-label={`Table status for ${table.table_number}`}
                     onChange={(e) => onTableStatusChange(table.id, e.target.value as TableStatus)}
-                    className="min-h-[34px] rounded-full bg-black/60 border border-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 cursor-pointer"
+                    className="min-h-[38px] rounded-full bg-black/60 border border-white/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 cursor-pointer"
                   >
                     <option value="available" className="bg-[#141620] text-emerald-400">Available</option>
                     <option value="occupied" className="bg-[#141620] text-amber-400">Occupied</option>
@@ -266,22 +268,24 @@ export function TableStatusGrid({
                     <Users size={12} className="text-primary" />
                     <span className="text-[10px] font-bold text-white font-mono">{table.capacity} Seats</span>
                     {onTableCapacityChange && (
-                      <div className="flex items-center gap-1 ml-1.5 border-l border-white/10 pl-1.5">
+                      <div className="flex items-center gap-1.5 ml-1.5 border-l border-white/10 pl-1.5">
                         <button
+                          type="button"
                           onClick={() => onTableCapacityChange(table.id, Math.max(1, table.capacity - 1))}
-                          className="h-7 w-7 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer active:scale-90 touch-manipulation"
+                          className="h-8 w-8 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer active:scale-90 touch-manipulation"
                           title="Decrease seats in DB"
-                          aria-label="Decrease table capacity"
+                          aria-label={`Decrease seats for ${table.table_number}`}
                         >
-                          <Minus size={12} />
+                          <Minus size={13} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => onTableCapacityChange(table.id, table.capacity + 1)}
-                          className="h-7 w-7 flex items-center justify-center rounded-md bg-primary/20 hover:bg-primary text-primary hover:text-black transition-all cursor-pointer active:scale-90 touch-manipulation"
+                          className="h-8 w-8 flex items-center justify-center rounded-md bg-primary/20 hover:bg-primary text-primary hover:text-black transition-all cursor-pointer active:scale-90 touch-manipulation"
                           title="Increase seats in DB"
-                          aria-label="Increase table capacity"
+                          aria-label={`Increase seats for ${table.table_number}`}
                         >
-                          <Plus size={12} />
+                          <Plus size={13} />
                         </button>
                       </div>
                     )}
