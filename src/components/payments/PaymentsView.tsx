@@ -20,12 +20,13 @@ import {
   TrendingUp,
   RotateCcw,
   Check,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { soundService } from '@/src/lib/sound';
-import { openWhatsAppReceipt } from '@/src/lib/whatsapp';
+import { sendWhatsAppReceiptWithPDF, downloadReceiptPDF } from '@/src/lib/whatsapp';
 
 interface PaymentsViewProps {
   orders: Order[];
@@ -124,10 +125,16 @@ export function PaymentsView({
       };
 
       if (order.customer_phone) {
-        openWhatsAppReceipt(receiptPayload);
-        toast.success(`Payment Done & WhatsApp Receipt Sent!`, {
-          description: `Receipt opened for ${order.customer_phone} (₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()})`
-        });
+        const shareResult = await sendWhatsAppReceiptWithPDF(receiptPayload);
+        if (shareResult.nativeShared) {
+          toast.success(`Payment Done & PDF Shared!`, {
+            description: `Sent official PDF receipt to ${order.customer_phone}`
+          });
+        } else if (shareResult.pdfDownloaded) {
+          toast.success(`Payment Done & PDF Downloaded!`, {
+            description: `Opening WhatsApp chat for ${order.customer_phone} to send PDF receipt.`
+          });
+        }
       } else {
         toast.success(`Payment Done for Order #${order.token}!`, {
           description: `Collected ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()} for ${order.customer_name || 'Guest'}`
@@ -511,26 +518,31 @@ export function PaymentsView({
 
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             const method = paymentMethods[order.id] || 'upi';
                             const payload = { ...order, payment_mode: method.toUpperCase() };
-                            if (!order.customer_phone) {
+                            let targetPhone = order.customer_phone;
+                            if (!targetPhone) {
                               const inputPhone = prompt('Enter Customer WhatsApp / Phone Number:', '');
                               if (inputPhone && inputPhone.trim()) {
-                                openWhatsAppReceipt(payload, inputPhone.trim());
-                                toast.success(`WhatsApp opened for ${inputPhone}`);
-                              } else if (inputPhone !== null) {
-                                toast.error('Valid phone number is required');
+                                targetPhone = inputPhone.trim();
+                              } else {
+                                if (inputPhone !== null) toast.error('Valid phone number is required');
+                                return;
                               }
-                            } else {
-                              openWhatsAppReceipt(payload);
-                              toast.success(`WhatsApp receipt opened for ${order.customer_phone}`);
+                            }
+                            
+                            const shareResult = await sendWhatsAppReceiptWithPDF(payload, targetPhone);
+                            if (shareResult.nativeShared) {
+                              toast.success(`PDF receipt shared to ${targetPhone}`);
+                            } else if (shareResult.pdfDownloaded) {
+                              toast.success(`PDF downloaded! Opening WhatsApp for ${targetPhone}`);
                             }
                           }}
                           className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                         >
-                          <MessageSquare size={13} />
-                          <span>WhatsApp Receipt</span>
+                          <FileText size={13} />
+                          <span>Send WhatsApp PDF</span>
                         </button>
                       </div>
                     </div>
