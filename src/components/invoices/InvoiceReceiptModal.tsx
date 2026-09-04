@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Printer, Download, CheckCircle2, RotateCcw, Copy, Check, MessageSquare, FileText } from 'lucide-react';
 import { Receipt } from '@/src/components/Receipt';
 import { toast } from 'sonner';
-import { sendWhatsAppReceiptWithPDF, downloadReceiptPDF } from '@/src/lib/whatsapp';
+import { downloadReceiptPDF } from '@/src/lib/whatsapp';
 
 export interface SavedInvoiceData {
   id: string;
@@ -94,18 +94,28 @@ Thank you for dining with Vyoma!`;
     }, 300);
   };
 
-  const handleSendWhatsApp = () => {
+  const handleSendWhatsApp = async () => {
     if (!invoice) return;
     const phone = invoice.customer_phone;
     if (!phone) {
       toast.error('No customer phone number provided for this invoice');
       return;
     }
-    const shareResult = sendWhatsAppReceiptWithPDF(invoice, phone);
-    if (shareResult.success) {
-      toast.success(`Opening WhatsApp chat for ${shareResult.formattedPhone}...`);
-    } else {
-      toast.error(shareResult.error || 'Could not format customer phone number');
+    const toastId = toast.loading('Sending PDF receipt via WhatsApp…');
+    try {
+      const res = await fetch('/api/whatsapp/send-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: invoice, phone })
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
+      } else {
+        toast.error(result.message || 'Failed to send receipt', { id: toastId });
+      }
+    } catch (err: any) {
+      toast.error('Server error: ' + (err?.message || 'Could not reach server'), { id: toastId });
     }
   };
 
