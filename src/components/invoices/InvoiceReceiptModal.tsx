@@ -8,10 +8,10 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Printer, Download, CheckCircle2, RotateCcw, Copy, Check, MessageSquare } from 'lucide-react';
+import { Printer, Download, CheckCircle2, RotateCcw, Copy, Check, MessageSquare, FileText } from 'lucide-react';
 import { Receipt } from '@/src/components/Receipt';
 import { toast } from 'sonner';
-import { openWhatsAppReceipt } from '@/src/lib/whatsapp';
+import { sendWhatsAppReceiptWithPDF, downloadReceiptPDF } from '@/src/lib/whatsapp';
 
 export interface SavedInvoiceData {
   id: string;
@@ -94,18 +94,20 @@ Thank you for dining with Vyoma!`;
     }, 300);
   };
 
-  const handleSendWhatsApp = () => {
+  const handleSendWhatsApp = async () => {
     if (!invoice) return;
     const phone = invoice.customer_phone;
     if (!phone) {
       toast.error('No customer phone number provided for this invoice');
       return;
     }
-    const success = openWhatsAppReceipt(invoice);
-    if (success) {
-      toast.success(`Opening WhatsApp for ${phone}...`);
-    } else {
-      toast.error('Could not format customer phone number');
+    const shareResult = await sendWhatsAppReceiptWithPDF(invoice, phone);
+    if (shareResult.nativeShared) {
+      toast.success(`PDF receipt shared to ${phone}`);
+    } else if (shareResult.pdfDownloaded) {
+      toast.success(`PDF downloaded! Opening WhatsApp for ${phone}...`);
+    } else if (!shareResult.success) {
+      toast.error('Could not send PDF receipt');
     }
   };
 
@@ -169,8 +171,8 @@ Thank you for dining with Vyoma!`;
             onClick={handleSendWhatsApp}
             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-full h-12 text-[10px] uppercase tracking-[0.25em] font-bold shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2"
           >
-            <MessageSquare size={16} />
-            Send via WhatsApp
+            <FileText size={16} />
+            Send PDF via WhatsApp
           </Button>
 
           <div className="grid grid-cols-2 gap-2">
