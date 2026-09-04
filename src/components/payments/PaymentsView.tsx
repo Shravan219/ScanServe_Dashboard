@@ -26,7 +26,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { soundService } from '@/src/lib/sound';
-import { sendWhatsAppReceiptWithPDF, downloadReceiptPDF } from '@/src/lib/whatsapp';
+import { downloadReceiptPDF } from '@/src/lib/whatsapp';
 
 interface PaymentsViewProps {
   orders: Order[];
@@ -125,14 +125,26 @@ export function PaymentsView({
       };
 
       if (order.customer_phone) {
-        const shareResult = sendWhatsAppReceiptWithPDF(receiptPayload);
-        if (shareResult.success) {
-          toast.success(`Payment Done & Receipt Sent!`, {
-            description: `Opened WhatsApp chat directly for ${shareResult.formattedPhone}`
+        // Auto-send PDF receipt via server-side WhatsApp bot (no URL shown)
+        toast.success(`Payment Done! Sending WhatsApp receipt…`, {
+          description: `Order #${order.token} – ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()}`
+        });
+        fetch('/api/whatsapp/send-receipt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: receiptPayload, phone: order.customer_phone })
+        })
+          .then((res) => res.json())
+          .then((result) => {
+            if (result.success) {
+              toast.success('✅ PDF receipt sent to customer WhatsApp!');
+            } else {
+              toast.warning('Payment recorded. Could not send WhatsApp: ' + (result.message || 'Bot offline'));
+            }
+          })
+          .catch(() => {
+            toast.warning('Payment recorded. WhatsApp send failed (server unreachable)');
           });
-        } else {
-          toast.error(`Could not format customer phone number: ${order.customer_phone}`);
-        }
       } else {
         toast.success(`Payment Done for Order #${order.token}!`, {
           description: `Collected ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()} for ${order.customer_name || 'Guest'}`
@@ -516,25 +528,30 @@ export function PaymentsView({
 
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             const method = paymentMethods[order.id] || 'upi';
                             const payload = { ...order, payment_mode: method.toUpperCase() };
-                            let targetPhone = order.customer_phone;
+                            const targetPhone = order.customer_phone;
                             if (!targetPhone) {
-                              const inputPhone = prompt('Enter Customer WhatsApp / Phone Number:', '');
-                              if (inputPhone && inputPhone.trim()) {
-                                targetPhone = inputPhone.trim();
-                              } else {
-                                if (inputPhone !== null) toast.error('Valid phone number is required');
-                                return;
-                              }
+                              toast.error('No customer phone number on record for this order');
+                              return;
                             }
-                            
-                            const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
-                            if (shareResult.success) {
-                              toast.success(`Opening WhatsApp chat for ${shareResult.formattedPhone}`);
-                            } else {
-                              toast.error(shareResult.error || 'Failed to open WhatsApp');
+
+                            const toastId = toast.loading('Sending PDF receipt via WhatsApp…');
+                            try {
+                              const res = await fetch('/api/whatsapp/send-receipt', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ order: payload, phone: targetPhone })
+                              });
+                              const result = await res.json();
+                              if (result.success) {
+                                toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
+                              } else {
+                                toast.error(result.message || 'Failed to send receipt', { id: toastId });
+                              }
+                            } catch (err: any) {
+                              toast.error('Server error: ' + (err?.message || 'Could not reach server'), { id: toastId });
                             }
                           }}
                           className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
