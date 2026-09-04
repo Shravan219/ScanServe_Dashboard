@@ -22,19 +22,33 @@ export interface OrderReceiptData {
 
 /**
  * Standardizes phone numbers for WhatsApp URL scheme.
- * Default country code is '91' (India) if 10 digits are supplied.
+ * Strips all formatting, removes leading zeros, and prefixes default country code ('91' for India).
  */
 export function formatPhoneNumber(phone: string, defaultCountryCode = '91'): string {
   if (!phone) return '';
-  const cleaned = phone.replace(/\D/g, '');
+  let cleaned = phone.replace(/\D/g, '');
+  if (!cleaned) return '';
+
+  // Remove leading 0 if 11 digits (e.g., 09876543210 -> 9876543210)
+  if (cleaned.startsWith('0') && cleaned.length === 11) {
+    cleaned = cleaned.substring(1);
+  }
+
+  // 10 digits standard mobile number -> prefix country code (e.g., 919876543210)
   if (cleaned.length === 10) {
     return `${defaultCountryCode}${cleaned}`;
   }
+
+  // Already includes country code (e.g., 919876543210)
+  if (cleaned.length === 12 && cleaned.startsWith(defaultCountryCode)) {
+    return cleaned;
+  }
+
   return cleaned;
 }
 
 /**
- * Generates a clean, formatted WhatsApp text summary.
+ * Generates a clean, formatted WhatsApp text receipt for the customer.
  */
 export function generateWhatsAppReceiptText(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): string {
   const token = data.token ? `#${data.token}` : `#${data.id.slice(-4)}`;
@@ -54,6 +68,10 @@ export function generateWhatsAppReceiptText(data: OrderReceiptData, restaurantNa
   const grandTotal = data.total;
   const payMode = (data.payment_mode || 'UPI').toUpperCase();
 
+  // Public digital bill URL if running on web domain
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const receiptUrl = origin ? `${origin}/?receipt=${data.id}` : '';
+
   return `🧾 *${restaurantName} - TAX INVOICE*
 --------------------------------
 *Order Token:* ${token} (${table})
@@ -67,8 +85,7 @@ ${itemsList}
 Subtotal: ₹${subtotalVal.toFixed(2)}
 ${taxVal > 0 ? `GST: ₹${taxVal.toFixed(2)}\n` : ''}${discountVal > 0 ? `Discount: -₹${discountVal.toFixed(2)}\n` : ''}*GRAND TOTAL:* *₹${grandTotal.toFixed(2)}*
 *Payment Mode:* ${payMode} (Paid ✅)
-
-📄 *Official PDF Receipt Generated*
+${receiptUrl ? `\n📄 *View & Download PDF Receipt:*\n${receiptUrl}\n` : ''}
 Thank you for dining with us! 🙏
 Have a great day ahead! ✨`;
 }
@@ -77,7 +94,6 @@ Have a great day ahead! ✨`;
  * Generates a high-resolution, professional PDF receipt document using jsPDF.
  */
 export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): jsPDF {
-  // Compute dynamic height based on number of items
   const baseHeight = 110;
   const itemHeight = Math.max(data.items.length * 6.5, 20);
   const totalHeight = Math.max(160, baseHeight + itemHeight);
@@ -157,7 +173,6 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
   doc.setFontSize(7.5);
 
   data.items.forEach(it => {
-    // Truncate name if too long
     const cleanName = it.name.length > 20 ? it.name.substring(0, 19) + '…' : it.name;
     const lineTotal = (it.price * it.quantity).toFixed(2);
 
@@ -229,16 +244,15 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
 }
 
 /**
- * Builds the wa.me URL scheme for opening WhatsApp Web/App directly.
+ * Builds the wa.me URL scheme.
+ * When formattedPhone is provided, WhatsApp navigates directly into that customer's chat.
+ * NEVER returns a generic URL without a phone number to avoid contact selection prompts.
  */
-export function getWhatsAppLink(phone: string, textPayload: string): string {
+export function getWhatsAppLink(phone: string, textPayload: string): string | null {
   const formattedPhone = formatPhoneNumber(phone);
+  if (!formattedPhone) return null;
   const encodedText = encodeURIComponent(textPayload);
-  
-  if (formattedPhone) {
-    return `https://wa.me/${formattedPhone}?text=${encodedText}`;
-  }
-  return `https://wa.me/?text=${encodedText}`;
+  return `https://wa.me/${formattedPhone}?text=${encodedText}`;
 }
 
 /**
@@ -251,62 +265,50 @@ export function downloadReceiptPDF(data: OrderReceiptData): void {
 }
 
 /**
- * Sends the receipt to the customer's WhatsApp:
- * 1. On Mobile/Tablet or browsers with Web Share API with files:
- *    Shares the actual PDF file directly into WhatsApp.
- * 2. On Desktop browsers:
- *    Automatically downloads the PDF receipt and opens WhatsApp Web pre-filled,
- *    ready for the cashier to attach the downloaded PDF with 1 click.
+ * Sends the receipt DIRECTLY to the customer's WhatsApp chat without prompting to select contacts:
+ * 1. Formats the customer's exact phone number (with country code).
+ * 2. Directly opens https://wa.me/<customer_phone>?text=<receipt> in a new tab.
+ * 3. Downloads the official PDF receipt locally so the cashier has the file on hand.
+ *
+ * NOTE: Does NOT use navigator.share to avoid OS contact selection dialogs.
  */
-export async function sendWhatsAppReceiptWithPDF(
+export function sendWhatsAppReceiptWithPDF(
   data: OrderReceiptData,
   phoneOverride?: string
-): Promise<{ success: boolean; nativeShared: boolean; pdfDownloaded: boolean; error?: string }> {
-  const phone = phoneOverride || data.customer_phone || '';
-  const tokenStr = data.token ? `#${data.token}` : `#${data.id.slice(-4)}`;
-  const filename = `Receipt_${data.token || data.id.slice(-4)}.pdf`;
+): { success: boolean; formattedPhone?: string; error?: string } {
+  const rawPhone = phoneOverride || data.customer_phone || '';
+  const formattedPhone = formatPhoneNumber(rawPhone);
 
-  const doc = generateReceiptPDF(data);
-  const pdfBlob = doc.output('blob');
-  const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-  // 1. Try Native Web Share API (Attaches actual PDF file in mobile/supported environments)
-  if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-    try {
-      await navigator.share({
-        files: [pdfFile],
-        title: `Receipt ${tokenStr}`,
-        text: `Official Tax Invoice Receipt ${tokenStr} from VYOMA ARTISAN CAFE`
-      });
-      return { success: true, nativeShared: true, pdfDownloaded: false };
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
-        return { success: false, nativeShared: false, pdfDownloaded: false };
-      }
-      // If error sharing file, fallback to desktop flow
-    }
+  if (!formattedPhone) {
+    return {
+      success: false,
+      error: 'Missing or invalid customer phone number'
+    };
   }
 
-  // 2. Desktop Fallback:
-  // Auto-download the PDF receipt to downloads folder
-  doc.save(filename);
+  // 1. Download official vector PDF receipt locally
+  try {
+    downloadReceiptPDF(data);
+  } catch (e) {
+    console.warn('Could not auto-download PDF:', e);
+  }
 
-  // Open WhatsApp Web with formatted summary & attachment notice
+  // 2. Open WhatsApp Web/App DIRECTLY to the customer's phone number
   const text = generateWhatsAppReceiptText(data);
-  const url = getWhatsAppLink(phone, text);
-  window.open(url, '_blank', 'noopener,noreferrer');
+  const directWhatsAppUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(text)}`;
+  
+  window.open(directWhatsAppUrl, '_blank', 'noopener,noreferrer');
 
-  return { success: true, nativeShared: false, pdfDownloaded: true };
+  return {
+    success: true,
+    formattedPhone
+  };
 }
 
 /**
- * Backwards-compatible synchronous / fallback trigger
+ * Backwards-compatible direct trigger
  */
 export function openWhatsAppReceipt(data: OrderReceiptData, phoneOverride?: string): boolean {
-  const phone = phoneOverride || data.customer_phone || '';
-  if (!phone.trim()) {
-    return false;
-  }
-  sendWhatsAppReceiptWithPDF(data, phoneOverride);
-  return true;
+  const result = sendWhatsAppReceiptWithPDF(data, phoneOverride);
+  return result.success;
 }

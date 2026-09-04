@@ -94,20 +94,18 @@ Thank you for dining with Vyoma!`;
     }, 300);
   };
 
-  const handleSendWhatsApp = async () => {
+  const handleSendWhatsApp = () => {
     if (!invoice) return;
     const phone = invoice.customer_phone;
     if (!phone) {
       toast.error('No customer phone number provided for this invoice');
       return;
     }
-    const shareResult = await sendWhatsAppReceiptWithPDF(invoice, phone);
-    if (shareResult.nativeShared) {
-      toast.success(`PDF receipt shared to ${phone}`);
-    } else if (shareResult.pdfDownloaded) {
-      toast.success(`PDF downloaded! Opening WhatsApp for ${phone}...`);
-    } else if (!shareResult.success) {
-      toast.error('Could not send PDF receipt');
+    const shareResult = sendWhatsAppReceiptWithPDF(invoice, phone);
+    if (shareResult.success) {
+      toast.success(`Opening WhatsApp chat for ${shareResult.formattedPhone}...`);
+    } else {
+      toast.error(shareResult.error || 'Could not format customer phone number');
     }
   };
 

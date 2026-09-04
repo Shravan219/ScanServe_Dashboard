@@ -125,15 +125,13 @@ export function PaymentsView({
       };
 
       if (order.customer_phone) {
-        const shareResult = await sendWhatsAppReceiptWithPDF(receiptPayload);
-        if (shareResult.nativeShared) {
-          toast.success(`Payment Done & PDF Shared!`, {
-            description: `Sent official PDF receipt to ${order.customer_phone}`
+        const shareResult = sendWhatsAppReceiptWithPDF(receiptPayload);
+        if (shareResult.success) {
+          toast.success(`Payment Done & Receipt Sent!`, {
+            description: `Opened WhatsApp chat directly for ${shareResult.formattedPhone}`
           });
-        } else if (shareResult.pdfDownloaded) {
-          toast.success(`Payment Done & PDF Downloaded!`, {
-            description: `Opening WhatsApp chat for ${order.customer_phone} to send PDF receipt.`
-          });
+        } else {
+          toast.error(`Could not format customer phone number: ${order.customer_phone}`);
         }
       } else {
         toast.success(`Payment Done for Order #${order.token}!`, {
@@ -518,7 +516,7 @@ export function PaymentsView({
 
                         <button
                           type="button"
-                          onClick={async () => {
+                          onClick={() => {
                             const method = paymentMethods[order.id] || 'upi';
                             const payload = { ...order, payment_mode: method.toUpperCase() };
                             let targetPhone = order.customer_phone;
@@ -532,11 +530,11 @@ export function PaymentsView({
                               }
                             }
                             
-                            const shareResult = await sendWhatsAppReceiptWithPDF(payload, targetPhone);
-                            if (shareResult.nativeShared) {
-                              toast.success(`PDF receipt shared to ${targetPhone}`);
-                            } else if (shareResult.pdfDownloaded) {
-                              toast.success(`PDF downloaded! Opening WhatsApp for ${targetPhone}`);
+                            const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
+                            if (shareResult.success) {
+                              toast.success(`Opening WhatsApp chat for ${shareResult.formattedPhone}`);
+                            } else {
+                              toast.error(shareResult.error || 'Failed to open WhatsApp');
                             }
                           }}
                           className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
