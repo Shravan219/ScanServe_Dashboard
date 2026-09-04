@@ -8,9 +8,10 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Printer, Download, CheckCircle2, RotateCcw, Copy, Check } from 'lucide-react';
+import { Printer, Download, CheckCircle2, RotateCcw, Copy, Check, MessageSquare } from 'lucide-react';
 import { Receipt } from '@/src/components/Receipt';
 import { toast } from 'sonner';
+import { openWhatsAppReceipt } from '@/src/lib/whatsapp';
 
 export interface SavedInvoiceData {
   id: string;
@@ -93,6 +94,21 @@ Thank you for dining with Vyoma!`;
     }, 300);
   };
 
+  const handleSendWhatsApp = () => {
+    if (!invoice) return;
+    const phone = invoice.customer_phone;
+    if (!phone) {
+      toast.error('No customer phone number provided for this invoice');
+      return;
+    }
+    const success = openWhatsAppReceipt(invoice);
+    if (success) {
+      toast.success(`Opening WhatsApp for ${phone}...`);
+    } else {
+      toast.error('Could not format customer phone number');
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-[#0A0A0A] border border-white/10 text-white max-w-[500px] w-full rounded-[2rem] p-6 sm:p-8 shadow-[0_0_60px_rgba(0,0,0,0.9)] max-h-[92vh] overflow-y-auto custom-scrollbar flex flex-col">
@@ -146,27 +162,38 @@ Thank you for dining with Vyoma!`;
           </div>
         </div>
 
-        {/* Buttons Grid */}
-        <div className="grid grid-cols-2 gap-3 pt-2">
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 pt-2">
           <Button
             type="button"
-            onClick={handlePrint}
-            className="bg-primary text-black hover:bg-primary/90 rounded-full h-12 text-[10px] uppercase tracking-[0.25em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.25)] flex items-center justify-center gap-2"
+            onClick={handleSendWhatsApp}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-full h-12 text-[10px] uppercase tracking-[0.25em] font-bold shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2"
           >
-            <Printer size={15} />
-            Print Receipt
+            <MessageSquare size={16} />
+            Send via WhatsApp
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
-            className="border-white/10 text-white/80 hover:text-white hover:border-white/30 rounded-full h-12 text-[10px] uppercase tracking-[0.25em] font-bold bg-white/5 flex items-center justify-center gap-2"
-          >
-            <Download size={15} />
-            Save / PDF
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              onClick={handlePrint}
+              className="bg-primary text-black hover:bg-primary/90 rounded-full h-11 text-[10px] uppercase tracking-[0.2em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.25)] flex items-center justify-center gap-2"
+            >
+              <Printer size={14} />
+              Print Receipt
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="border-white/10 text-white/80 hover:text-white hover:border-white/30 rounded-full h-11 text-[10px] uppercase tracking-[0.2em] font-bold bg-white/5 flex items-center justify-center gap-2"
+            >
+              <Download size={14} />
+              Save / PDF
+            </Button>
+          </div>
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2 mt-3 pt-3 border-t border-white/5">

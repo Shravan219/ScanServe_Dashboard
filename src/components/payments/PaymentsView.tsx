@@ -19,11 +19,13 @@ import {
   Percent,
   TrendingUp,
   RotateCcw,
-  Check
+  Check,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { soundService } from '@/src/lib/sound';
+import { openWhatsAppReceipt } from '@/src/lib/whatsapp';
 
 interface PaymentsViewProps {
   orders: Order[];
@@ -115,9 +117,22 @@ export function PaymentsView({
       await onUpdateStatus(order.id, 'completed');
       soundService.playSuccessChime();
       soundService.triggerVibration([100, 50, 150]);
-      toast.success(`Payment Done for Order #${order.token}!`, {
-        description: `Collected ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()} for ${order.customer_name || 'Guest'}`
-      });
+
+      const receiptPayload = {
+        ...order,
+        payment_mode: method.toUpperCase()
+      };
+
+      if (order.customer_phone) {
+        openWhatsAppReceipt(receiptPayload);
+        toast.success(`Payment Done & WhatsApp Receipt Sent!`, {
+          description: `Receipt opened for ${order.customer_phone} (₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()})`
+        });
+      } else {
+        toast.success(`Payment Done for Order #${order.token}!`, {
+          description: `Collected ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()} for ${order.customer_name || 'Guest'}`
+        });
+      }
     } catch (err: any) {
       toast.error('Failed to complete payment status update', { description: err?.message });
     } finally {
@@ -474,24 +489,50 @@ export function PaymentsView({
                         </div>
                       </div>
 
-                      {/* Primary "Payment Done" Action Button */}
-                      <button
-                        onClick={() => handlePaymentDone(order)}
-                        disabled={isProcessing}
-                        className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3.5 px-6 text-sm font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-98 cursor-pointer disabled:opacity-50 touch-manipulation"
-                      >
-                        {isProcessing ? (
-                          <>
-                            <RotateCcw size={18} className="animate-spin" />
-                            <span>Processing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 size={18} />
-                            <span>Payment Done</span>
-                          </>
-                        )}
-                      </button>
+                      {/* Primary "Payment Done" Action Button & WhatsApp Receipt Button */}
+                      <div className="w-full flex flex-col gap-2">
+                        <button
+                          onClick={() => handlePaymentDone(order)}
+                          disabled={isProcessing}
+                          className="w-full min-h-[48px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3 px-6 text-xs font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-98 cursor-pointer disabled:opacity-50 touch-manipulation"
+                        >
+                          {isProcessing ? (
+                            <>
+                              <RotateCcw size={16} className="animate-spin" />
+                              <span>Processing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 size={16} />
+                              <span>Payment Done</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const method = paymentMethods[order.id] || 'upi';
+                            const payload = { ...order, payment_mode: method.toUpperCase() };
+                            if (!order.customer_phone) {
+                              const inputPhone = prompt('Enter Customer WhatsApp / Phone Number:', '');
+                              if (inputPhone && inputPhone.trim()) {
+                                openWhatsAppReceipt(payload, inputPhone.trim());
+                                toast.success(`WhatsApp opened for ${inputPhone}`);
+                              } else if (inputPhone !== null) {
+                                toast.error('Valid phone number is required');
+                              }
+                            } else {
+                              openWhatsAppReceipt(payload);
+                              toast.success(`WhatsApp receipt opened for ${order.customer_phone}`);
+                            }
+                          }}
+                          className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                        >
+                          <MessageSquare size={13} />
+                          <span>WhatsApp Receipt</span>
+                        </button>
+                      </div>
                     </div>
 
                   </div>
