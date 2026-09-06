@@ -26,7 +26,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { soundService } from '@/src/lib/sound';
-import { downloadReceiptPDF } from '@/src/lib/whatsapp';
+import { downloadReceiptPDF, sendWhatsAppReceiptWithPDF } from '@/src/lib/whatsapp';
 
 interface PaymentsViewProps {
   orders: Order[];
@@ -547,11 +547,23 @@ export function PaymentsView({
                               const result = await res.json();
                               if (result.success) {
                                 toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
-                              } else {
-                                toast.error(result.message || 'Failed to send receipt', { id: toastId });
+} else {
+                                // Bot offline – fallback to wa.me direct link
+                                const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
+                                if (shareResult.success) {
+                                  toast.warning('Bot offline – opened WhatsApp directly. ' + (result.message || ''), { id: toastId });
+                                } else {
+                                  toast.error(shareResult.error || 'Could not format customer phone number');
+                                }
                               }
-                            } catch (err: any) {
-                              toast.error('Server error: ' + (err?.message || 'Could not reach server'), { id: toastId });
+                            } catch (_err) {
+                              // Server unreachable – fallback to wa.me direct link
+                              const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
+                              if (shareResult.success) {
+                                toast.warning('Server unreachable – opened WhatsApp directly as fallback', { id: toastId });
+                              } else {
+                                toast.error(shareResult.error || 'Could not format customer phone number');
+                              }
                             }
                           }}
                           className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"

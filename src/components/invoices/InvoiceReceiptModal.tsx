@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Printer, Download, CheckCircle2, RotateCcw, Copy, Check, MessageSquare, FileText } from 'lucide-react';
 import { Receipt } from '@/src/components/Receipt';
 import { toast } from 'sonner';
-import { downloadReceiptPDF } from '@/src/lib/whatsapp';
+import { downloadReceiptPDF, sendWhatsAppReceiptWithPDF } from '@/src/lib/whatsapp';
 
 export interface SavedInvoiceData {
   id: string;
@@ -112,10 +112,22 @@ Thank you for dining with Vyoma!`;
       if (result.success) {
         toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
       } else {
-        toast.error(result.message || 'Failed to send receipt', { id: toastId });
+        // Bot offline – fallback to wa.me direct link
+        const shareResult = sendWhatsAppReceiptWithPDF(invoice, phone);
+        if (shareResult.success) {
+          toast.warning('Bot offline – opened WhatsApp directly. ' + (result.message || ''), { id: toastId });
+        } else {
+          toast.error(shareResult.error || 'Could not format customer phone number');
+        }
       }
-    } catch (err: any) {
-      toast.error('Server error: ' + (err?.message || 'Could not reach server'), { id: toastId });
+    } catch (_err) {
+      // Server unreachable – fallback to wa.me direct link
+      const shareResult = sendWhatsAppReceiptWithPDF(invoice, phone);
+      if (shareResult.success) {
+        toast.warning('Server unreachable – opened WhatsApp directly as fallback', { id: toastId });
+      } else {
+        toast.error(shareResult.error || 'Could not format customer phone number');
+      }
     }
   };
 
