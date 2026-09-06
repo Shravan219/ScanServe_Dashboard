@@ -256,12 +256,16 @@ export function getWhatsAppLink(phone: string, textPayload: string): string | nu
 }
 
 /**
- * Downloads the PDF receipt locally to the device.
+ * Downloads the PDF receipt locally to the device and returns the blob.
+ * Returns null if the browser doesn't support Blob.
  */
-export function downloadReceiptPDF(data: OrderReceiptData): void {
+export function downloadReceiptPDF(data: OrderReceiptData): Blob | null {
   const doc = generateReceiptPDF(data);
   const filename = `Receipt_${data.token || data.id.slice(-4)}.pdf`;
+  // @ts-ignore - doc.output is available in jspdf
+  const pdfBlob = doc.output('blob');
   doc.save(filename);
+  return pdfBlob;
 }
 
 /**
@@ -272,10 +276,10 @@ export function downloadReceiptPDF(data: OrderReceiptData): void {
  *
  * NOTE: Does NOT use navigator.share to avoid OS contact selection dialogs.
  */
-export function sendWhatsAppReceiptWithPDF(
+export async function sendWhatsAppReceiptWithPDF(
   data: OrderReceiptData,
   phoneOverride?: string
-): { success: boolean; formattedPhone?: string; error?: string } {
+): Promise<{ success: boolean; formattedPhone?: string; error?: string }> {
   const rawPhone = phoneOverride || data.customer_phone || '';
   const formattedPhone = formatPhoneNumber(rawPhone);
 
@@ -286,14 +290,29 @@ export function sendWhatsAppReceiptWithPDF(
     };
   }
 
-  // 1. Download official vector PDF receipt locally
-  try {
-    downloadReceiptPDF(data);
-  } catch (e) {
-    console.warn('Could not auto-download PDF:', e);
+  // 1. Download official vector PDF receipt locally (as Blob)
+  const pdfBlob = downloadReceiptPDF(data);
+  const filename = `Receipt_${data.token || data.id.slice(-4)}.pdf`;
+
+  // 2. Try Web Share API to share the PDF file (mobile browsers)
+  if (typeof navigator !== 'undefined' && navigator.canShare && pdfBlob) {
+    try {
+      // @ts-ignore - Blob can be used in files array for navigator.share
+      await navigator.share({
+        files: [pdfBlob as File],
+        title: `Receipt ${data.token || data.id.slice(-4)}`,
+        text: generateWhatsAppReceiptText(data)
+      });
+      return { success: true, formattedPhone };
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        return { success: false, error: 'User cancelled PDF share' };
+      }
+      // If Web Share fails, fallback to wa.me link
+    }
   }
 
-  // 2. Open WhatsApp Web/App DIRECTLY to the customer's phone number
+  // 3. Fallback: Open WhatsApp Web/App DIRECTLY to the customer's phone number
   const text = generateWhatsAppReceiptText(data);
   const directWhatsAppUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(text)}`;
   
@@ -308,7 +327,7 @@ export function sendWhatsAppReceiptWithPDF(
 /**
  * Backwards-compatible direct trigger
  */
-export function openWhatsAppReceipt(data: OrderReceiptData, phoneOverride?: string): boolean {
-  const result = sendWhatsAppReceiptWithPDF(data, phoneOverride);
+export async function openWhatsAppReceipt(data: OrderReceiptData, phoneOverride?: string): Promise<boolean> {
+  const result = await sendWhatsAppReceiptWithPDF(data, phoneOverride);
   return result.success;
 }

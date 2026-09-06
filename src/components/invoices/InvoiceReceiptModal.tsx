@@ -113,7 +113,7 @@ Thank you for dining with Vyoma!`;
         toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
       } else {
         // Bot offline – fallback to wa.me direct link
-        const shareResult = sendWhatsAppReceiptWithPDF(invoice, phone);
+        const shareResult = await sendWhatsAppReceiptWithPDF(invoice, phone);
         if (shareResult.success) {
           toast.warning('Bot offline – opened WhatsApp directly. ' + (result.message || ''), { id: toastId });
         } else {
@@ -122,7 +122,7 @@ Thank you for dining with Vyoma!`;
       }
     } catch (_err) {
       // Server unreachable – fallback to wa.me direct link
-      const shareResult = sendWhatsAppReceiptWithPDF(invoice, phone);
+      const shareResult = await sendWhatsAppReceiptWithPDF(invoice, phone);
       if (shareResult.success) {
         toast.warning('Server unreachable – opened WhatsApp directly as fallback', { id: toastId });
       } else {
