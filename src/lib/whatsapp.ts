@@ -85,7 +85,6 @@ ${itemsList}
 Subtotal: ₹${subtotalVal.toFixed(2)}
 ${taxVal > 0 ? `GST: ₹${taxVal.toFixed(2)}\n` : ''}${discountVal > 0 ? `Discount: -₹${discountVal.toFixed(2)}\n` : ''}*GRAND TOTAL:* *₹${grandTotal.toFixed(2)}*
 *Payment Mode:* ${payMode} (Paid ✅)
-${receiptUrl ? `\n📄 *View & Download PDF Receipt:*\n${receiptUrl}\n` : ''}
 Thank you for dining with us! 🙏
 Have a great day ahead! ✨`;
 }
