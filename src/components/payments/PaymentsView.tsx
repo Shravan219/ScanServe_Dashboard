@@ -549,7 +549,7 @@ export function PaymentsView({
                                 toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
 } else {
                                 // Bot offline – fallback to wa.me direct link
-                                const shareResult = await sendWhatsAppReceiptWithPDF(payload, targetPhone);
+                                const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
                                 if (shareResult.success) {
                                   toast.warning('Bot offline – opened WhatsApp directly. ' + (result.message || ''), { id: toastId });
                                 } else {
@@ -558,7 +558,7 @@ export function PaymentsView({
                               }
                             } catch (_err) {
                               // Server unreachable – fallback to wa.me direct link
-                              const shareResult = await sendWhatsAppReceiptWithPDF(payload, targetPhone);
+                              const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
                               if (shareResult.success) {
                                 toast.warning('Server unreachable – opened WhatsApp directly as fallback', { id: toastId });
                               } else {
