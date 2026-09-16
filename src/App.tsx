@@ -42,7 +42,8 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
-  Filter
+  Filter,
+  Server
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
@@ -50,6 +51,8 @@ import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { PaymentsView } from '@/src/components/payments/PaymentsView';
+import { ServerConnectionModal } from '@/src/components/ServerConnectionModal';
+import { getApiBaseUrl } from '@/src/lib/apiConfig';
 import { soundService } from '@/src/lib/sound';
 import { verifyStaffPassword } from '@/src/lib/authService';
 import { syncOrderStatusToDyno } from '@/src/lib/orderSync';
@@ -147,6 +150,16 @@ export default function App() {
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [dbCustomers, setDbCustomers] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [serverModalOpen, setServerModalOpen] = useState(false);
+  const [currentServerUrl, setCurrentServerUrl] = useState(() => getApiBaseUrl());
+
+  useEffect(() => {
+    const handleConfigChange = (e: any) => {
+      setCurrentServerUrl(e.detail?.url || '');
+    };
+    window.addEventListener('vyoma:server-config-changed', handleConfigChange);
+    return () => window.removeEventListener('vyoma:server-config-changed', handleConfigChange);
+  }, []);
 
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
@@ -1242,8 +1255,31 @@ export default function App() {
           </nav>
         </div>
 
+        {/* Desktop Sidebar POS Server Connection Status */}
+        <div className="mt-auto hidden md:flex flex-col gap-2 w-full pt-3 border-t border-white/10">
+          <button
+            type="button"
+            onClick={() => setServerModalOpen(true)}
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 transition-all text-left group cursor-pointer"
+            title="Configure POS Terminal Server"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${currentServerUrl ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]' : 'bg-primary/80'}`} />
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 group-hover:text-white truncate">
+                  POS Terminal
+                </span>
+                <span className="text-[9px] font-mono text-white/40 truncate">
+                  {currentServerUrl ? currentServerUrl.replace(/^https?:\/\//, '') : 'Standalone / Cloud'}
+                </span>
+              </div>
+            </div>
+            <Server size={14} className="text-white/40 group-hover:text-primary transition-colors shrink-0 ml-1" />
+          </button>
+        </div>
+
         {isKioskLocked && (
-          <div className="mt-auto hidden md:flex flex-col items-center gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 p-3.5 text-center">
+          <div className="mt-2 hidden md:flex flex-col items-center gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 p-3.5 text-center">
             <Lock size={16} className="text-red-400 animate-pulse" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">Kiosk Mode Locked</span>
             <p className="text-[10px] text-white/60 font-medium">Staff access restricted to Captain View.</p>
@@ -1281,13 +1317,25 @@ export default function App() {
             </span>
           </div>
 
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10"
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <X size={18} /> : <MenuIcon size={18} />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setServerModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold text-white/80 hover:text-white transition-all cursor-pointer active:scale-95"
+              title="Configure POS Terminal Server"
+            >
+              <span className={`h-2 w-2 rounded-full ${currentServerUrl ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]' : 'bg-primary/80'}`} />
+              <Server size={13} className="text-primary" />
+            </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X size={18} /> : <MenuIcon size={18} />}
+            </button>
+          </div>
         </header>
 
         {/* Mobile Quick Tab Bar */}
@@ -2215,6 +2263,12 @@ export default function App() {
           </div>
         </Tabs>
       </main>
+
+      {/* POS Terminal & Server Connection Configuration Modal */}
+      <ServerConnectionModal 
+        open={serverModalOpen} 
+        onOpenChange={setServerModalOpen} 
+      />
     </div>
   );
 }

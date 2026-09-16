@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Vyoma ScanServe</string>
+    <string name="title_activity_main">Vyoma ScanServe</string>
+    <string name="package_name">com.vyoma.scanserve</string>
+    <string name="custom_url_scheme">com.vyoma.scanserve</string>
+</resources>
