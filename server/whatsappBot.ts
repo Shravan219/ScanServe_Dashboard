@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-=======
-import makeWASocket, {
-  DisconnectReason,
-  useMultiFileAuthState,
-  WASocket
-} from '@whiskeysockets/baileys';
-import QRCode from 'qrcode';
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 import path from 'path';
 import fs from 'fs';
 
@@ -18,11 +9,7 @@ export interface WhatsAppBotState {
 }
 
 class WhatsAppBotService {
-<<<<<<< HEAD
   private sock: any = null;
-=======
-  private sock: WASocket | null = null;
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   private state: WhatsAppBotState = {
     status: 'disconnected',
     qrCodeDataUrl: null,
@@ -32,17 +19,12 @@ class WhatsAppBotService {
   private authFolder = path.join(process.cwd(), '.whatsapp_auth');
 
   constructor() {
-<<<<<<< HEAD
     try {
       if (!fs.existsSync(this.authFolder)) {
         fs.mkdirSync(this.authFolder, { recursive: true });
       }
     } catch {
       // Auth folder creation fallback
-=======
-    if (!fs.existsSync(this.authFolder)) {
-      fs.mkdirSync(this.authFolder, { recursive: true });
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
     }
   }
 
@@ -55,7 +37,6 @@ class WhatsAppBotService {
   }
 
   public async init(): Promise<void> {
-<<<<<<< HEAD
     let makeWASocket: any = null;
     let DisconnectReason: any = null;
     let useMultiFileAuthState: any = null;
@@ -85,35 +66,25 @@ class WhatsAppBotService {
       return;
     }
 
-=======
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
     try {
       this.state.status = 'connecting';
-      this.state.lastError = null;
-
-      const { state, saveCreds } = await useMultiFileAuthState(this.authFolder);
+      const { state: authState, saveCreds } = await useMultiFileAuthState(this.authFolder);
 
       this.sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: true,
-        browser: ['Vyoma POS', 'Chrome', '1.0.0']
+        auth: authState,
+        printQRInTerminal: false
       });
 
       this.sock.ev.on('creds.update', saveCreds);
 
-<<<<<<< HEAD
       this.sock.ev.on('connection.update', async (update: any) => {
         const { connection, lastDisconnect, qr } = update;
 
-        if (qr && QRCode) {
-=======
-      this.sock.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect, qr } = update;
-
         if (qr) {
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
           try {
-            this.state.qrCodeDataUrl = await QRCode.toDataURL(qr, { margin: 2, scale: 6 });
+            if (QRCode) {
+              this.state.qrCodeDataUrl = await QRCode.toDataURL(qr, { margin: 2, scale: 6 });
+            }
             this.state.status = 'qr_ready';
             console.log('[WhatsApp Bot] QR code generated. Scan from your WhatsApp -> Linked Devices');
           } catch (err: any) {
@@ -123,11 +94,7 @@ class WhatsAppBotService {
 
         if (connection === 'close') {
           const statusCode = (lastDisconnect?.error as any)?.output?.statusCode;
-<<<<<<< HEAD
           const shouldReconnect = DisconnectReason ? statusCode !== DisconnectReason.loggedOut : false;
-=======
-          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 
           this.state.status = 'disconnected';
           this.state.connectedNumber = null;
@@ -166,11 +133,7 @@ class WhatsAppBotService {
     if (!this.isConnected() || !this.sock) {
       return {
         success: false,
-<<<<<<< HEAD
         message: 'WhatsApp bot is offline. Opened direct WhatsApp link.'
-=======
-        message: 'WhatsApp bot is not connected. Please scan QR code in settings.'
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
       };
     }
 

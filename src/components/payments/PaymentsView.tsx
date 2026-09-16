@@ -1,48 +1,25 @@
 import React, { useState, useMemo } from 'react';
-<<<<<<< HEAD
 import { Order, OrderStatus, OrderItem } from '@/src/types';
-=======
-import { Order, OrderStatus } from '@/src/types';
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 import { 
   CreditCard, 
   CheckCircle2, 
   Clock, 
   Search, 
-<<<<<<< HEAD
-=======
   Printer, 
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   Phone, 
   Copy, 
   User, 
   Utensils, 
-<<<<<<< HEAD
   Banknote, 
   QrCode, 
   Sparkles, 
   RotateCcw, 
   MessageSquare, 
   Layers
-=======
-  Receipt, 
-  Banknote, 
-  QrCode, 
-  Sparkles, 
-  ArrowRight,
-  ShieldCheck,
-  Percent,
-  TrendingUp,
-  RotateCcw,
-  Check,
-  MessageSquare,
-  FileText
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { soundService } from '@/src/lib/sound';
-<<<<<<< HEAD
 import { supabase } from '@/src/lib/supabase';
 import { 
   OrderReceiptData,
@@ -68,18 +45,12 @@ export interface GroupedInvoice {
 }
 
 export interface PaymentsViewProps {
-=======
-import { downloadReceiptPDF, sendWhatsAppReceiptWithPDF } from '@/src/lib/whatsapp';
-
-interface PaymentsViewProps {
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   orders: Order[];
   allOrders: Order[];
   onUpdateStatus: (orderId: string, status: OrderStatus) => Promise<void> | void;
   discountPercentage?: number;
 }
 
-<<<<<<< HEAD
 interface SettledInvoiceRecord {
   invoice: GroupedInvoice;
   paymentMode: 'cash' | 'upi' | 'card';
@@ -138,7 +109,7 @@ export function groupOrdersByCustomerAndTable(orders: Order[]): GroupedInvoice[]
         existing.tokens.push(orderToken);
       }
 
-      // 2. Aggregate item quantities (increment quantity if item name matches case-insensitive, else append)
+      // 2. Aggregate item quantities
       orderItems.forEach(newItem => {
         const match = existing.items.find(
           existingItem => existingItem.name.toLowerCase().trim() === newItem.name.toLowerCase().trim()
@@ -150,12 +121,12 @@ export function groupOrdersByCustomerAndTable(orders: Order[]): GroupedInvoice[]
         }
       });
 
-      // 3. Calculate running totals: subtotal, tax, grand_total
+      // 3. Calculate running totals
       existing.subtotal += orderSubtotal;
       existing.tax += orderTax;
       existing.grand_total += orderTotal;
 
-      // 4. Retain customer_phone and customer_name if present in any of the merged orders
+      // 4. Retain customer information
       if (
         order.customer_name && 
         (!existing.customer_name || existing.customer_name.toLowerCase() === 'guest' || existing.customer_name.toLowerCase() === 'walk-in')
@@ -181,7 +152,6 @@ export function groupOrdersByCustomerAndTable(orders: Order[]): GroupedInvoice[]
 
       existing.mergedCount = existing.order_ids.length;
     } else {
-      // Aggregate duplicates within this initial order itself
       const aggregatedItems: OrderItem[] = [];
       orderItems.forEach(newItem => {
         const match = aggregatedItems.find(
@@ -216,31 +186,20 @@ export function groupOrdersByCustomerAndTable(orders: Order[]): GroupedInvoice[]
   return Array.from(groups.values());
 }
 
-=======
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 export function PaymentsView({
   orders,
   allOrders,
   onUpdateStatus,
-<<<<<<< HEAD
-  discountPercentage: _discountPercentage = 10
-=======
-  discountPercentage = 10
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
+  discountPercentage
 }: PaymentsViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'dine_in' | 'counter'>('all');
   const [paymentMethods, setPaymentMethods] = useState<Record<string, 'cash' | 'upi' | 'card'>>({});
-<<<<<<< HEAD
   const [isSettlingKey, setIsSettlingKey] = useState<string | null>(null);
   
-  // Track recently settled consolidated invoices for post-payment actions
   const [settledInvoices, setSettledInvoices] = useState<Record<string, SettledInvoiceRecord>>({});
-  
-  // Local phone overrides entered by cashier for invoices without phone on record
   const [customerPhoneInputs, setCustomerPhoneInputs] = useState<Record<string, string>>({});
 
-  // Filter pending payment orders across active orders + allOrders
   const pendingPaymentOrders = useMemo(() => {
     const map = new Map<string, Order>();
     [...orders, ...allOrders].forEach(o => {
@@ -253,33 +212,19 @@ export function PaymentsView({
         (st !== 'completed' && st !== 'paid' && st !== 'cancelled' && paySt !== 'paid');
 
       if (isPending) {
-=======
-  const [isSettlingId, setIsSettlingId] = useState<string | null>(null);
-
-  // Filter orders strictly with "waiting for payment" or "waiting_for_payment"
-  const pendingPaymentOrders = useMemo(() => {
-    // Look across allOrders + active orders
-    const map = new Map<string, Order>();
-    [...orders, ...allOrders].forEach(o => {
-      const st = (o.status || '').toLowerCase().trim();
-      if (st === 'waiting for payment' || st === 'waiting_for_payment') {
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
         map.set(o.id || o.token, o);
       }
     });
 
-<<<<<<< HEAD
     return Array.from(map.values()).sort((a, b) => {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
   }, [orders, allOrders]);
 
-  // Group pending orders into consolidated invoices by Table ID + Customer Identity
   const groupedInvoices = useMemo(() => {
     return groupOrdersByCustomerAndTable(pendingPaymentOrders);
   }, [pendingPaymentOrders]);
 
-  // Search and segment filtering
   const filteredInvoices = useMemo(() => {
     return groupedInvoices.filter(invoice => {
       const q = searchQuery.toLowerCase().trim();
@@ -305,49 +250,18 @@ export function PaymentsView({
       }
       if (selectedFilter === 'counter') {
         return !isDineIn;
-=======
-    const list = Array.from(map.values()).sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
-
-    return list;
-  }, [orders, allOrders]);
-
-  // Filter based on search query and order type
-  const filteredOrders = useMemo(() => {
-    return pendingPaymentOrders.filter(order => {
-      const q = searchQuery.toLowerCase().trim();
-      const name = (order.customer_name || '').toLowerCase();
-      const phone = (order.customer_phone || '').toLowerCase();
-      const token = (order.token || '').toLowerCase();
-      const table = order.table_id ? `table ${order.table_id}`.toLowerCase() : '';
-      const gstin = (order.gstin || '').toLowerCase();
-
-      const matchesSearch = !q || name.includes(q) || phone.includes(q) || token.includes(q) || table.includes(q) || gstin.includes(q);
-
-      if (!matchesSearch) return false;
-
-      if (selectedFilter === 'dine_in') {
-        return !!order.table_id;
-      }
-      if (selectedFilter === 'counter') {
-        return !order.table_id;
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
       }
 
       return true;
     });
-<<<<<<< HEAD
   }, [groupedInvoices, searchQuery, selectedFilter]);
 
-  // Combined list for display: active filtered invoices + any settled invoices still in review
   const displayInvoices = useMemo(() => {
     const pendingList = filteredInvoices.filter(inv => !settledInvoices[inv.groupKey]);
     const settledList = (Object.values(settledInvoices) as SettledInvoiceRecord[]).map(s => s.invoice);
     return [...settledList, ...pendingList];
   }, [filteredInvoices, settledInvoices]);
 
-  // Financial KPI calculations
   const totalPendingAmount = useMemo(() => {
     return groupedInvoices.reduce((sum, inv) => sum + (Number(inv.grand_total) || 0), 0);
   }, [groupedInvoices]);
@@ -355,18 +269,10 @@ export function PaymentsView({
   const totalDineInWaiting = useMemo(() => {
     return groupedInvoices.filter(inv => !!inv.table_id && String(inv.table_id).toUpperCase() !== 'TAKEAWAY').length;
   }, [groupedInvoices]);
-=======
-  }, [pendingPaymentOrders, searchQuery, selectedFilter]);
 
-  // Financial calculations
-  const totalPendingAmount = useMemo(() => {
-    return pendingPaymentOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-  }, [pendingPaymentOrders]);
-
-  const totalDineInWaiting = useMemo(() => {
-    return pendingPaymentOrders.filter(o => !!o.table_id).length;
-  }, [pendingPaymentOrders]);
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
+  const totalCounterWaiting = useMemo(() => {
+    return groupedInvoices.filter(inv => !inv.table_id || String(inv.table_id).toUpperCase() === 'TAKEAWAY').length;
+  }, [groupedInvoices]);
 
   const settledTodayCount = useMemo(() => {
     const today = new Date().toDateString();
@@ -380,10 +286,6 @@ export function PaymentsView({
       .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
   }, [allOrders]);
 
-<<<<<<< HEAD
-  /**
-   * Helper to build OrderReceiptData from a consolidated invoice
-   */
   const buildReceiptData = (invoice: GroupedInvoice, paymentMode = 'UPI'): OrderReceiptData => {
     return {
       id: invoice.order_ids[0] || 'ORD-001',
@@ -404,10 +306,6 @@ export function PaymentsView({
     };
   };
 
-  /**
-   * Triggers WhatsApp receipt generation with deep-link & PDF download.
-   * Works everywhere: Web, Electron (.exe), and Android (.apk / WebView).
-   */
   const handleSendWhatsApp = (invoice: GroupedInvoice, paymentMode?: string, phoneOverride?: string) => {
     const targetPhone = phoneOverride || customerPhoneInputs[invoice.groupKey] || invoice.customer_phone;
     
@@ -420,7 +318,6 @@ export function PaymentsView({
     const receiptPayload = buildReceiptData(invoice, mode);
     receiptPayload.customer_phone = targetPhone;
 
-    // 1. Dynamic wa.me deep link trigger with auto-prefixed +91
     const shareResult = sendWhatsAppReceiptWithPDF(receiptPayload, targetPhone);
     if (shareResult.success) {
       toast.success(`WhatsApp receipt opened for ${shareResult.formattedPhone}!`);
@@ -428,7 +325,6 @@ export function PaymentsView({
       toast.error(shareResult.error || 'Failed to open WhatsApp');
     }
 
-    // 2. Dispatch to server-side bot as background companion if running (non-blocking)
     try {
       fetch('/api/whatsapp/send-receipt', {
         method: 'POST',
@@ -441,35 +337,19 @@ export function PaymentsView({
             toast.success('✅ PDF receipt sent directly via WhatsApp bot!');
           }
         })
-        .catch(() => {
-          // Handled silently since direct deep link was already triggered
-        });
-    } catch {
-      // Offline / APK environment safe
-    }
+        .catch(() => {});
+    } catch {}
   };
 
-  /**
-   * BATCH SETTLEMENT & DATABASE ACTION:
-   * Works reliably across Web, Electron (.exe), and Android (.apk / WebView).
-   * 1. Immediate optimistic UI transition to settled state.
-   * 2. Instant parent state update via onUpdateStatus for all sub-orders.
-   * 3. Resilient Supabase database batch update (with automatic fallback if payment_status column is omitted).
-   * 4. Table occupancy clearance (is_occupied: false) if applicable.
-   * 5. Audio, haptics, and instant WhatsApp receipt prompt.
-   */
   const handlePaymentDone = async (invoice: GroupedInvoice) => {
     if (isSettlingKey) return;
     const method = paymentMethods[invoice.groupKey] || 'upi';
     setIsSettlingKey(invoice.groupKey);
 
     try {
-      // 1. Trigger audio & haptic feedback immediately
       soundService.playSuccessChime();
       soundService.triggerVibration([100, 50, 150]);
 
-      // 2. Immediately mark invoice as settled in local state
-      // This guarantees the UI immediately shows the green "Send WhatsApp Receipt" and "Done / Skip" buttons
       const settledRecord: SettledInvoiceRecord = {
         invoice,
         paymentMode: method,
@@ -480,7 +360,6 @@ export function PaymentsView({
         [invoice.groupKey]: settledRecord
       }));
 
-      // 3. Immediately update parent application state for every merged order ID
       invoice.order_ids.forEach(orderId => {
         try {
           onUpdateStatus(orderId, 'completed');
@@ -489,23 +368,19 @@ export function PaymentsView({
         }
       });
 
-      // 4. Non-blocking resilient database sync (Web, .exe, and .apk safe)
       (async () => {
         try {
           const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
           const validUuids = invoice.order_ids.filter(id => uuidRegex.test(id));
           const nonUuidTokens = invoice.order_ids.filter(id => !uuidRegex.test(id)).concat(invoice.tokens);
 
-          // Batch update orders by UUID
           if (validUuids.length > 0) {
-            // First attempt: update status and payment_status
             const { error: errWithPayStatus } = await supabase
               .from('orders')
               .update({ status: 'completed', payment_status: 'PAID' } as any)
               .in('id', validUuids);
 
             if (errWithPayStatus) {
-              // Fallback: update status only (in case payment_status column is not present in user's schema)
               await supabase
                 .from('orders')
                 .update({ status: 'completed' })
@@ -513,7 +388,6 @@ export function PaymentsView({
             }
           }
 
-          // Batch update orders by token if non-UUIDs were passed
           if (nonUuidTokens.length > 0) {
             await supabase
               .from('orders')
@@ -521,7 +395,6 @@ export function PaymentsView({
               .in('token', nonUuidTokens);
           }
 
-          // Update table occupancy state if applicable (is_occupied: false)
           if (invoice.table_id && String(invoice.table_id).toUpperCase() !== 'TAKEAWAY') {
             const cleanTableNum = String(invoice.table_id).replace(/^table\s*/i, '').trim();
             try {
@@ -545,7 +418,6 @@ export function PaymentsView({
         }
       })();
 
-      // 5. Show instant success toast with prompt to send WhatsApp receipt
       const targetPhone = customerPhoneInputs[invoice.groupKey] || invoice.customer_phone;
       const tokenDisplay = invoice.tokens.length > 1 
         ? `#${invoice.tokens.join(', #')}` 
@@ -574,9 +446,6 @@ export function PaymentsView({
     }
   };
 
-  /**
-   * Dismisses settled card from the screen when cashier clicks "Done / Skip"
-   */
   const handleDismissSettled = (groupKey: string) => {
     setSettledInvoices(prev => {
       const next = { ...prev };
@@ -588,57 +457,6 @@ export function PaymentsView({
 
   const setMethodForGroup = (groupKey: string, method: 'cash' | 'upi' | 'card') => {
     setPaymentMethods(prev => ({ ...prev, [groupKey]: method }));
-=======
-  const handlePaymentDone = async (order: Order) => {
-    if (isSettlingId) return;
-    const method = paymentMethods[order.id] || 'upi';
-    setIsSettlingId(order.id);
-    try {
-      await onUpdateStatus(order.id, 'completed');
-      soundService.playSuccessChime();
-      soundService.triggerVibration([100, 50, 150]);
-
-      const receiptPayload = {
-        ...order,
-        payment_mode: method.toUpperCase()
-      };
-
-      if (order.customer_phone) {
-        // Auto-send PDF receipt via server-side WhatsApp bot (no URL shown)
-        toast.success(`Payment Done! Sending WhatsApp receipt…`, {
-          description: `Order #${order.token} – ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()}`
-        });
-        fetch('/api/whatsapp/send-receipt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order: receiptPayload, phone: order.customer_phone })
-        })
-          .then((res) => res.json())
-          .then((result) => {
-            if (result.success) {
-              toast.success('✅ PDF receipt sent to customer WhatsApp!');
-            } else {
-              toast.warning('Payment recorded. Could not send WhatsApp: ' + (result.message || 'Bot offline'));
-            }
-          })
-          .catch(() => {
-            toast.warning('Payment recorded. WhatsApp send failed (server unreachable)');
-          });
-      } else {
-        toast.success(`Payment Done for Order #${order.token}!`, {
-          description: `Collected ₹${Number(order.total).toFixed(2)} via ${method.toUpperCase()} for ${order.customer_name || 'Guest'}`
-        });
-      }
-    } catch (err: any) {
-      toast.error('Failed to complete payment status update', { description: err?.message });
-    } finally {
-      setIsSettlingId(null);
-    }
-  };
-
-  const setMethodForOrder = (orderId: string, method: 'cash' | 'upi' | 'card') => {
-    setPaymentMethods(prev => ({ ...prev, [orderId]: method }));
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   };
 
   const formatElapsed = (createdAtStr: string) => {
@@ -657,12 +475,7 @@ export function PaymentsView({
 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 md:p-10 max-w-7xl mx-auto w-full overflow-y-auto custom-scrollbar">
-      
-<<<<<<< HEAD
       {/* Top Banner & Consolidated KPI Metrics */}
-=======
-      {/* Top Banner & KPI Metrics */}
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Pending Collections */}
         <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#1E170C] to-[#0E0E14] p-5 shadow-2xl relative overflow-hidden backdrop-blur-md">
@@ -679,11 +492,7 @@ export function PaymentsView({
             </span>
           </div>
           <p className="text-[11px] text-white/70 mt-1 font-sans">
-<<<<<<< HEAD
             {groupedInvoices.length} {groupedInvoices.length === 1 ? 'consolidated bill' : 'consolidated bills'} ({pendingPaymentOrders.length} sub-orders)
-=======
-            {pendingPaymentOrders.length} {pendingPaymentOrders.length === 1 ? 'bill' : 'bills'} currently waiting
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
           </p>
         </div>
 
@@ -699,17 +508,10 @@ export function PaymentsView({
             <span className="text-3xl sm:text-4xl font-serif font-bold text-white font-mono">
               {totalDineInWaiting}
             </span>
-<<<<<<< HEAD
             <span className="text-xs text-white/70 font-medium font-sans">occupied tables</span>
           </div>
           <p className="text-[11px] text-white/70 mt-1 font-sans">
             Served guests • Awaiting final payment
-=======
-            <span className="text-xs text-white/70 font-medium font-sans">served tables</span>
-          </div>
-          <p className="text-[11px] text-white/70 mt-1 font-sans">
-            Food served • Awaiting guest payment
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
           </p>
         </div>
 
@@ -735,15 +537,9 @@ export function PaymentsView({
         {/* KPI 4: Settled Revenue Today */}
         <div className="rounded-3xl border border-white/10 bg-[#0F1016] p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between">
-<<<<<<< HEAD
             <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Revenue Realized</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/25 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
               <CreditCard size={17} />
-=======
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Revenue Collected</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/25 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-              <TrendingUp size={17} />
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
@@ -767,19 +563,11 @@ export function PaymentsView({
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg sm:text-2xl font-serif font-bold text-white tracking-tight">Payments Desk</h2>
               <span className="rounded-full bg-amber-500/20 border border-amber-500/35 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-amber-300">
-<<<<<<< HEAD
                 {groupedInvoices.length} Consolidated Tabs
               </span>
             </div>
             <p className="text-[11px] text-white/70 font-sans">
               Merged by Table &amp; Customer • Instant one-click settlement with WhatsApp receipt
-=======
-                {pendingPaymentOrders.length} Waiting for Payment
-              </span>
-            </div>
-            <p className="text-[11px] text-white/70 font-sans">
-              Orders marked as Served by captain • Click &quot;Payment Done&quot; to finalize bill
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
             </p>
           </div>
         </div>
@@ -789,25 +577,16 @@ export function PaymentsView({
           {/* Segment Filter */}
           <div className="flex items-center bg-[#141620] border border-white/10 rounded-xl p-1 shrink-0 overflow-x-auto custom-scrollbar">
             <button
-<<<<<<< HEAD
               type="button"
-=======
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
               onClick={() => setSelectedFilter('all')}
               className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
                 selectedFilter === 'all' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
-<<<<<<< HEAD
               All ({groupedInvoices.length})
             </button>
             <button
               type="button"
-=======
-              All ({pendingPaymentOrders.length})
-            </button>
-            <button
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
               onClick={() => setSelectedFilter('dine_in')}
               className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
                 selectedFilter === 'dine_in' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
@@ -816,20 +595,13 @@ export function PaymentsView({
               Dine-In ({totalDineInWaiting})
             </button>
             <button
-<<<<<<< HEAD
               type="button"
-=======
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
               onClick={() => setSelectedFilter('counter')}
               className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
                 selectedFilter === 'counter' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
-<<<<<<< HEAD
-              Takeaway ({groupedInvoices.length - totalDineInWaiting})
-=======
-              Takeaway ({pendingPaymentOrders.length - totalDineInWaiting})
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
+              Counter ({totalCounterWaiting})
             </button>
           </div>
 
@@ -838,11 +610,7 @@ export function PaymentsView({
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
             <input
               type="text"
-<<<<<<< HEAD
               placeholder="Search table, name, token, phone..."
-=======
-              placeholder="Search table, name, token..."
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#141620] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-sans"
@@ -851,18 +619,12 @@ export function PaymentsView({
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* Invoices List / Empty State */}
       {displayInvoices.length === 0 ? (
-=======
-      {/* Orders List / Empty State */}
-      {filteredOrders.length === 0 ? (
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
         <div className="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-[#0A0B0E] p-12 text-center my-4 min-h-[320px]">
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-4 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
             <CheckCircle2 size={32} />
           </div>
-<<<<<<< HEAD
           <h3 className="text-xl font-serif font-bold text-white tracking-tight">All Tabs Settled</h3>
           <p className="text-xs text-white/40 max-w-md mt-1.5">
             There are currently no active customer or table tabs awaiting payment. Multiple orders from the same table or customer will automatically consolidate here for single-batch checkout.
@@ -870,14 +632,6 @@ export function PaymentsView({
           {searchQuery && (
             <button
               type="button"
-=======
-          <h3 className="text-xl font-serif font-bold text-white tracking-tight">All Payments Settled</h3>
-          <p className="text-xs text-white/40 max-w-md mt-1.5">
-            There are currently no customers in the &quot;Waiting for Payment&quot; status. When a captain marks food as served, the order will appear here for instant bill settlement.
-          </p>
-          {searchQuery && (
-            <button
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
               onClick={() => setSearchQuery('')}
               className="mt-4 text-xs text-primary underline underline-offset-4 hover:opacity-80 cursor-pointer"
             >
@@ -888,7 +642,6 @@ export function PaymentsView({
       ) : (
         <div className="flex flex-col gap-4">
           <AnimatePresence mode="popLayout">
-<<<<<<< HEAD
             {displayInvoices.map((invoice) => {
               const selectedMethod = paymentMethods[invoice.groupKey] || 'upi';
               const rawName = (invoice.customer_name || 'Guest Customer').trim();
@@ -905,40 +658,22 @@ export function PaymentsView({
               return (
                 <motion.div
                   key={invoice.groupKey}
-=======
-            {filteredOrders.map((order, idx) => {
-              const selectedMethod = paymentMethods[order.id] || 'upi';
-              const rawName = (order.customer_name || 'Guest Customer').trim();
-              const isGuest = !rawName || rawName.toLowerCase() === 'guest' || rawName.toLowerCase() === 'guest order';
-              const tableNum = order.table_id ? `Table ${String(order.table_id).replace(/^table\s*/i, '')}` : 'Counter / Takeaway';
-              const isDineIn = !!order.table_id;
-              const isProcessing = isSettlingId === order.id;
-
-              return (
-                <motion.div
-                  key={order.id}
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                   layout
                   initial={{ opacity: 0, y: 12, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-<<<<<<< HEAD
                   className={`rounded-3xl border transition-all overflow-hidden ${
                     isSettled 
                       ? 'border-emerald-500/40 bg-gradient-to-b from-[#0C1713] to-[#0A0B0E] shadow-[0_0_35px_rgba(16,185,129,0.12)]' 
                       : 'border-amber-500/30 bg-[#0E0F14] hover:border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.05)]'
                   }`}
-=======
-                  className="rounded-3xl border border-amber-500/30 bg-[#0E0F14] hover:border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-colors overflow-hidden"
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                 >
                   <div className="flex flex-col lg:flex-row items-stretch justify-between p-5 sm:p-6 gap-6">
                     
                     {/* Left: Customer Info, Token & Table */}
                     <div className="flex flex-col justify-between gap-4 flex-1 min-w-0">
                       <div>
-<<<<<<< HEAD
                         <div className="flex items-center gap-2.5 flex-wrap mb-2.5">
                           {/* Token(s) */}
                           <div className="flex items-baseline gap-1.5 flex-wrap">
@@ -955,13 +690,6 @@ export function PaymentsView({
                           </div>
 
                           {/* Table Badge */}
-=======
-                        <div className="flex items-center gap-3 flex-wrap mb-2">
-                          <span className="text-2xl sm:text-3xl font-serif font-bold text-amber-400 tracking-wider">
-                            #{order.token}
-                          </span>
-
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                           <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
                             isDineIn 
                               ? 'bg-primary/10 border-primary/30 text-primary' 
@@ -970,7 +698,6 @@ export function PaymentsView({
                             {tableNum}
                           </span>
 
-<<<<<<< HEAD
                           {/* Merged Orders Count Badge */}
                           {invoice.mergedCount > 1 && (
                             <span className="flex items-center gap-1 bg-amber-500/15 border border-amber-500/35 text-amber-300 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.15)]">
@@ -992,14 +719,6 @@ export function PaymentsView({
 
                           <span className="text-[11px] text-white/70 font-mono">
                             {formatElapsed(invoice.created_at)}
-=======
-                          <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full animate-pulse">
-                            <Clock size={11} /> Waiting for Payment
-                          </span>
-
-                          <span className="text-[11px] text-white/70 font-mono">
-                            {formatElapsed(order.created_at)}
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                           </span>
                         </div>
 
@@ -1010,7 +729,6 @@ export function PaymentsView({
                             <span>{rawName}</span>
                           </div>
 
-<<<<<<< HEAD
                           {activePhone ? (
                             <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full text-xs font-mono text-white/80">
                               <Phone size={12} className="text-white/60" />
@@ -1020,18 +738,6 @@ export function PaymentsView({
                                 onClick={() => {
                                   navigator.clipboard.writeText(activePhone);
                                   toast.success('Phone copied to clipboard');
-=======
-                          {order.customer_phone && (
-                            <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full text-xs font-mono text-white/80">
-                              <Phone size={12} className="text-white/60" />
-                              <span>{order.customer_phone}</span>
-                              <button
-                                onClick={() => {
-                                  if (order.customer_phone) {
-                                    navigator.clipboard.writeText(order.customer_phone);
-                                    toast.success('Phone copied to clipboard');
-                                  }
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                                 }}
                                 aria-label="Copy phone number"
                                 className="text-white/50 hover:text-primary transition-colors cursor-pointer ml-0.5"
@@ -1040,7 +746,6 @@ export function PaymentsView({
                                 <Copy size={11} />
                               </button>
                             </div>
-<<<<<<< HEAD
                           ) : (
                             <div className="flex items-center gap-1.5">
                               <input
@@ -1077,25 +782,6 @@ export function PaymentsView({
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {invoice.items.map((item, i) => (
-=======
-                          )}
-
-                          {order.gstin && (
-                            <span className="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white/70">
-                              GSTIN: {order.gstin}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Items Ordered List Preview */}
-                      <div className="bg-[#14161C] border border-white/5 rounded-2xl p-3 max-h-32 overflow-y-auto custom-scrollbar">
-                        <div className="text-[9px] uppercase tracking-widest font-bold text-white/60 mb-2">
-                          Order Breakdown ({order.items?.length || 0} items)
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {order.items?.map((item, i) => (
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                             <div key={i} className="flex items-center justify-between text-xs text-white/90">
                               <span className="truncate pr-2">
                                 <span className="font-bold text-amber-300 mr-1.5">{item.quantity}x</span>
@@ -1107,21 +793,14 @@ export function PaymentsView({
                             </div>
                           ))}
                         </div>
-<<<<<<< HEAD
                         {invoice.notes && (
                           <div className="mt-2 pt-2 border-t border-white/5 text-[10px] text-amber-300/90 italic">
                             Notes: {invoice.notes}
-=======
-                        {order.notes && (
-                          <div className="mt-2 pt-2 border-t border-white/5 text-[10px] text-amber-300/90 italic">
-                            Note: {order.notes}
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                           </div>
                         )}
                       </div>
                     </div>
 
-<<<<<<< HEAD
                     {/* Right: Payment Method Selector & Actions */}
                     <div className="flex flex-col justify-between items-end border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-6 gap-4 shrink-0 min-w-[290px]">
                       {/* Price Summary */}
@@ -1138,7 +817,7 @@ export function PaymentsView({
                         </div>
                       </div>
 
-                      {/* POST-PAYMENT STATE: Green "Send WhatsApp Receipt" & Secondary "Done / Skip" */}
+                      {/* POST-PAYMENT STATE */}
                       {isSettled ? (
                         <div className="w-full flex flex-col gap-2.5 bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-3.5">
                           <div className="flex items-center justify-between text-xs text-emerald-300 font-bold">
@@ -1149,7 +828,6 @@ export function PaymentsView({
                             <span className="text-[10px] font-mono text-emerald-400/80">PAID ✅</span>
                           </div>
 
-                          {/* Quick Phone Input if empty */}
                           {!activePhone && (
                             <input
                               type="tel"
@@ -1161,7 +839,6 @@ export function PaymentsView({
                           )}
 
                           <div className="flex flex-col gap-2">
-                            {/* GREEN BUTTON: Send WhatsApp Receipt */}
                             <button
                               type="button"
                               onClick={() => handleSendWhatsApp(invoice, settledRecord?.paymentMode, activePhone)}
@@ -1171,7 +848,6 @@ export function PaymentsView({
                               <span>Send WhatsApp Receipt</span>
                             </button>
 
-                            {/* SECONDARY BUTTON: Done / Skip */}
                             <button
                               type="button"
                               onClick={() => handleDismissSettled(invoice.groupKey)}
@@ -1182,9 +858,8 @@ export function PaymentsView({
                           </div>
                         </div>
                       ) : (
-                        /* UNPAID STATE: Settlement Method & Payment Done Button */
+                        /* UNPAID STATE */
                         <>
-                          {/* Payment Method Selector */}
                           <div className="w-full">
                             <span className="text-[9px] font-bold uppercase tracking-widest text-white/70 block mb-1.5 text-left">
                               Settlement Method
@@ -1231,9 +906,7 @@ export function PaymentsView({
                             </div>
                           </div>
 
-                          {/* Settlement Buttons */}
                           <div className="w-full flex flex-col gap-2">
-                            {/* Primary Payment Done Action Button */}
                             <button
                               type="button"
                               onClick={() => handlePaymentDone(invoice)}
@@ -1253,7 +926,6 @@ export function PaymentsView({
                               )}
                             </button>
 
-                            {/* WhatsApp Receipt Quick Trigger */}
                             <button
                               type="button"
                               onClick={() => handleSendWhatsApp(invoice, selectedMethod, activePhone)}
@@ -1265,133 +937,6 @@ export function PaymentsView({
                           </div>
                         </>
                       )}
-=======
-                    {/* Right: Payment Method Selector & "Payment Done" Action Button */}
-                    <div className="flex flex-col justify-between items-end border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-6 gap-4 shrink-0 min-w-[280px]">
-                      {/* Price Summary */}
-                      <div className="w-full text-right">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 block mb-0.5">
-                          Total Bill Due
-                        </span>
-                        <div className="text-3xl sm:text-4xl font-serif font-bold text-primary tracking-tight font-mono">
-                          ₹{Number(order.total).toFixed(2)}
-                        </div>
-                        <span className="text-[10px] text-white/60 block mt-0.5">
-                          Taxes &amp; GST included
-                        </span>
-                      </div>
-
-                      {/* Payment Method Selector */}
-                      <div className="w-full">
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/70 block mb-1.5 text-left">
-                          Settlement Method
-                        </span>
-                        <div className="grid grid-cols-3 gap-1.5 bg-[#14161C] p-1 rounded-xl border border-white/10">
-                          <button
-                            onClick={() => setMethodForOrder(order.id, 'upi')}
-                            className={`min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
-                              selectedMethod === 'upi'
-                                ? 'bg-primary text-black shadow-md'
-                                : 'text-white/70 hover:text-white'
-                            }`}
-                          >
-                            <QrCode size={13} />
-                            <span>UPI / QR</span>
-                          </button>
-
-                          <button
-                            onClick={() => setMethodForOrder(order.id, 'cash')}
-                            className={`min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
-                              selectedMethod === 'cash'
-                                ? 'bg-emerald-500 text-black shadow-md'
-                                : 'text-white/70 hover:text-white'
-                            }`}
-                          >
-                            <Banknote size={13} />
-                            <span>Cash</span>
-                          </button>
-
-                          <button
-                            onClick={() => setMethodForOrder(order.id, 'card')}
-                            className={`min-h-[42px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
-                              selectedMethod === 'card'
-                                ? 'bg-blue-500 text-white shadow-md'
-                                : 'text-white/70 hover:text-white'
-                            }`}
-                          >
-                            <CreditCard size={13} />
-                            <span>Card</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Primary "Payment Done" Action Button & WhatsApp Receipt Button */}
-                      <div className="w-full flex flex-col gap-2">
-                        <button
-                          onClick={() => handlePaymentDone(order)}
-                          disabled={isProcessing}
-                          className="w-full min-h-[48px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3 px-6 text-xs font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-98 cursor-pointer disabled:opacity-50 touch-manipulation"
-                        >
-                          {isProcessing ? (
-                            <>
-                              <RotateCcw size={16} className="animate-spin" />
-                              <span>Processing...</span>
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle2 size={16} />
-                              <span>Payment Done</span>
-                            </>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const method = paymentMethods[order.id] || 'upi';
-                            const payload = { ...order, payment_mode: method.toUpperCase() };
-                            const targetPhone = order.customer_phone;
-                            if (!targetPhone) {
-                              toast.error('No customer phone number on record for this order');
-                              return;
-                            }
-
-                            const toastId = toast.loading('Sending PDF receipt via WhatsApp…');
-                            try {
-                              const res = await fetch('/api/whatsapp/send-receipt', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ order: payload, phone: targetPhone })
-                              });
-                              const result = await res.json();
-                              if (result.success) {
-                                toast.success('✅ Receipt PDF sent directly to customer WhatsApp!', { id: toastId });
-} else {
-                                // Bot offline – fallback to wa.me direct link
-                                const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
-                                if (shareResult.success) {
-                                  toast.warning('Bot offline – opened WhatsApp directly. ' + (result.message || ''), { id: toastId });
-                                } else {
-                                  toast.error(shareResult.error || 'Could not format customer phone number');
-                                }
-                              }
-                            } catch (_err) {
-                              // Server unreachable – fallback to wa.me direct link
-                              const shareResult = sendWhatsAppReceiptWithPDF(payload, targetPhone);
-                              if (shareResult.success) {
-                                toast.warning('Server unreachable – opened WhatsApp directly as fallback', { id: toastId });
-                              } else {
-                                toast.error(shareResult.error || 'Could not format customer phone number');
-                              }
-                            }
-                          }}
-                          className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
-                        >
-                          <FileText size={13} />
-                          <span>Send WhatsApp PDF</span>
-                        </button>
-                      </div>
->>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
                     </div>
 
                   </div>
@@ -1401,7 +946,6 @@ export function PaymentsView({
           </AnimatePresence>
         </div>
       )}
-
     </div>
   );
 }
