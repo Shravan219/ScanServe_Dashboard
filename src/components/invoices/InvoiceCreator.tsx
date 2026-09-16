@@ -212,6 +212,11 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
       return;
     }
 
+    if (gstin.trim() && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(gstin.trim())) {
+      toast.error('Invalid GSTIN format. Expected 15 characters (e.g. 29AAAAA0000A1Z5).');
+      return;
+    }
+
     setIsSubmitting(true);
     const invoiceId = `INV-${Date.now().toString().slice(-6)}`;
     const randomToken = Math.floor(1000 + Math.random() * 9000).toString();
@@ -337,8 +342,8 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
               <h1 className="text-3xl font-serif tracking-tight text-white">
                 Invoice <span className="italic text-primary font-normal">Creator</span>
               </h1>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold">
-                Manual POS Billing & Instant Receipt Terminal
+              <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-semibold">
+                Direct POS Billing & Instant Receipt Terminal
               </p>
             </div>
           </div>
@@ -389,7 +394,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                   Customer & Order Details
                 </span>
               </div>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-bold">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-semibold">
                 Step 1 of 2
               </span>
             </div>
@@ -397,39 +402,41 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Customer Name */}
               <div className="space-y-1.5">
-                <label htmlFor="invoice-customer-name" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5 cursor-pointer">
+                <label htmlFor="invoice-customer-name" className="text-[10px] uppercase tracking-[0.2em] text-white/70 font-bold ml-1 flex items-center gap-1.5 cursor-pointer">
                   <User size={12} className="text-primary/70" />
                   Customer Name
                 </label>
                 <Input
                   id="invoice-customer-name"
                   type="text"
+                  maxLength={60}
                   placeholder="e.g. Shravan Kumar"
                   value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-semibold tracking-wide text-white focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-all placeholder:text-white/20"
+                  onChange={(e) => setCustomerName(e.target.value.slice(0, 60))}
+                  className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-semibold tracking-wide text-white focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-all placeholder:text-white/40"
                 />
               </div>
 
               {/* Phone Number */}
               <div className="space-y-1.5">
-                <label htmlFor="invoice-customer-phone" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5 cursor-pointer">
+                <label htmlFor="invoice-customer-phone" className="text-[10px] uppercase tracking-[0.2em] text-white/70 font-bold ml-1 flex items-center gap-1.5 cursor-pointer">
                   <Phone size={12} className="text-primary/70" />
                   Phone Number
                 </label>
                 <Input
                   id="invoice-customer-phone"
                   type="tel"
+                  maxLength={15}
                   placeholder="e.g. +91 98765 43210"
                   value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-semibold tracking-wide text-white focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-all placeholder:text-white/20"
+                  onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+\s-]/g, '').slice(0, 15))}
+                  className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-semibold tracking-wide text-white focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-all placeholder:text-white/40"
                 />
               </div>
 
               {/* Order Channel */}
               <div className="space-y-1.5">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center gap-1.5">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-white/70 font-bold ml-1 flex items-center gap-1.5">
                   <ShoppingBag size={12} className="text-primary/70" />
                   Order Channel / Type
                 </span>
@@ -490,27 +497,29 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                   <Input
                     id="invoice-table-number"
                     type="text"
+                    maxLength={20}
                     placeholder="e.g. Table 04"
                     value={tableNumber}
-                    onChange={(e) => setTableNumber(e.target.value)}
-                    className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-semibold text-white placeholder:text-white/20"
+                    onChange={(e) => setTableNumber(e.target.value.slice(0, 20))}
+                    className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-semibold text-white placeholder:text-white/40"
                   />
                 </div>
               )}
 
               {/* Optional GSTIN for India Tax Invoicing */}
               <div className="space-y-1.5">
-                <label htmlFor="invoice-gstin" className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold ml-1 flex items-center justify-between cursor-pointer">
+                <label htmlFor="invoice-gstin" className="text-[10px] uppercase tracking-[0.2em] text-white/70 font-bold ml-1 flex items-center justify-between cursor-pointer">
                   <span>GSTIN (B2B Tax Invoice)</span>
-                  <span className="text-[8px] text-white/30 normal-case">Optional</span>
+                  <span className="text-[8px] text-white/50 normal-case">Optional</span>
                 </label>
                 <Input
                   id="invoice-gstin"
                   type="text"
+                  maxLength={15}
                   placeholder="e.g. 29AAAAA0000A1Z5"
                   value={gstin}
-                  onChange={(e) => setGstin(e.target.value.toUpperCase())}
-                  className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-mono font-semibold uppercase tracking-wider text-white placeholder:text-white/20"
+                  onChange={(e) => setGstin(e.target.value.toUpperCase().slice(0, 15))}
+                  className="bg-black/60 border-white/10 rounded-2xl h-12 text-xs font-mono font-semibold uppercase tracking-wider text-white placeholder:text-white/40"
                 />
               </div>
             </div>
@@ -520,11 +529,11 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
           {menuItems.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40 flex items-center gap-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/60 flex items-center gap-1.5">
                   <Sparkles size={12} className="text-primary" />
                   Quick Tap Menu Items
                 </span>
-                <span className="text-[9px] text-white/30 uppercase tracking-wider">
+                <span className="text-[9px] text-white/60 uppercase tracking-wider font-semibold">
                   Tap item to add to bill
                 </span>
               </div>
@@ -643,11 +652,11 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                               {/* Autocomplete Dropdown */}
                               {activeItemSearchIdx === idx && (
                                 <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-[#141414] border border-white/10 rounded-2xl shadow-2xl max-h-56 overflow-y-auto custom-scrollbar p-2">
-                                  <div className="text-[8px] uppercase tracking-[0.2em] text-white/30 px-3 py-1 font-bold">
+                                  <div className="text-[8px] uppercase tracking-[0.2em] text-white/60 px-3 py-1 font-semibold">
                                     Select From Menu ({filteredMenuForLine.length} options)
                                   </div>
                                   {filteredMenuForLine.length === 0 ? (
-                                    <div className="p-3 text-center text-xs text-white/40">
+                                    <div className="p-3 text-center text-xs text-white/60">
                                       No items match. Tap "Custom Off-Menu Item" above.
                                     </div>
                                   ) : (
@@ -662,7 +671,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                                           <span className="text-xs font-semibold text-white group-hover/item:text-primary">
                                             {menuItem.name}
                                           </span>
-                                          <span className="text-[9px] uppercase tracking-wider text-white/30 block">
+                                          <span className="text-[9px] uppercase tracking-wider text-white/60 block">
                                             {menuItem.category}
                                           </span>
                                         </div>
@@ -686,9 +695,10 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                           <Input
                             type="number"
                             min="0"
+                            max="99999"
                             step="0.5"
                             value={item.price || ''}
-                            onChange={(e) => handleUpdateItem(idx, { price: parseFloat(e.target.value) || 0 })}
+                            onChange={(e) => handleUpdateItem(idx, { price: Math.max(0, Math.min(99999, parseFloat(e.target.value) || 0)) })}
                             className="bg-[#111] border-white/10 rounded-xl h-11 text-xs font-mono text-center text-white focus-visible:ring-primary/20"
                           />
                         </div>
@@ -702,7 +712,9 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                             <button
                               type="button"
                               onClick={() => handleUpdateItem(idx, { quantity: Math.max(1, item.quantity - 1) })}
-                              className="h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-bold text-sm transition-colors"
+                              disabled={item.quantity <= 1}
+                              aria-label="Decrease quantity"
+                              className="h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-bold text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                             >
                               -
                             </button>
@@ -711,8 +723,10 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                             </span>
                             <button
                               type="button"
-                              onClick={() => handleUpdateItem(idx, { quantity: item.quantity + 1 })}
-                              className="h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-bold text-sm transition-colors"
+                              onClick={() => handleUpdateItem(idx, { quantity: Math.min(99, item.quantity + 1) })}
+                              disabled={item.quantity >= 99}
+                              aria-label="Increase quantity"
+                              className="h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-bold text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                             >
                               +
                             </button>
@@ -778,28 +792,38 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
             {/* Live Items Breakdown List */}
             <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
               {items.filter(i => i.name && i.name.trim()).length === 0 ? (
-                <p className="text-[11px] text-white/20 italic text-center py-4">
+                <p className="text-[11px] text-white/50 italic text-center py-4">
                   No items selected yet. Choose from menu or add custom items.
                 </p>
               ) : (
-                items.filter(i => i.name && i.name.trim()).map((it, i) => (
-                  <div key={i} className="flex justify-between items-center text-xs py-1 border-b border-white/[0.02]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white/40 font-mono text-[10px]">x{it.quantity}</span>
-                      <span className="text-white/90 truncate max-w-[150px] font-medium">{it.name}</span>
-                    </div>
-                    <span className="font-mono text-white/70">
-                      ₹{(it.price * it.quantity).toFixed(2)}
-                    </span>
-                  </div>
-                ))
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {items.filter(i => i.name && i.name.trim()).map((it) => (
+                    <motion.div
+                      key={it.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.96, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.94 }}
+                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex justify-between items-center text-xs py-1 border-b border-white/[0.02]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-white/60 font-mono text-[10px]">x{it.quantity}</span>
+                        <span className="text-white/90 truncate max-w-[150px] font-medium">{it.name}</span>
+                      </div>
+                      <span className="font-mono text-white/80">
+                        ₹{(it.price * it.quantity).toFixed(2)}
+                      </span>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               )}
             </div>
 
             {/* Calculations Breakdown */}
             <div className="space-y-3 border-t border-white/5 pt-4 text-xs">
               {/* Subtotal */}
-              <div className="flex justify-between items-center text-white/60">
+              <div className="flex justify-between items-center text-white/70">
                 <span className="text-[10px] uppercase tracking-wider font-semibold">Subtotal</span>
                 <span className="font-mono text-white font-semibold">₹{subtotal.toFixed(2)}</span>
               </div>
@@ -807,7 +831,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
               {/* Discount Selector */}
               <div className="space-y-1.5 bg-black/40 p-3 rounded-2xl border border-white/5">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] uppercase tracking-wider text-white/50 font-bold flex items-center gap-1">
+                  <span className="text-[9px] uppercase tracking-wider text-white/70 font-bold flex items-center gap-1">
                     <Percent size={11} className="text-primary" />
                     Apply Discount
                   </span>
@@ -815,14 +839,14 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                     <button
                       type="button"
                       onClick={() => setDiscountType('flat')}
-                      className={`px-2 py-0.5 ${discountType === 'flat' ? 'bg-primary text-black' : 'text-white/40'}`}
+                      className={`px-2 py-0.5 ${discountType === 'flat' ? 'bg-primary text-black' : 'text-white/60'}`}
                     >
                       ₹ Flat
                     </button>
                     <button
                       type="button"
                       onClick={() => setDiscountType('percent')}
-                      className={`px-2 py-0.5 ${discountType === 'percent' ? 'bg-primary text-black' : 'text-white/40'}`}
+                      className={`px-2 py-0.5 ${discountType === 'percent' ? 'bg-primary text-black' : 'text-white/60'}`}
                     >
                       % Off
                     </button>
@@ -867,7 +891,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                 </div>
 
                 {applyGst && (
-                  <div className="flex justify-between text-[8px] uppercase tracking-wider text-white/30 pt-1 border-t border-white/5 font-mono">
+                  <div className="flex justify-between text-[8px] uppercase tracking-wider text-white/60 pt-1 border-t border-white/5 font-mono">
                     <span>CGST ({gstRate / 2}%): ₹{(gstAmount / 2).toFixed(2)}</span>
                     <span>SGST ({gstRate / 2}%): ₹{(gstAmount / 2).toFixed(2)}</span>
                   </div>
@@ -878,11 +902,11 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
               <div className="border-t border-primary/20 pt-4 mt-2">
                 <div className="flex justify-between items-baseline">
                   <div>
-                    <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold block">
+                    <span className="text-[9px] uppercase tracking-[0.25em] text-white/60 font-semibold block">
                       Grand Total
                     </span>
-                    <span className="text-[9px] text-emerald-400/80 font-mono">
-                      Includes all taxes & discounts
+                    <span className="text-[9px] text-emerald-400/90 font-mono">
+                      Includes all taxes &amp; discounts
                     </span>
                   </div>
                   <div className="text-right">
@@ -902,7 +926,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                 disabled={isSubmitting || grandTotal <= 0}
                 className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-14 text-[11px] uppercase tracking-[0.35em] font-extrabold shadow-[0_0_30px_rgba(197,160,89,0.35)] transition-all hover:scale-[1.02] duration-300"
               >
-                {isSubmitting ? 'Writing to Orders DB...' : 'Generate & Save Invoice'}
+                {isSubmitting ? 'Issuing & Saving Invoice...' : `Issue & Save Invoice (₹${grandTotal.toFixed(2)})`}
               </Button>
             </div>
           </Card>

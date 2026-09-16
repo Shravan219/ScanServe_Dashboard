@@ -386,11 +386,11 @@ export function OnlineOrdersView({
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-4xl font-serif tracking-tight">Online Orders</h2>
             <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">
-              Swiggy & Zomato Live
+              Swiggy &amp; Zomato Live
             </span>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-white/30 mt-1 sm:mt-2 font-bold">
-            Aggregator integration & dispatch desk
+          <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 mt-1 sm:mt-2 font-semibold">
+            Aggregator integration &amp; dispatch desk
           </p>
         </div>
 
@@ -398,6 +398,7 @@ export function OnlineOrdersView({
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
+            aria-expanded={showConfig}
             onClick={() => {
               setShowConfig(!showConfig);
               refreshAllLogs();
@@ -409,7 +410,7 @@ export function OnlineOrdersView({
             }`}
           >
             <Radio size={14} className={`mr-2 ${showConfig ? 'animate-pulse text-black' : 'text-primary'}`} />
-            Tester & Webhook Inspector
+            Tester &amp; Webhook Inspector
             {showConfig ? <ChevronUp size={14} className="ml-2" /> : <ChevronDown size={14} className="ml-2" />}
           </Button>
         </div>
@@ -796,7 +797,7 @@ export function OnlineOrdersView({
           </div>
           <div className="mt-4">
             <span className="text-3xl font-serif font-bold text-white">{stats.activeCount}</span>
-            <span className="text-[10px] text-white/30 block mt-1">Pending & Kitchen items</span>
+            <span className="text-[10px] text-white/60 block mt-1 font-medium">Pending &amp; Kitchen items</span>
           </div>
         </Card>
 
@@ -811,7 +812,7 @@ export function OnlineOrdersView({
           <div className="mt-4 flex items-baseline justify-between">
             <div>
               <span className="text-3xl font-serif font-bold text-white">{stats.swiggyCount}</span>
-              <span className="text-[10px] text-white/30 block mt-1">Total Orders</span>
+              <span className="text-[10px] text-white/60 block mt-1 font-medium">Total Orders</span>
             </div>
             <span className="text-lg font-serif font-bold text-[#FC8019]">₹{stats.swiggyRev.toFixed(0)}</span>
           </div>
@@ -828,7 +829,7 @@ export function OnlineOrdersView({
           <div className="mt-4 flex items-baseline justify-between">
             <div>
               <span className="text-3xl font-serif font-bold text-white">{stats.zomatoCount}</span>
-              <span className="text-[10px] text-white/30 block mt-1">Total Orders</span>
+              <span className="text-[10px] text-white/60 block mt-1 font-medium">Total Orders</span>
             </div>
             <span className="text-lg font-serif font-bold text-[#E23744]">₹{stats.zomatoRev.toFixed(0)}</span>
           </div>
@@ -837,14 +838,14 @@ export function OnlineOrdersView({
         {/* Total Online Revenue */}
         <Card className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">Total Online Sales</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60 font-semibold">Total Online Sales</span>
             <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <TrendingUp size={16} />
             </div>
           </div>
           <div className="mt-4">
             <span className="text-3xl font-serif font-bold text-emerald-400">₹{stats.totalRev.toFixed(0)}</span>
-            <span className="text-[10px] text-white/30 block mt-1">Lifetime Online Revenue</span>
+            <span className="text-[10px] text-white/60 block mt-1 font-medium">Lifetime Online Revenue</span>
           </div>
         </Card>
       </div>
@@ -855,6 +856,7 @@ export function OnlineOrdersView({
         <div className="relative w-full md:w-80">
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70" />
           <Input 
+            aria-label="Search online orders by token or platform order ID"
             placeholder="Search Token, Swiggy/Zomato ID..." 
             className="pl-11 bg-black border-white/10 rounded-full h-11 text-[10px] font-bold uppercase tracking-[0.2em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all text-white placeholder:text-white/50"
             value={searchQuery}

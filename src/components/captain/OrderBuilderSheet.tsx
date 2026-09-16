@@ -112,7 +112,7 @@ export function OrderBuilderSheet({
     setCart(prev => {
       const existing = prev[menuItem.id];
       const currentQty = existing ? existing.quantity : 0;
-      const newQty = Math.max(0, currentQty + delta);
+      const newQty = Math.max(0, Math.min(99, currentQty + delta));
 
       if (newQty === 0) {
         const next = { ...prev };
@@ -283,18 +283,23 @@ export function OrderBuilderSheet({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-md">
+      {isOpen && (
         <motion.div
-          initial={{ x: '100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-          className="relative flex h-full w-full max-w-3xl flex-col bg-[#0B0C0E] border-l border-white/10 text-white shadow-2xl overflow-hidden font-sans"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-md"
         >
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+            className="relative flex h-full w-full max-w-3xl flex-col bg-[#0B0C0E] border-l border-white/10 text-white shadow-2xl overflow-hidden font-sans"
+          >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 px-4 sm:px-6 py-4 sm:py-5 bg-[#0F1014] shrink-0">
             <div className="flex items-center gap-3">
@@ -313,38 +318,44 @@ export function OrderBuilderSheet({
             </div>
 
             <button
+              type="button"
               onClick={onClose}
-              className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition-all cursor-pointer shrink-0"
+              aria-label="Close order sheet"
+              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer shrink-0 touch-manipulation active:scale-95"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
 
           {/* Mobile Tab Switcher */}
-          <div className="flex md:hidden border-b border-white/10 bg-[#0A0B0E] p-2 gap-2 shrink-0">
+          <div className="flex md:hidden border-b border-white/10 bg-[#0A0B0E] p-2.5 gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setMobileTab('menu')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+              role="tab"
+              aria-selected={mobileTab === 'menu'}
+              className={`flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all touch-manipulation active:scale-98 ${
                 mobileTab === 'menu'
                   ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                   : 'bg-white/5 text-white/60 hover:text-white'
               }`}
             >
-              <Utensils size={14} />
+              <Utensils size={15} />
               <span>1. Menu Items ({menuItems.length})</span>
             </button>
             <button
               type="button"
               onClick={() => setMobileTab('cart')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all relative ${
+              role="tab"
+              aria-selected={mobileTab === 'cart'}
+              className={`flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all relative touch-manipulation active:scale-98 ${
                 mobileTab === 'cart'
                   ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                   : 'bg-white/5 text-white/60 hover:text-white'
               }`}
             >
-              <ShoppingBag size={14} />
-              <span>2. Cart & Table ({totalItemCount})</span>
+              <ShoppingBag size={15} />
+              <span>2. Cart &amp; Table ({totalItemCount})</span>
               {totalItemCount > 0 && mobileTab !== 'cart' && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow">
                   {totalItemCount}
@@ -416,23 +427,26 @@ export function OrderBuilderSheet({
                               ₹{item.price} × {quantity} = <span className="font-bold text-primary">₹{item.price * quantity}</span>
                             </p>
                           </div>
-                          <div className="flex items-center gap-1.5 bg-black/60 rounded-lg p-1 border border-white/10 shrink-0">
+                          <div className="flex items-center gap-1 bg-black/60 rounded-xl p-1 border border-white/10 shrink-0">
                             <button
+                              type="button"
                               onClick={() => handleQuantityChange(item, -1)}
-                              className="h-7 w-7 flex items-center justify-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation"
+                              className="h-8 w-8 min-h-[36px] min-w-[36px] touch-target flex items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20 active:scale-90 transition-all cursor-pointer touch-manipulation"
                               title="Decrease quantity"
                               aria-label="Decrease item quantity"
                             >
-                              <Minus size={12} />
+                              <Minus size={13} />
                             </button>
-                            <span className="w-6 text-center text-xs font-bold text-primary font-mono">{quantity}</span>
+                            <span className="w-7 text-center text-xs font-bold text-primary font-mono">{quantity}</span>
                             <button
+                              type="button"
                               onClick={() => handleQuantityChange(item, 1)}
-                              className="h-7 w-7 flex items-center justify-center rounded bg-primary text-black font-bold hover:bg-primary/90 active:scale-95 transition-all cursor-pointer touch-manipulation"
+                              disabled={quantity >= 99}
+                              className="h-8 w-8 min-h-[36px] min-w-[36px] touch-target flex items-center justify-center rounded-lg bg-primary text-black font-bold hover:bg-primary/90 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer touch-manipulation"
                               title="Increase quantity"
                               aria-label="Increase item quantity"
                             >
-                              <Plus size={12} />
+                              <Plus size={13} />
                             </button>
                           </div>
                         </motion.div>
@@ -449,12 +463,13 @@ export function OrderBuilderSheet({
                   </div>
 
                   <button
+                    type="button"
                     onClick={handleSendToCounter}
                     disabled={isSubmitting || cartEntries.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(197,160,89,0.25)] hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer touch-manipulation"
                   >
-                    <Send size={14} className={isSubmitting ? 'animate-spin' : ''} />
-                    {isSubmitting ? 'Sending to Kitchen...' : 'Send to Counter / Kitchen'}
+                    <Send size={15} className={isSubmitting ? 'animate-spin' : ''} />
+                    {isSubmitting ? 'Submitting Order...' : `Send Order to Counter (${cartEntries.length} ${cartEntries.length === 1 ? 'item' : 'items'})`}
                   </button>
                 </div>
               </div>
@@ -466,13 +481,14 @@ export function OrderBuilderSheet({
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary flex items-center gap-1.5">
                     <ShoppingBag size={12} /> Order Channel
                   </span>
-                  <div className="grid grid-cols-2 gap-1.5 pt-1">
+                  <div className="grid grid-cols-2 gap-2 pt-1">
                     <button
                       type="button"
                       onClick={() => setOrderChannel('dine_in')}
-                      className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
+                      aria-pressed={orderChannel === 'dine_in'}
+                      className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border flex items-center justify-center touch-manipulation active:scale-95 ${
                         orderChannel === 'dine_in'
-                          ? 'bg-primary/20 text-primary border-primary/50'
+                          ? 'bg-primary text-black border-primary font-extrabold shadow-[0_0_15px_rgba(197,160,89,0.25)]'
                           : 'bg-[#14161C] text-white/70 border-white/10 hover:text-white'
                       }`}
                     >
@@ -481,9 +497,10 @@ export function OrderBuilderSheet({
                     <button
                       type="button"
                       onClick={() => setOrderChannel('takeaway')}
-                      className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
+                      aria-pressed={orderChannel === 'takeaway'}
+                      className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border flex items-center justify-center touch-manipulation active:scale-95 ${
                         orderChannel === 'takeaway'
-                          ? 'bg-primary/20 text-primary border-primary/50'
+                          ? 'bg-primary text-black border-primary font-extrabold shadow-[0_0_15px_rgba(197,160,89,0.25)]'
                           : 'bg-[#14161C] text-white/70 border-white/10 hover:text-white'
                       }`}
                     >
@@ -492,9 +509,10 @@ export function OrderBuilderSheet({
                     <button
                       type="button"
                       onClick={() => setOrderChannel('swiggy')}
-                      className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
+                      aria-pressed={orderChannel === 'swiggy'}
+                      className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border flex items-center justify-center touch-manipulation active:scale-95 ${
                         orderChannel === 'swiggy'
-                          ? 'bg-[#FC8019] text-white border-[#FC8019]'
+                          ? 'bg-[#FC8019] text-white border-[#FC8019] font-extrabold shadow-[0_0_15px_rgba(252,128,25,0.3)]'
                           : 'bg-[#14161C] text-[#FC8019]/80 border-white/10 hover:text-[#FC8019]'
                       }`}
                     >
@@ -503,9 +521,10 @@ export function OrderBuilderSheet({
                     <button
                       type="button"
                       onClick={() => setOrderChannel('zomato')}
-                      className={`px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border ${
+                      aria-pressed={orderChannel === 'zomato'}
+                      className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border flex items-center justify-center touch-manipulation active:scale-95 ${
                         orderChannel === 'zomato'
-                          ? 'bg-[#E23744] text-white border-[#E23744]'
+                          ? 'bg-[#E23744] text-white border-[#E23744] font-extrabold shadow-[0_0_15px_rgba(226,55,68,0.3)]'
                           : 'bg-[#14161C] text-[#E23744]/80 border-white/10 hover:text-[#E23744]'
                       }`}
                     >
@@ -525,7 +544,7 @@ export function OrderBuilderSheet({
                         id="order-builder-table-select"
                         value={tableNumber}
                         onChange={(e) => setTableNumber(e.target.value)}
-                        className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 transition-all cursor-pointer"
+                        className="w-full min-h-[44px] rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 transition-all cursor-pointer touch-manipulation"
                       >
                         {tables.map(t => (
                           <option key={t.id} value={t.table_number} className="bg-[#14161C] text-white">
@@ -564,9 +583,9 @@ export function OrderBuilderSheet({
                     <input
                       id="order-builder-cust-phone"
                       type="tel"
-                      maxLength={15}
+                      maxLength={13}
                       value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+ ]/g, ''))}
+                      onChange={(e) => setCustomerPhone(e.target.value.replace(/[^\d+]/g, '').slice(0, 13))}
                       placeholder="+91 98765..."
                       className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-mono"
                     />
@@ -599,10 +618,10 @@ export function OrderBuilderSheet({
                         key={tag}
                         type="button"
                         onClick={() => handleQuickTagClick(tag)}
-                        className={`rounded-lg px-2 py-1 text-[9px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                        className={`min-h-[38px] touch-target rounded-xl px-3 py-1.5 text-[10px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer touch-manipulation active:scale-95 ${
                           active 
                             ? 'bg-primary text-black shadow-[0_0_10px_rgba(197,160,89,0.3)]' 
-                            : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white'
+                            : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
                         }`}
                       >
                         {tag}
@@ -624,10 +643,11 @@ export function OrderBuilderSheet({
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
                 <input
                   type="text"
+                  aria-label="Search menu items by name or category"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search menu items..."
-                  className="w-full rounded-2xl bg-[#13151B] border border-white/10 pl-11 pr-4 py-3 text-xs font-semibold text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all"
+                  className="w-full rounded-2xl bg-[#13151B] border border-white/10 pl-11 pr-4 py-3 text-xs font-semibold text-white placeholder-white/40 focus:outline-none focus:border-primary/50 transition-all"
                 />
               </div>
 
@@ -669,6 +689,8 @@ export function OrderBuilderSheet({
                             <img
                               src={menuItem.image}
                               alt={menuItem.name}
+                              loading="lazy"
+                              decoding="async"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
@@ -707,24 +729,25 @@ export function OrderBuilderSheet({
                               <button
                                 type="button"
                                 onClick={() => handleQuantityChange(menuItem, -1)}
-                                className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation"
-                                aria-label="Decrease quantity"
+                                className="h-10 w-10 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer touch-manipulation touch-target"
+                                aria-label={`Decrease ${menuItem.name} quantity`}
                               >
-                                <Minus size={14} />
+                                <Minus size={15} />
                               </button>
                             )}
 
                             <button
                               type="button"
                               onClick={() => handleQuantityChange(menuItem, 1)}
-                              className={`min-h-[36px] flex items-center justify-center rounded-xl px-4 text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation ${
+                              disabled={qty >= 99 || menuItem.is_sold_out}
+                              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl px-4 text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed ${
                                 qty > 0 
                                   ? 'bg-primary text-black hover:bg-primary/90 font-mono shadow-sm' 
                                   : 'bg-white/10 text-white hover:bg-primary hover:text-black'
                               }`}
-                              aria-label="Add item"
+                              aria-label={qty > 0 ? `Increase ${menuItem.name} quantity (currently ${qty})` : `Add ${menuItem.name} to order`}
                             >
-                              {qty > 0 ? `${qty}` : <Plus size={15} />}
+                              {qty > 0 ? `${qty}` : <Plus size={16} />}
                             </button>
                           </div>
                         </div>
@@ -774,8 +797,9 @@ export function OrderBuilderSheet({
 
             </div>
           </div>
+          </motion.div>
         </motion.div>
-      </div>
+      )}
     </AnimatePresence>
   );
 }

@@ -135,7 +135,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
               <h1 className="text-3xl font-serif tracking-tight text-white">
                 Invoice <span className="italic text-primary font-normal">History & Analytics</span>
               </h1>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-semibold">
                 Real-Time Invoicing Ledger & Revenue Insights
               </p>
             </div>
@@ -160,7 +160,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
         {/* Total Revenue */}
         <Card className="bg-[#0A0A0A] border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-primary/30 transition-all">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">
+            <span className="text-[9px] uppercase tracking-[0.25em] text-white/60 font-semibold">
               Total Revenue
             </span>
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -178,7 +178,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
         {/* Total Invoices Issued */}
         <Card className="bg-[#0A0A0A] border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-primary/30 transition-all">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">
+            <span className="text-[9px] uppercase tracking-[0.25em] text-white/60 font-semibold">
               Invoices Issued
             </span>
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -188,7 +188,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
           <p className="text-3xl font-serif font-bold text-white tracking-tight">
             {analytics.totalCount}
           </p>
-          <span className="text-[9px] uppercase tracking-wider text-white/30 font-mono mt-2 block">
+          <span className="text-[9px] uppercase tracking-wider text-white/60 font-mono mt-2 block font-medium">
             Ledger transactions
           </span>
         </Card>
@@ -196,7 +196,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
         {/* Average Order Value (AOV) */}
         <Card className="bg-[#0A0A0A] border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-primary/30 transition-all">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">
+            <span className="text-[9px] uppercase tracking-[0.25em] text-white/60 font-semibold">
               Average Order Value (AOV)
             </span>
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -206,7 +206,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
           <p className="text-3xl font-serif font-bold text-primary tracking-tight">
             ₹{analytics.aov.toFixed(2)}
           </p>
-          <span className="text-[9px] uppercase tracking-wider text-white/30 font-mono mt-2 block">
+          <span className="text-[9px] uppercase tracking-wider text-white/60 font-mono mt-2 block font-medium">
             Per transaction average
           </span>
         </Card>
@@ -214,7 +214,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
         {/* Payment Mode Breakdown */}
         <Card className="bg-[#0A0A0A] border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-primary/30 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-bold">
+            <span className="text-[9px] uppercase tracking-[0.25em] text-white/60 font-semibold">
               Payment Breakdown
             </span>
             <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
@@ -223,15 +223,15 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
           </div>
           <div className="flex items-center justify-between text-xs pt-2">
             <div className="text-center">
-              <span className="text-[9px] text-white/40 block font-bold">UPI</span>
+              <span className="text-[9px] text-white/60 block font-semibold">UPI</span>
               <span className="font-mono font-bold text-white">{analytics.upiCount}</span>
             </div>
             <div className="text-center border-l border-r border-white/5 px-4">
-              <span className="text-[9px] text-white/40 block font-bold">Cash</span>
+              <span className="text-[9px] text-white/60 block font-semibold">Cash</span>
               <span className="font-mono font-bold text-white">{analytics.cashCount}</span>
             </div>
             <div className="text-center">
-              <span className="text-[9px] text-white/40 block font-bold">Card</span>
+              <span className="text-[9px] text-white/60 block font-semibold">Card</span>
               <span className="font-mono font-bold text-white">{analytics.cardCount}</span>
             </div>
           </div>
@@ -243,12 +243,13 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
         <div className="relative w-full sm:w-80">
           <Input
             type="text"
+            aria-label="Search invoices by customer name, phone, or token"
             placeholder="Search by customer, phone, token, ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-black/60 border-white/10 rounded-xl h-11 text-xs text-white pl-9 placeholder:text-white/20"
+            className="bg-black/60 border-white/10 rounded-xl h-11 text-xs text-white pl-9 placeholder:text-white/40"
           />
-          <Search size={14} className="absolute left-3 top-3.5 text-white/30 pointer-events-none" />
+          <Search size={14} className="absolute left-3 top-3.5 text-white/50 pointer-events-none" />
         </div>
 
         {/* Payment Filters */}
@@ -288,8 +289,26 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
             <tbody className="divide-y divide-white/5 text-xs text-white/80">
               {filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-white/30 italic">
-                    No invoices found matching your criteria.
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <p className="text-white/40 text-sm">
+                        {searchTerm || paymentFilter !== 'ALL'
+                          ? 'No invoices match your search or filter criteria.'
+                          : 'No invoices recorded in history yet.'}
+                      </p>
+                      {(searchTerm || paymentFilter !== 'ALL') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchTerm('');
+                            setPaymentFilter('ALL');
+                          }}
+                          className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary hover:text-black transition-colors"
+                        >
+                          <RefreshCw size={12} /> Reset Search &amp; Filters
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -301,7 +320,7 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
                   const paymentBadge = isCash ? 'Cash' : isCard ? 'Card' : 'UPI';
 
                   return (
-                    <tr key={inv.id || inv.token} className="hover:bg-white/[0.02] transition-colors group">
+                    <tr key={inv.id || inv.token} className="hover:bg-white/[0.02] transition-colors group content-auto">
                       {/* Invoice ID / Token */}
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
@@ -343,10 +362,10 @@ export function InvoiceHistory({ orders, onRefresh }: InvoiceHistoryProps) {
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                             paymentBadge === 'UPI'
-                              ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                              ? 'bg-primary/15 text-primary border-primary/30 shadow-[0_0_8px_rgba(197,160,89,0.15)]'
                               : paymentBadge === 'Cash'
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.15)]'
+                              : 'bg-sky-500/15 text-sky-400 border-sky-500/30 shadow-[0_0_8px_rgba(14,165,233,0.15)]'
                           }`}
                         >
                           {paymentBadge === 'UPI' && <QrCode size={11} />}

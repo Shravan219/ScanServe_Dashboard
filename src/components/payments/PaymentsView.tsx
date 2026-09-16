@@ -314,6 +314,14 @@ export function PaymentsView({
       return;
     }
 
+    const digitsOnly = targetPhone.replace(/\D/g, '');
+    if (digitsOnly.length < 10) {
+      toast.error('Invalid phone number', {
+        description: 'Please enter a valid 10-digit mobile number (e.g. +91 9876543210).'
+      });
+      return;
+    }
+
     const mode = paymentMode || paymentMethods[invoice.groupKey] || 'upi';
     const receiptPayload = buildReceiptData(invoice, mode);
     receiptPayload.customer_phone = targetPhone;
@@ -575,11 +583,13 @@ export function PaymentsView({
         {/* Filter Controls & Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Segment Filter */}
-          <div className="flex items-center bg-[#141620] border border-white/10 rounded-xl p-1 shrink-0 overflow-x-auto custom-scrollbar">
+          <div className="flex items-center bg-[#141620] border border-white/10 rounded-xl p-1 shrink-0 overflow-x-auto custom-scrollbar" role="tablist" aria-label="Filter payment tabs">
             <button
               type="button"
+              role="tab"
+              aria-selected={selectedFilter === 'all'}
               onClick={() => setSelectedFilter('all')}
-              className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+              className={`min-h-[44px] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation ${
                 selectedFilter === 'all' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -587,8 +597,10 @@ export function PaymentsView({
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={selectedFilter === 'dine_in'}
               onClick={() => setSelectedFilter('dine_in')}
-              className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+              className={`min-h-[44px] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation ${
                 selectedFilter === 'dine_in' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -596,8 +608,10 @@ export function PaymentsView({
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={selectedFilter === 'counter'}
               onClick={() => setSelectedFilter('counter')}
-              className={`min-h-[38px] px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+              className={`min-h-[44px] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation ${
                 selectedFilter === 'counter' ? 'bg-primary text-black shadow-md' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -607,13 +621,14 @@ export function PaymentsView({
 
           {/* Search Box */}
           <div className="relative min-w-[220px]">
-            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
             <input
               type="text"
+              aria-label="Search tabs by table, name, token, or phone"
               placeholder="Search table, name, token, phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#141620] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-sans"
+              className="w-full min-h-[44px] bg-[#141620] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-sans"
             />
           </div>
         </div>
@@ -740,20 +755,22 @@ export function PaymentsView({
                                   toast.success('Phone copied to clipboard');
                                 }}
                                 aria-label="Copy phone number"
-                                className="text-white/50 hover:text-primary transition-colors cursor-pointer ml-0.5"
+                                className="h-8 w-8 min-h-[36px] min-w-[36px] touch-target flex items-center justify-center text-white/50 hover:text-primary transition-colors cursor-pointer ml-1 touch-manipulation active:scale-90"
                                 title="Copy Phone"
                               >
-                                <Copy size={11} />
+                                <Copy size={13} />
                               </button>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5">
                               <input
                                 type="tel"
+                                aria-label="Customer phone number"
                                 placeholder="+91 Customer Phone"
+                                maxLength={13}
                                 value={customerPhoneInputs[invoice.groupKey] || ''}
-                                onChange={(e) => setCustomerPhoneInputs(prev => ({ ...prev, [invoice.groupKey]: e.target.value }))}
-                                className="bg-[#141620] border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 font-mono w-40"
+                                onChange={(e) => setCustomerPhoneInputs(prev => ({ ...prev, [invoice.groupKey]: e.target.value.replace(/[^\d+]/g, '').slice(0, 13) }))}
+                                className="min-h-[44px] bg-[#141620] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 font-mono w-44 touch-manipulation"
                               />
                             </div>
                           )}
@@ -821,9 +838,18 @@ export function PaymentsView({
                       {isSettled ? (
                         <div className="w-full flex flex-col gap-2.5 bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-3.5">
                           <div className="flex items-center justify-between text-xs text-emerald-300 font-bold">
-                            <span className="flex items-center gap-1.5">
+                            <span className="flex items-center gap-2">
                               <CheckCircle2 size={15} className="text-emerald-400" />
-                              Settled via {settledRecord?.paymentMode.toUpperCase()}
+                              <span>Settled via</span>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider border ${
+                                settledRecord?.paymentMode === 'upi'
+                                  ? 'bg-primary/20 text-primary border-primary/40'
+                                  : settledRecord?.paymentMode === 'cash'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  : 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                              }`}>
+                                {settledRecord?.paymentMode || 'PAID'}
+                              </span>
                             </span>
                             <span className="text-[10px] font-mono text-emerald-400/80">PAID ✅</span>
                           </div>
@@ -832,8 +858,9 @@ export function PaymentsView({
                             <input
                               type="tel"
                               placeholder="Enter Phone (+91...)"
+                              maxLength={13}
                               value={customerPhoneInputs[invoice.groupKey] || ''}
-                              onChange={(e) => setCustomerPhoneInputs(prev => ({ ...prev, [invoice.groupKey]: e.target.value }))}
+                              onChange={(e) => setCustomerPhoneInputs(prev => ({ ...prev, [invoice.groupKey]: e.target.value.replace(/[^\d+]/g, '').slice(0, 13) }))}
                               className="w-full bg-[#10131A] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 font-mono"
                             />
                           )}
@@ -851,9 +878,9 @@ export function PaymentsView({
                             <button
                               type="button"
                               onClick={() => handleDismissSettled(invoice.groupKey)}
-                              className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                              className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation"
                             >
-                              <span>Done / Skip</span>
+                              <span>Dismiss Receipt</span>
                             </button>
                           </div>
                         </div>
@@ -861,46 +888,52 @@ export function PaymentsView({
                         /* UNPAID STATE */
                         <>
                           <div className="w-full">
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/70 block mb-1.5 text-left">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 block mb-1.5 text-left">
                               Settlement Method
                             </span>
-                            <div className="grid grid-cols-3 gap-1.5 bg-[#14161C] p-1 rounded-xl border border-white/10">
+                            <div className="grid grid-cols-3 gap-1.5 bg-[#14161C] p-1 rounded-xl border border-white/10" role="radiogroup" aria-label="Settlement method">
                               <button
                                 type="button"
+                                role="radio"
+                                aria-checked={selectedMethod === 'upi'}
                                 onClick={() => setMethodForGroup(invoice.groupKey, 'upi')}
-                                className={`min-h-[40px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
+                                className={`min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
                                   selectedMethod === 'upi'
-                                    ? 'bg-primary text-black shadow-md'
+                                    ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                                     : 'text-white/70 hover:text-white'
                                 }`}
                               >
-                                <QrCode size={13} />
-                                <span>UPI / QR</span>
+                                <QrCode size={14} />
+                                <span>UPI</span>
                               </button>
 
                               <button
                                 type="button"
+                                role="radio"
+                                aria-checked={selectedMethod === 'cash'}
                                 onClick={() => setMethodForGroup(invoice.groupKey, 'cash')}
-                                className={`min-h-[40px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
+                                className={`min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
                                   selectedMethod === 'cash'
-                                    ? 'bg-emerald-500 text-black shadow-md'
+                                    ? 'bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)]'
                                     : 'text-white/70 hover:text-white'
                                 }`}
                               >
-                                <Banknote size={13} />
+                                <Banknote size={14} />
                                 <span>Cash</span>
                               </button>
 
                               <button
                                 type="button"
+                                role="radio"
+                                aria-checked={selectedMethod === 'card'}
                                 onClick={() => setMethodForGroup(invoice.groupKey, 'card')}
-                                className={`min-h-[40px] flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
+                                className={`min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation ${
                                   selectedMethod === 'card'
-                                    ? 'bg-blue-500 text-white shadow-md'
+                                    ? 'bg-sky-500 text-black shadow-[0_0_12px_rgba(14,165,233,0.3)]'
                                     : 'text-white/70 hover:text-white'
                                 }`}
                               >
-                                <CreditCard size={13} />
+                                <CreditCard size={14} />
                                 <span>Card</span>
                               </button>
                             </div>
@@ -911,7 +944,7 @@ export function PaymentsView({
                               type="button"
                               onClick={() => handlePaymentDone(invoice)}
                               disabled={isProcessing}
-                              className="w-full min-h-[48px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3 px-6 text-xs font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-98 cursor-pointer disabled:opacity-50 touch-manipulation"
+                              className="w-full min-h-[48px] flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black py-3 px-6 text-xs font-extrabold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.35)] hover:scale-[1.01] active:scale-98 cursor-pointer disabled:opacity-50 touch-manipulation"
                             >
                               {isProcessing ? (
                                 <>
@@ -921,7 +954,7 @@ export function PaymentsView({
                               ) : (
                                 <>
                                   <CheckCircle2 size={16} />
-                                  <span>Payment Done</span>
+                                  <span>Settle Bill (₹{Number(invoice.grand_total).toFixed(2)})</span>
                                 </>
                               )}
                             </button>
@@ -929,9 +962,9 @@ export function PaymentsView({
                             <button
                               type="button"
                               onClick={() => handleSendWhatsApp(invoice, selectedMethod, activePhone)}
-                              className="w-full min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                              className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation"
                             >
-                              <MessageSquare size={13} />
+                              <MessageSquare size={14} />
                               <span>Send WhatsApp Receipt</span>
                             </button>
                           </div>

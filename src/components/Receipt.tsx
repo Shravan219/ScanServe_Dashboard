@@ -79,7 +79,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({
             margin: 0 !important;
             padding: 0 !important;
             width: 80mm !important;
-            font-family: 'Courier New', Courier, monospace !important;
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace !important;
           }
 
           /* Completely isolate other viewport elements */

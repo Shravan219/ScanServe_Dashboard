@@ -52,6 +52,7 @@ import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrder
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { PaymentsView } from '@/src/components/payments/PaymentsView';
 import { ServerConnectionModal } from '@/src/components/ServerConnectionModal';
+import { ErrorBoundary } from '@/src/components/ErrorBoundary';
 import { getApiBaseUrl } from '@/src/lib/apiConfig';
 import { soundService } from '@/src/lib/sound';
 import { verifyStaffPassword } from '@/src/lib/authService';
@@ -1568,7 +1569,7 @@ export default function App() {
                 </div>
                 <div className="h-6 w-px bg-white/10" />
                 <div className="flex flex-col items-end">
-                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Avg Crafting</span>
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Avg Prep Time</span>
                   <div className="flex items-center gap-1.5">
                     <Timer size={12} className="text-primary/70" />
                     <span className="text-lg font-serif text-primary font-mono font-bold">{stats.avgTime}</span>
@@ -1642,7 +1643,7 @@ export default function App() {
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Start Crafting" 
+                        actionLabel="Accept & Fire" 
                         actionIcon={<CheckCircle2 size={15} strokeWidth={2} />}
                         onAction={() => updateOrderStatus(order.id, 'preparing')}
                         variant="pending"
@@ -1751,7 +1752,7 @@ export default function App() {
                       <OrderCard 
                         key={order.id} 
                         order={order} 
-                        actionLabel="Mark Served (Bill)" 
+                        actionLabel="Mark Served & Bill" 
                         actionIcon={<PackageCheck size={15} strokeWidth={2} />}
                         onAction={() => updateOrderStatus(order.id, 'waiting for payment')}
                         variant="ready"
@@ -1777,29 +1778,32 @@ export default function App() {
 
             {/* PAYMENTS VIEW */}
             <TabsContent value="payments" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
-              <PaymentsView 
-                orders={orders}
-                allOrders={allOrders}
-                onUpdateStatus={updateOrderStatus}
-                discountPercentage={discountPercentage}
-              />
+              <ErrorBoundary>
+                <PaymentsView 
+                  orders={orders}
+                  allOrders={allOrders}
+                  onUpdateStatus={updateOrderStatus}
+                  discountPercentage={discountPercentage}
+                />
+              </ErrorBoundary>
             </TabsContent>
 
             {/* MENU MANAGEMENT VIEW */}
             <TabsContent value="menu" className="m-0 h-full flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 md:p-8 outline-none data-[state=inactive]:hidden">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25 text-primary shadow-[0_0_20px_rgba(197,160,89,0.15)] shrink-0">
-                    <MenuIcon size={20} />
+              <ErrorBoundary fallbackTitle="Menu Management Interrupted">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25 text-primary shadow-[0_0_20px_rgba(197,160,89,0.15)] shrink-0">
+                      <MenuIcon size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight">Menu Catalog</h2>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 mt-0.5 font-bold">Inventory, Pricing &amp; Live Kitchen Availability</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight">Menu Catalog</h2>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 mt-0.5 font-bold">Inventory, Pricing &amp; Live Kitchen Availability</p>
-                  </div>
-                </div>
 
-                <div className="relative w-full sm:w-80">
-                  <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
+                  <div className="relative w-full sm:w-80">
+                    <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                   <Input 
                     placeholder="Search Dishes, Categories..." 
                     className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
@@ -1894,9 +1898,11 @@ export default function App() {
                   )}
                 </div>
               </div>
-            </TabsContent>
+            </ErrorBoundary>
+          </TabsContent>
 
-            <TabsContent value="customers" className="m-0 h-full flex flex-col gap-6 p-4 sm:p-6 md:p-8 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+          <TabsContent value="customers" className="m-0 h-full flex flex-col gap-6 p-4 sm:p-6 md:p-8 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+            <ErrorBoundary fallbackTitle="Customer Intelligence Interrupted">
               {/* Header & Search */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in flex-shrink-0">
                 <div className="flex items-center gap-3.5">
@@ -2079,7 +2085,7 @@ export default function App() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: Math.min(0.3, idx * 0.02) }}
-                            className="group hover:bg-white/[0.02] transition-colors"
+                            className="group hover:bg-white/[0.02] transition-colors content-auto"
                           >
                             <td className="px-4 py-3.5 font-medium text-white whitespace-nowrap">
                               <div className="flex items-center gap-2.5">
@@ -2113,12 +2119,10 @@ export default function App() {
                                 <span className="text-white/40 italic">No phone</span>
                               )}
                             </td>
-                            <td className="px-4 py-3.5 text-center whitespace-nowrap">
-                              <span className="inline-flex items-center justify-center h-6 w-10 rounded-full bg-white/5 font-mono text-white/90 font-bold group-hover:bg-primary/15 group-hover:text-primary transition-colors">
-                                {customer.orderCount}
-                              </span>
+                            <td className="px-4 py-3.5 text-center font-mono font-semibold text-white/80 whitespace-nowrap">
+                              {customer.orderCount}
                             </td>
-                            <td className="px-4 py-3.5 text-right font-mono text-primary font-bold whitespace-nowrap">
+                            <td className="px-4 py-3.5 text-right font-mono text-white/80 whitespace-nowrap">
                               ₹{customer.totalSpent.toFixed(2)}
                             </td>
                             <td className="px-4 py-3.5 text-right font-mono text-white/70 whitespace-nowrap">
@@ -2143,7 +2147,7 @@ export default function App() {
                                     ? "bg-primary/20 text-primary border-primary/40 hover:bg-primary/30 shadow-[0_0_10px_rgba(197,160,89,0.2)]"
                                     : "bg-white/5 text-white/50 border-white/10 hover:border-white/25 hover:text-white"
                                 )}
-                                title={customer.phone ? "Click to toggle Loyal VIP status" : "Phone required to toggle VIP"}
+                                title={customer.phone ? (customer.loyal_vip ? "Revoke VIP status" : "Grant VIP status (10% loyalty perk)") : "Valid phone number required to toggle VIP"}
                               >
                                 {customer.loyal_vip ? "VIP Active" : "Grant VIP"}
                               </button>
@@ -2168,97 +2172,104 @@ export default function App() {
                   </table>
                 </div>
               </div>
-            </TabsContent>
+            </ErrorBoundary>
+          </TabsContent>
 
             <TabsContent value="captain" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
-              <CaptainDashboard
-                menuItems={menuItems}
-                orders={orders}
-                onUpdateStatus={updateOrderStatus}
-                isKioskLocked={isKioskLocked}
-                setIsKioskLocked={setIsKioskLocked}
-                onOrderCreated={(newOrder) => {
-                  setOrders(prev => {
-                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
-                    if (exists) {
-                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
-                    }
-                    return [newOrder, ...prev];
-                  });
-                  setAllOrders(prev => {
-                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
-                    if (exists) {
-                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
-                    }
-                    return [newOrder, ...prev];
-                  });
-                }}
-              />
+              <ErrorBoundary>
+                <CaptainDashboard
+                  menuItems={menuItems}
+                  orders={orders}
+                  onUpdateStatus={updateOrderStatus}
+                  isKioskLocked={isKioskLocked}
+                  setIsKioskLocked={setIsKioskLocked}
+                  onOrderCreated={(newOrder) => {
+                    setOrders(prev => {
+                      const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                      if (exists) {
+                        return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                      }
+                      return [newOrder, ...prev];
+                    });
+                    setAllOrders(prev => {
+                      const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                      if (exists) {
+                        return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                      }
+                      return [newOrder, ...prev];
+                    });
+                  }}
+                />
+              </ErrorBoundary>
             </TabsContent>
 
             <TabsContent value="online" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
-              <OnlineOrdersView
-                orders={orders}
-                allOrders={allOrders}
-                menuItems={menuItems}
-                onUpdateStatus={updateOrderStatus}
-                onOrderCreated={(newOrder) => {
-                  setOrders(prev => [newOrder, ...prev]);
-                  setAllOrders(prev => [newOrder, ...prev]);
-                }}
-                renderOrderCard={(order, index) => {
-                  let actionLabel = "Start Crafting";
-                  let nextStatus: OrderStatus = "preparing";
-                  
-                  if (order.status === 'preparing') {
-                    actionLabel = "Mark Ready";
-                    nextStatus = "ready";
-                  } else if (order.status === 'ready') {
-                    actionLabel = "Complete & Paid";
-                    nextStatus = "completed";
-                  } else if (order.status === 'completed') {
-                    actionLabel = "Order Completed";
-                    nextStatus = "completed";
-                  }
+              <ErrorBoundary>
+                <OnlineOrdersView
+                  orders={orders}
+                  allOrders={allOrders}
+                  menuItems={menuItems}
+                  onUpdateStatus={updateOrderStatus}
+                  onOrderCreated={(newOrder) => {
+                    setOrders(prev => [newOrder, ...prev]);
+                    setAllOrders(prev => [newOrder, ...prev]);
+                  }}
+                  renderOrderCard={(order, index) => {
+                    let actionLabel = "Accept & Fire";
+                    let nextStatus: OrderStatus = "preparing";
+                    
+                    if (order.status === 'preparing') {
+                      actionLabel = "Mark Ready";
+                      nextStatus = "ready";
+                    } else if (order.status === 'ready') {
+                      actionLabel = "Handover to Rider";
+                      nextStatus = "completed";
+                    } else if (order.status === 'completed') {
+                      actionLabel = "Handed Over";
+                      nextStatus = "completed";
+                    }
 
-                  return (
-                    <OrderCard 
-                      key={order.id} 
-                      order={order} 
-                      actionLabel={actionLabel} 
-                      actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
-                      onAction={() => updateOrderStatus(order.id, nextStatus)}
-                      variant={order.status as any}
-                      index={index}
-                      discountInfo={getOrderDiscountInfo(order)}
-                    />
-                  );
-                }}
-              />
+                    return (
+                      <OrderCard 
+                        key={order.id} 
+                        order={order} 
+                        actionLabel={actionLabel} 
+                        actionIcon={<CheckCircle2 size={14} strokeWidth={1.5} />}
+                        onAction={() => updateOrderStatus(order.id, nextStatus)}
+                        variant={order.status as any}
+                        index={index}
+                        discountInfo={getOrderDiscountInfo(order)}
+                      />
+                    );
+                  }}
+                />
+              </ErrorBoundary>
             </TabsContent>
 
             <TabsContent value="invoices" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-hidden">
-              <InvoicesView
-                menuItems={menuItems}
-                orders={allOrders && allOrders.length > 0 ? allOrders : orders}
-                onOrderCreated={(newOrder) => {
-                  setOrders(prev => {
-                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
-                    if (exists) {
-                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
-                    }
-                    return [newOrder, ...prev];
-                  });
-                  setAllOrders(prev => {
-                    const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
-                    if (exists) {
-                      return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
-                    }
-                    return [newOrder, ...prev];
-                  });
-                }}
-                onRefreshLedger={fetchData}
-              />
+              <ErrorBoundary>
+                <InvoicesView
+                  menuItems={menuItems}
+                  orders={allOrders && allOrders.length > 0 ? allOrders : orders}
+                  onOrderCreated={(newOrder) => {
+                    setOrders(prev => {
+                      const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                      if (exists) {
+                        return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                      }
+                      return [newOrder, ...prev];
+                    });
+                    setAllOrders(prev => {
+                      const exists = prev.some(o => o.id === newOrder.id || (o.token && o.token === newOrder.token));
+                      if (exists) {
+                        return prev.map(o => (o.id === newOrder.id || (o.token && o.token === newOrder.token)) ? newOrder : o);
+                      }
+                      return [newOrder, ...prev];
+                    });
+                  }}
+                  onRefreshLedger={fetchData}
+                />
+              </ErrorBoundary>
             </TabsContent>
           </div>
         </Tabs>
@@ -2480,6 +2491,7 @@ function OrderCard({
   }
 }) {
   const [isOldReady, setIsOldReady] = useState(false);
+  const [isActionSubmitting, setIsActionSubmitting] = useState(false);
   const [receiptGstin, setReceiptGstin] = useState(() => {
     return order.gstin || localStorage.getItem('vyoma_default_gstin') || '';
   });
@@ -2488,10 +2500,25 @@ function OrderCard({
     return saved ? Number(saved) : 5;
   });
 
-  const handleGstinChange = (val: string) => {
-    setReceiptGstin(val);
+  const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  const isValidGstin = !receiptGstin || GSTIN_REGEX.test(receiptGstin);
+  const ageMinutes = Math.floor((Date.now() - new Date(order.created_at).getTime()) / 60000);
+
+  const handleActionClick = async () => {
+    if (isActionSubmitting) return;
+    setIsActionSubmitting(true);
     try {
-      localStorage.setItem('vyoma_default_gstin', val);
+      await onAction?.();
+    } finally {
+      setIsActionSubmitting(false);
+    }
+  };
+
+  const handleGstinChange = (val: string) => {
+    const cleaned = val.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 15);
+    setReceiptGstin(cleaned);
+    try {
+      localStorage.setItem('vyoma_default_gstin', cleaned);
     } catch {
       // Ignore localStorage quotas
     }
@@ -2672,9 +2699,20 @@ function OrderCard({
               </span>
             </div>
 
-            <div className="flex items-center gap-1 text-[10px] text-white/60 font-bold uppercase tracking-[0.15em] ml-1 font-mono">
-              <Clock size={12} strokeWidth={2} className="text-primary/70" />
-              {timeAgo(order.created_at)}
+            <div className={cn(
+              "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] ml-1 font-mono px-2.5 py-1 rounded-full border transition-colors",
+              variant !== 'completed' && ageMinutes >= 20 
+                ? "bg-rose-500/15 text-rose-300 border-rose-500/30 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.2)]" 
+                : variant !== 'completed' && ageMinutes >= 10
+                ? "bg-amber-500/10 text-amber-300 border-amber-500/25 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                : "bg-white/5 text-white/70 border-white/10"
+            )}>
+              <Clock size={12} strokeWidth={2} className={cn(
+                variant !== 'completed' && ageMinutes >= 20 ? "text-rose-400" :
+                variant !== 'completed' && ageMinutes >= 10 ? "text-amber-400" :
+                "text-primary/70"
+              )} />
+              <span>{timeAgo(order.created_at)}</span>
             </div>
           </div>
         </div>
@@ -2701,10 +2739,10 @@ function OrderCard({
                         toast.success('Customer phone copied!');
                       }
                     }}
-                    className="p-1 text-white/40 hover:text-primary rounded transition-colors cursor-pointer"
+                    className="h-8 w-8 min-h-[36px] min-w-[36px] touch-target flex items-center justify-center text-white/50 hover:text-primary rounded-lg transition-colors cursor-pointer touch-manipulation active:scale-90"
                     title="Copy Phone"
                   >
-                    <Copy size={12} />
+                    <Copy size={13} />
                   </button>
                 </div>
               )}
@@ -2762,7 +2800,7 @@ function OrderCard({
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline"
-                    className="border border-white/15 bg-white/5 text-white/80 hover:text-primary hover:border-primary/40 rounded-xl px-4 h-10 text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-300 active:scale-95"
+                    className="border border-white/15 bg-white/5 text-white/80 hover:text-primary hover:border-primary/40 rounded-xl px-4 min-h-[44px] text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-300 active:scale-95 touch-manipulation cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5">
                       <Printer size={13} />
@@ -2780,25 +2818,44 @@ function OrderCard({
 
                   <div className="space-y-5 my-5 border-t border-b border-white/10 py-5 flex-1 overflow-y-auto custom-scrollbar">
                     <div className="grid gap-2">
-                      <label htmlFor="receipt-gstin-input" className="text-[10px] uppercase tracking-[0.2em] text-white/70 ml-1 font-bold">GSTIN (India Compliance)</label>
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="receipt-gstin-input" className="text-[10px] uppercase tracking-[0.2em] text-white/70 ml-1 font-bold">
+                          GSTIN (India Compliance)
+                        </label>
+                        {receiptGstin && (
+                          <span className={cn("text-[9px] font-mono font-bold", isValidGstin ? "text-emerald-400" : "text-amber-400")}>
+                            {isValidGstin ? "VALID (15/15)" : `${receiptGstin.length}/15 CHARS`}
+                          </span>
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Input 
                           id="receipt-gstin-input"
+                          maxLength={15}
                           placeholder="e.g. 27AAAAA1111A1Z1 (Leave empty if unregistered)" 
                           value={receiptGstin} 
                           onChange={(e) => handleGstinChange(e.target.value)}
-                          className="bg-black/60 border-white/15 rounded-xl h-11 text-xs font-mono uppercase tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all placeholder:text-white/30 text-white flex-1"
+                          className={cn(
+                            "bg-black/60 border-white/15 rounded-xl h-11 text-xs font-mono uppercase tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all placeholder:text-white/30 text-white flex-1",
+                            receiptGstin && !isValidGstin && "border-amber-500/50 focus-visible:border-amber-500",
+                            receiptGstin && isValidGstin && "border-emerald-500/50 focus-visible:border-emerald-500"
+                          )}
                         />
                         <Button
                           type="button"
                           onClick={() => handleSaveGstinToDb(receiptGstin)}
-                          disabled={isSavingGstin}
+                          disabled={isSavingGstin || (Boolean(receiptGstin) && !isValidGstin)}
                           variant="outline"
-                          className="border border-primary/30 hover:border-primary text-primary hover:bg-primary/10 rounded-xl h-11 px-4 text-[9px] uppercase tracking-wider font-bold transition-all shrink-0"
+                          className="border border-primary/30 hover:border-primary text-primary hover:bg-primary/10 rounded-xl h-11 px-4 text-[9px] uppercase tracking-wider font-bold transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {isSavingGstin ? 'Saving...' : 'Save to DB'}
                         </Button>
                       </div>
+                      {receiptGstin && !isValidGstin && (
+                        <span className="text-[9px] text-amber-400/90 font-mono ml-1">
+                          Standard 15-character GSTIN format: 2 digits + 5 letters + 4 digits + 1 letter + 1 char + 'Z' + 1 char
+                        </span>
+                      )}
                     </div>
                     
                     {receiptGstin && (
@@ -2851,7 +2908,7 @@ function OrderCard({
                         }
                         handlePrintReceipt();
                       }}
-                      className="bg-primary text-black hover:bg-primary/90 rounded-xl px-6 h-12 text-[10px] uppercase tracking-[0.3em] font-extrabold shadow-[0_0_20px_rgba(197,160,89,0.2)] w-full active:scale-95"
+                      className="bg-primary text-black hover:bg-primary/90 rounded-xl px-6 min-h-[44px] text-[10px] uppercase tracking-[0.3em] font-extrabold shadow-[0_0_20px_rgba(197,160,89,0.2)] w-full active:scale-95 touch-manipulation cursor-pointer"
                     >
                       <Printer size={15} className="mr-2" />
                       Print Thermal Receipt
@@ -2861,12 +2918,17 @@ function OrderCard({
               </Dialog>
 
               <Button 
-                onClick={onAction}
-                className="bg-primary text-black hover:bg-primary/90 rounded-xl px-6 h-10 text-[10px] uppercase tracking-[0.25em] font-extrabold shadow-[0_0_20px_rgba(197,160,89,0.2)] transition-all duration-300 active:scale-95 cursor-pointer"
+                onClick={handleActionClick}
+                disabled={isActionSubmitting}
+                className="bg-primary text-black hover:bg-primary/90 rounded-xl px-6 min-h-[44px] text-[10px] uppercase tracking-[0.25em] font-extrabold shadow-[0_0_20px_rgba(197,160,89,0.2)] transition-all duration-300 active:scale-95 cursor-pointer touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="flex items-center gap-2">
-                  {actionIcon}
-                  {actionLabel}
+                  {isActionSubmitting ? (
+                    <RefreshCcw size={14} className="animate-spin text-black" />
+                  ) : (
+                    actionIcon
+                  )}
+                  {isActionSubmitting ? 'Processing...' : actionLabel}
                 </span>
               </Button>
             </div>

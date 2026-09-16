@@ -45,6 +45,38 @@
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-fade-in: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-wiggle: wiggle 1.2s ease-in-out infinite;
+  --animate-glow-pulse: glow-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    15% {
+      transform: rotate(14deg);
+    }
+    30% {
+      transform: rotate(-12deg);
+    }
+    45% {
+      transform: rotate(10deg);
+    }
+    60% {
+      transform: rotate(-6deg);
+    }
+    75% {
+      transform: rotate(3deg);
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
+    }
+  }
 
   @keyframes fade-in {
     from {
@@ -148,6 +180,18 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
+  /* Telemetry Font Feature Settings (Numbers never jitter or shift during updates) */
+  .font-mono, [class*="font-mono"] {
+    font-feature-settings: "tnum" 1, "zero" 1;
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
+
+  /* Classical Display Serif Refinement */
+  .font-serif, .font-heading, [class*="font-serif"] {
+    font-feature-settings: "kern" 1, "liga" 1;
+    letter-spacing: -0.015em;
+  }
+
   button, a, input, select, textarea {
     touch-action: manipulation;
   }
@@ -161,12 +205,48 @@
     outline-offset: 2px;
   }
 
-  /* Touch Ergonomics: Ensure coarse pointers get comfortable minimum hit targets */
+  /* Touch Ergonomics: Ensure coarse pointers get comfortable minimum 44px hit targets (WCAG 2.5.5 / 2.5.8) */
   @media (pointer: coarse) {
-    button, a, input, select {
-      min-height: 38px;
+    button, a, input, select, textarea, [role="button"], [role="tab"] {
+      min-height: 44px;
+      min-width: 44px;
     }
   }
+}
+
+/* Touch Hit-Area Expansion (Ensures 44x44px minimum touch target without inflating compact visual bounds) */
+.touch-target {
+  position: relative;
+}
+.touch-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+ 
+/* Systematic Micro-Scale Typography Classes (Operate & Telemetry) */
+.text-pico {
+  font-size: 0.5rem;
+  line-height: 0.75rem;
+}
+.text-nano {
+  font-size: 0.5625rem;
+  line-height: 0.8125rem;
+}
+.text-micro {
+  font-size: 0.625rem;
+  line-height: 0.875rem;
+}
+.text-caption {
+  font-size: 0.6875rem;
+  line-height: 1rem;
 }
 
 /* Glassmorphism & High-End Visual Utilities */
@@ -254,7 +334,7 @@
   background: #C5A059;
 }
 
-/* Accessible Reduced Motion: dampens large transforms and infinite loops while preserving gentle opacity & color feedback */
+/* Accessible Reduced Motion: eliminates disorienting transforms, large slides, and infinite loops while preserving gentle opacity & color state feedback */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -264,9 +344,9 @@
     scroll-behavior: auto !important;
   }
 
-  /* Retain gentle visual feedback for interactive state confirmations */
-  button, input, select, textarea, [role="button"], [role="tab"] {
-    transition-duration: 100ms !important;
+  /* Retain gentle visual feedback for interactive state confirmations without spatial motion */
+  button, input, select, textarea, [role="button"], [role="tab"], .transition-all, .transition-colors, .transition-opacity {
+    transition: opacity 120ms ease, background-color 120ms ease, border-color 120ms ease !important;
     transform: none !important;
   }
 }
