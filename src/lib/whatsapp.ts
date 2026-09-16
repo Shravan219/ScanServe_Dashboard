@@ -3,6 +3,7 @@ import { jsPDF } from 'jspdf';
 export interface OrderReceiptData {
   id: string;
   token?: string | number;
+<<<<<<< HEAD
   tokens?: string[];
   order_ids?: string[];
   customer_name?: string;
@@ -13,6 +14,14 @@ export interface OrderReceiptData {
     price: number;
     quantity: number;
     item_notes?: string;
+=======
+  customer_name?: string;
+  customer_phone?: string;
+  items: Array<{
+    name: string;
+    price: number;
+    quantity: number;
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   }>;
   subtotal?: number;
   tax_amount?: number;
@@ -22,6 +31,7 @@ export interface OrderReceiptData {
   table_id?: string | number;
   created_at?: string;
   gstin?: string;
+<<<<<<< HEAD
   mergedCount?: number;
   notes?: string;
 }
@@ -34,6 +44,15 @@ export interface OrderReceiptData {
  * - Handles already-prefixed numbers safely.
  */
 export function formatPhoneNumber(phone: string, includePlus: boolean = true): string {
+=======
+}
+
+/**
+ * Standardizes phone numbers for WhatsApp URL scheme.
+ * Strips all formatting, removes leading zeros, and prefixes default country code ('91' for India).
+ */
+export function formatPhoneNumber(phone: string, defaultCountryCode = '91'): string {
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   if (!phone) return '';
   let cleaned = phone.replace(/\D/g, '');
   if (!cleaned) return '';
@@ -43,6 +62,7 @@ export function formatPhoneNumber(phone: string, includePlus: boolean = true): s
     cleaned = cleaned.substring(1);
   }
 
+<<<<<<< HEAD
   // 10 digits standard Indian mobile number -> auto-prefix +91 (or 91)
   if (cleaned.length === 10) {
     return includePlus ? `+91${cleaned}` : `91${cleaned}`;
@@ -56,12 +76,23 @@ export function formatPhoneNumber(phone: string, includePlus: boolean = true): s
   // If already formatted or other international number
   if (cleaned.length > 10) {
     return includePlus ? `+${cleaned}` : cleaned;
+=======
+  // 10 digits standard mobile number -> prefix country code (e.g., 919876543210)
+  if (cleaned.length === 10) {
+    return `${defaultCountryCode}${cleaned}`;
+  }
+
+  // Already includes country code (e.g., 919876543210)
+  if (cleaned.length === 12 && cleaned.startsWith(defaultCountryCode)) {
+    return cleaned;
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   }
 
   return cleaned;
 }
 
 /**
+<<<<<<< HEAD
  * Returns clean numeric phone number formatted strictly for wa.me URLs (digits only, no '+' sign).
  */
 export function getWhatsAppPhoneNumber(phone: string): string {
@@ -103,6 +134,17 @@ export function generateWhatsAppReceiptText(
   const tableStr = isDineIn
     ? `Table ${String(data.table_id).replace(/^table\s*/i, '').trim()}`
     : 'Takeaway / Counter';
+=======
+ * Generates a clean, formatted WhatsApp text receipt for the customer.
+ */
+export function generateWhatsAppReceiptText(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): string {
+  const token = data.token ? `#${data.token}` : `#${data.id.slice(-4)}`;
+  const dateStr = data.created_at 
+    ? new Date(data.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+    : new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  const customer = data.customer_name && data.customer_name.toLowerCase() !== 'guest' ? data.customer_name : 'Valued Guest';
+  const table = data.table_id ? `Table ${String(data.table_id).replace(/^table\s*/i, '')}` : 'Takeaway / POS';
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 
   const itemsList = data.items
     .map(it => `• *${it.name}* x${it.quantity} = ₹${(it.price * it.quantity).toFixed(2)}`)
@@ -114,6 +156,7 @@ export function generateWhatsAppReceiptText(
   const grandTotal = data.total;
   const payMode = (data.payment_mode || 'UPI').toUpperCase();
 
+<<<<<<< HEAD
   const mergedNotice = data.mergedCount && data.mergedCount > 1 
     ? `\n*Consolidated Orders:* ${data.mergedCount} sub-orders merged` 
     : '';
@@ -128,6 +171,18 @@ export function generateWhatsAppReceiptText(
 *Date:* ${dateStr}
 *Customer:* ${customer}
 ${phoneLine}
+=======
+  // Public digital bill URL if running on web domain
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const receiptUrl = origin ? `${origin}/?receipt=${data.id}` : '';
+
+  return `🧾 *${restaurantName} - TAX INVOICE*
+--------------------------------
+*Order Token:* ${token} (${table})
+*Date:* ${dateStr}
+*Customer:* ${customer}
+
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
 *ITEMS ORDERED:*
 ${itemsList}
 
@@ -140,6 +195,7 @@ Have a great day ahead! ✨`;
 }
 
 /**
+<<<<<<< HEAD
  * Builds the dynamic https://wa.me/<phone>?text=<encoded_text> deep-link trigger.
  * WhatsApp requires raw digits with country code and no '+' or special symbols.
  */
@@ -217,6 +273,8 @@ export function openExternalUrl(url: string): void {
 }
 
 /**
+=======
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
  * Generates a high-resolution, professional PDF receipt document using jsPDF.
  */
 export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): jsPDF {
@@ -260,6 +318,7 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
   doc.setFontSize(8);
   doc.setTextColor(40, 40, 40);
 
+<<<<<<< HEAD
   let tokenStr: string;
   if (data.tokens && data.tokens.length > 0) {
     tokenStr = data.tokens.map(t => String(t).startsWith('#') ? t : `#${t}`).join(', ');
@@ -278,15 +337,22 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
     ? `Table ${String(data.table_id).replace(/^table\s*/i, '').trim()}` 
     : 'Counter';
 
+=======
+  const tokenStr = data.token ? `#${data.token}` : `#${data.id.slice(-4)}`;
+  const tableStr = data.table_id ? `Table ${String(data.table_id).replace(/^table\s*/i, '')}` : 'Counter';
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   const dateStr = data.created_at
     ? new Date(data.created_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })
     : new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
 
   doc.text(`Token: ${tokenStr} (${tableStr})`, 6, y);
+<<<<<<< HEAD
   if (data.mergedCount && data.mergedCount > 1) {
     y += 4;
     doc.text(`Merged: ${data.mergedCount} orders consolidated`, 6, y);
   }
+=======
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   y += 4;
   doc.text(`Date: ${dateStr}`, 6, y);
   y += 4;
@@ -294,7 +360,11 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
   doc.text(`Customer: ${cust}`, 6, y);
   if (data.customer_phone) {
     y += 4;
+<<<<<<< HEAD
     doc.text(`Phone: ${formatPhoneNumber(data.customer_phone, true)}`, 6, y);
+=======
+    doc.text(`Phone: ${data.customer_phone}`, 6, y);
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   }
 
   y += 4;
@@ -344,7 +414,11 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
   y += 4;
 
   if (taxVal > 0) {
+<<<<<<< HEAD
     doc.text('GST:', 40, y);
+=======
+    doc.text('GST (5%):', 40, y);
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
     doc.text(`Rs. ${taxVal.toFixed(2)}`, pageWidth - 6, y, { align: 'right' });
     y += 4;
   }
@@ -390,6 +464,7 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
 }
 
 /**
+<<<<<<< HEAD
  * Downloads the PDF receipt locally to the device (wrapped with safety guards).
  */
 export function downloadReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): void {
@@ -456,12 +531,51 @@ export function sendWhatsAppReceiptWithPDF(
   const digitsOnly = getWhatsAppPhoneNumber(rawPhone);
 
   if (!digitsOnly || digitsOnly.length < 10) {
+=======
+ * Builds the wa.me URL scheme.
+ * When formattedPhone is provided, WhatsApp navigates directly into that customer's chat.
+ * NEVER returns a generic URL without a phone number to avoid contact selection prompts.
+ */
+export function getWhatsAppLink(phone: string, textPayload: string): string | null {
+  const formattedPhone = formatPhoneNumber(phone);
+  if (!formattedPhone) return null;
+  const encodedText = encodeURIComponent(textPayload);
+  return `https://wa.me/${formattedPhone}?text=${encodedText}`;
+}
+
+/**
+ * Downloads the PDF receipt locally to the device.
+ */
+export function downloadReceiptPDF(data: OrderReceiptData): void {
+  const doc = generateReceiptPDF(data);
+  const filename = `Receipt_${data.token || data.id.slice(-4)}.pdf`;
+  doc.save(filename);
+}
+
+/**
+ * Sends the receipt DIRECTLY to the customer's WhatsApp chat without prompting to select contacts:
+ * 1. Formats the customer's exact phone number (with country code).
+ * 2. Directly opens https://wa.me/<customer_phone>?text=<receipt> in a new tab.
+ * 3. Downloads the official PDF receipt locally so the cashier has the file on hand.
+ *
+ * NOTE: Does NOT use navigator.share to avoid OS contact selection dialogs.
+ */
+export function sendWhatsAppReceiptWithPDF(
+  data: OrderReceiptData,
+  phoneOverride?: string
+): { success: boolean; formattedPhone?: string; error?: string } {
+  const rawPhone = phoneOverride || data.customer_phone || '';
+  const formattedPhone = formatPhoneNumber(rawPhone);
+
+  if (!formattedPhone) {
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
     return {
       success: false,
       error: 'Missing or invalid customer phone number'
     };
   }
 
+<<<<<<< HEAD
   const text = generateWhatsAppReceiptText(data, restaurantName);
   const directWhatsAppUrl = getWhatsAppLink(digitsOnly, text);
 
@@ -484,6 +598,24 @@ export function sendWhatsAppReceiptWithPDF(
     success: true,
     formattedPhone: formatPhoneNumber(rawPhone, true),
     url: directWhatsAppUrl
+=======
+  // 1. Download official vector PDF receipt locally
+  try {
+    downloadReceiptPDF(data);
+  } catch (e) {
+    console.warn('Could not auto-download PDF:', e);
+  }
+
+  // 2. Open WhatsApp Web/App DIRECTLY to the customer's phone number
+  const text = generateWhatsAppReceiptText(data);
+  const directWhatsAppUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(text)}`;
+  
+  window.open(directWhatsAppUrl, '_blank', 'noopener,noreferrer');
+
+  return {
+    success: true,
+    formattedPhone
+>>>>>>> c2b00bfb2046f03570804654f6f6b7bac088ac65
   };
 }
 
