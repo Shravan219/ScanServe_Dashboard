@@ -9,3 +9,5 @@ coverage/
 __pycache__/
 *.pyc
 .whatsapp_auth/
+
+release/
