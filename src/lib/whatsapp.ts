@@ -217,6 +217,67 @@ export function openExternalUrl(url: string): void {
 }
 
 /**
+ * Generates an 80mm thermal/receipt PDF matching the physical thermal roll.
+ */
+export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): jsPDF {
+  const lineCount = data.items.length;
+  // Dynamic height calculation (in mm)
+  const totalHeight = Math.max(130, 85 + (lineCount * 5.5));
+
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, totalHeight]
+  });
+
+  const pageWidth = 80;
+  let y = 10;
+
+  // Header Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(20, 20, 20);
+  doc.text(restaurantName, pageWidth / 2, y, { align: 'center' });
+
+  y += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 100, 100);
+  doc.text('OFFICIAL TAX INVOICE', pageWidth / 2, y, { align: 'center' });
+
+  if (data.gstin) {
+    y += 3.5;
+    doc.text(`GSTIN: ${data.gstin}`, pageWidth / 2, y, { align: 'center' });
+  }
+
+  y += 4;
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.2);
+  doc.line(6, y, pageWidth - 6, y);
+
+  // Order Details
+  y += 5;
+  doc.setFontSize(8);
+  doc.setTextColor(40, 40, 40);
+
+  let tokenStr: string;
+  if (data.tokens && data.tokens.length > 0) {
+    tokenStr = data.tokens.map(t => String(t).startsWith('#') ? t : `#${t}`).join(', ');
+  } else if (data.token) {
+    tokenStr = String(data.token).startsWith('#') ? String(data.token) : `#${data.token}`;
+  } else {
+    tokenStr = `#${data.id.slice(-4)}`;
+  }
+
+  const isDineIn = data.table_id !== undefined && 
+    data.table_id !== null && 
+    String(data.table_id).trim() !== '' && 
+    String(data.table_id).toUpperCase() !== 'TAKEAWAY';
+
+  const tableStr = isDineIn 
+    ? `Table ${String(data.table_id).replace(/^table\s*/i, '').trim()}` 
+    : 'Counter';
+
   const dateStr = data.created_at
     ? new Date(data.created_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })
     : new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
@@ -226,6 +287,14 @@ export function openExternalUrl(url: string): void {
     y += 4;
     doc.text(`Merged: ${data.mergedCount} orders consolidated`, 6, y);
   }
+  y += 4;
+  doc.text(`Date: ${dateStr}`, 6, y);
+  y += 4;
+  const cust = data.customer_name && data.customer_name.toLowerCase() !== 'guest' ? data.customer_name : 'Guest Customer';
+  doc.text(`Customer: ${cust}`, 6, y);
+  if (data.customer_phone) {
+    y += 4;
+    doc.text(`Phone: ${formatPhoneNumber(data.customer_phone, true)}`, 6, y);
   }
 
   y += 4;
