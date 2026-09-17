@@ -33,6 +33,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
+import { Capacitor } from '@capacitor/core';
+import { getApiBaseUrl } from '@/src/lib/apiConfig';
 
 export function getOrderPlatform(order: Order): 'swiggy' | 'zomato' | 'other_online' | 'dine_in' {
   if (order.aggregator_platform === 'swiggy') return 'swiggy';
@@ -153,14 +155,18 @@ export function OnlineOrdersView({
   };
 
   useEffect(() => {
-    fetchWebhookConfig();
-    refreshAllLogs();
+    const hasServer = !Capacitor.isNativePlatform() || Boolean(getApiBaseUrl());
+    if (hasServer) {
+      fetchWebhookConfig();
+      refreshAllLogs();
+    }
 
-    // Listen to real-time webhook logs via EventSource
+    // Listen to real-time webhook logs via EventSource only if server is configured
     let es: EventSource | null = null;
     let errorCount = 0;
-    try {
-      es = new EventSource('/api/orders/events');
+    if (hasServer) {
+      try {
+        es = new EventSource('/api/orders/events');
       es.addEventListener('webhook_log', (event: MessageEvent) => {
         try {
           const log = JSON.parse(event.data);
@@ -187,6 +193,7 @@ export function OnlineOrdersView({
     } catch {
       // ignore
     }
+  }
 
     return () => {
       if (es) es.close();

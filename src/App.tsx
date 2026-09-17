@@ -54,6 +54,7 @@ import { PaymentsView } from '@/src/components/payments/PaymentsView';
 import { ServerConnectionModal } from '@/src/components/ServerConnectionModal';
 import { ErrorBoundary } from '@/src/components/ErrorBoundary';
 import { getApiBaseUrl } from '@/src/lib/apiConfig';
+import { Capacitor } from '@capacitor/core';
 import { soundService } from '@/src/lib/sound';
 import { verifyStaffPassword } from '@/src/lib/authService';
 import { syncOrderStatusToDyno } from '@/src/lib/orderSync';
@@ -402,7 +403,9 @@ export default function App() {
   };
 
   const [stats, setStats] = useState({ preparedToday: 0, avgTime: '12m' });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('vyoma_staff_authenticated') === 'true';
+  });
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState(false);
 
@@ -484,11 +487,6 @@ export default function App() {
     }
   }, [location.pathname, navigate]);
 
-  useEffect(() => {
-    // Clear any legacy auth tokens
-    localStorage.removeItem('vyoma_staff_auth');
-  }, []);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) {
@@ -501,11 +499,19 @@ export default function App() {
     if (res.success) {
       setIsAuthenticated(true);
       setAuthError(false);
-      toast.success('Access Granted (Verified via Supabase)');
+      localStorage.setItem('vyoma_staff_authenticated', 'true');
+      toast.success('Access Granted');
     } else {
       setAuthError(true);
       toast.error(res.message || 'Invalid Access Password');
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('vyoma_staff_authenticated');
+    setIsAuthenticated(false);
+    setPassword('');
+    toast.info('Terminal Locked');
   };
 
   const playPopSound = () => {
@@ -514,61 +520,79 @@ export default function App() {
 
   const fetchData = React.useCallback(async () => {
     setLoading(true);
+    // Safety timer: ensure full-screen loading spinner dismisses in at most 1000ms
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    const hasApiServer = !Capacitor.isNativePlatform() || Boolean(getApiBaseUrl());
+
     try {
       let dbActiveOrders: Order[] = [];
       let dbAllOrders: Order[] = [];
 
-      // 1. Try fetching from Supabase
+      // 1. Try fetching from Supabase (with 2s timeout)
       try {
-        const { data: ordersData, error: ordersError } = await supabase
-          .from('orders')
-          .select('*')
-          .neq('status', 'completed')
-          .neq('status', 'cancelled')
-          .order('created_at', { ascending: true });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase timeout')), 2000));
+        
+        const fetchOrdersPromise = Promise.all([
+          supabase
+            .from('orders')
+            .select('*')
+            .neq('status', 'completed')
+            .neq('status', 'cancelled')
+            .order('created_at', { ascending: true }),
+          supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false })
+        ]);
 
-        if (!ordersError && ordersData) {
-          dbActiveOrders = ordersData;
+        const [activeRes, allRes] = await Promise.race([fetchOrdersPromise, timeoutPromise]) as any;
+
+        if (activeRes && !activeRes.error && activeRes.data) {
+          dbActiveOrders = activeRes.data;
         }
-
-        const { data: allOrdersData, error: allOrdersError } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (!allOrdersError && allOrdersData) {
-          dbAllOrders = allOrdersData;
+        if (allRes && !allRes.error && allRes.data) {
+          dbAllOrders = allRes.data;
         }
       } catch (supabaseErr) {
         console.warn('Supabase fetch notice, falling back to API server store:', supabaseErr);
       }
 
-      // 2. Fetch from Express API server orders store
-      try {
-        const apiRes = await fetch('/api/orders');
-        if (apiRes.ok) {
-          const apiData = await apiRes.json();
-          if (apiData.orders && Array.isArray(apiData.orders)) {
-            const apiOrders: Order[] = apiData.orders;
-            
-            // Merge with Supabase orders without duplicates
-            const mergedMap = new Map<string, Order>();
-            for (const o of dbAllOrders) {
-              mergedMap.set(o.id || o.token, o);
+      // 2. Fetch from Express API server orders store ONLY if server is reachable
+      if (hasApiServer) {
+        try {
+          const controller = new AbortController();
+          const apiTimeout = setTimeout(() => controller.abort(), 2000);
+          const apiRes = await fetch('/api/orders', { signal: controller.signal });
+          clearTimeout(apiTimeout);
+
+          if (apiRes.ok) {
+            const apiData = await apiRes.json();
+            if (apiData.orders && Array.isArray(apiData.orders)) {
+              const apiOrders: Order[] = apiData.orders;
+              
+              // Merge with Supabase orders without duplicates
+              const mergedMap = new Map<string, Order>();
+              for (const o of dbAllOrders) {
+                mergedMap.set(o.id || o.token, o);
+              }
+              for (const o of apiOrders) {
+                mergedMap.set(o.id || o.token, o);
+              }
+              
+              dbAllOrders = Array.from(mergedMap.values())
+                .map(o => normalizeOrder(o))
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+              dbActiveOrders = dbAllOrders.filter(
+                o => o.status !== 'completed' && o.status !== 'cancelled'
+              );
             }
-            for (const o of apiOrders) {
-              mergedMap.set(o.id || o.token, o);
-            }
-            
-            dbAllOrders = Array.from(mergedMap.values())
-              .map(o => normalizeOrder(o))
-              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-            dbActiveOrders = dbAllOrders.filter(
-              o => o.status !== 'completed' && o.status !== 'cancelled'
-            );
           }
+        } catch (apiErr) {
+          console.warn('API orders fetch notice:', apiErr);
         }
-      } catch (apiErr) {
-        console.warn('API orders fetch notice:', apiErr);
       }
 
       setOrders(dbActiveOrders);
@@ -576,13 +600,16 @@ export default function App() {
 
       // Try getting dedicated customer records from Supabase, with API fallback
       try {
-        const { data: custData, error: custError } = await supabase
+        const custTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+        const custPromise = supabase
           .from('customers')
           .select('*')
           .order('created_at', { ascending: false });
-        if (!custError && custData && Array.isArray(custData)) {
-          setDbCustomers(custData);
-        } else {
+
+        const custRes: any = await Promise.race([custPromise, custTimeout]);
+        if (!custRes?.error && custRes?.data && Array.isArray(custRes.data)) {
+          setDbCustomers(custRes.data);
+        } else if (hasApiServer) {
           const apiCustRes = await fetch('/api/customers');
           if (apiCustRes.ok) {
             const apiCustData = await apiCustRes.json();
@@ -592,16 +619,7 @@ export default function App() {
           }
         }
       } catch (e) {
-        console.warn('Customer fetch notice, attempting API fallback:', e);
-        try {
-          const apiCustRes = await fetch('/api/customers');
-          if (apiCustRes.ok) {
-            const apiCustData = await apiCustRes.json();
-            if (apiCustData.success && Array.isArray(apiCustData.customers)) {
-              setDbCustomers(apiCustData.customers);
-            }
-          }
-        } catch {}
+        console.warn('Customer fetch notice:', e);
       }
 
       // Fetch stats for today
@@ -609,32 +627,39 @@ export default function App() {
       today.setHours(0, 0, 0, 0);
       
       try {
-        const { count, error: statsError } = await supabase
+        const statsTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+        const statsPromise = supabase
           .from('orders')
           .select('*', { count: 'exact', head: true })
           .eq('status', 'completed')
           .gte('created_at', today.toISOString());
 
-        if (!statsError && count !== null) {
-          setStats(prev => ({ ...prev, preparedToday: count }));
+        const statsRes: any = await Promise.race([statsPromise, statsTimeout]);
+        if (!statsRes?.error && statsRes?.count !== null && statsRes?.count !== undefined) {
+          setStats(prev => ({ ...prev, preparedToday: statsRes.count }));
         }
       } catch {
         // ignore
       }
 
-      const { data: menuData, error: menuError } = await supabase
-        .from('menu_items')
-        .select('*')
-        .order('category', { ascending: true });
+      try {
+        const menuTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+        const menuPromise = supabase
+          .from('menu_items')
+          .select('*')
+          .order('category', { ascending: true });
 
-      if (menuError) {
-        console.warn('Could not load menu items from Supabase:', menuError.message);
-      } else if (menuData && menuData.length > 0) {
-        setMenuItems(menuData);
+        const menuRes: any = await Promise.race([menuPromise, menuTimeout]);
+        if (!menuRes?.error && menuRes?.data && menuRes.data.length > 0) {
+          setMenuItems(menuRes.data);
+        }
+      } catch {
+        // ignore
       }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
+      clearTimeout(safetyTimer);
       setLoading(false);
     }
   }, []);
@@ -642,10 +667,12 @@ export default function App() {
   useEffect(() => {
     fetchData();
 
-    // 1. Server-Sent Events (SSE) listener for instant order delivery from webhooks/testers
+    // 1. Server-Sent Events (SSE) listener only if web or POS server is configured
     let eventSource: EventSource | null = null;
-    try {
-      eventSource = new EventSource('/api/orders/events');
+    const canConnectSse = !Capacitor.isNativePlatform() || Boolean(getApiBaseUrl());
+    if (canConnectSse) {
+      try {
+        eventSource = new EventSource('/api/orders/events');
 
       eventSource.addEventListener('order_created', (event: MessageEvent) => {
         try {
@@ -711,6 +738,7 @@ export default function App() {
     } catch (sseErr) {
       console.warn('SSE connection failed:', sseErr);
     }
+  }
 
     // 2. Periodic sync polling (every 3.5s) to guarantee zero missed orders
     const pollInterval = setInterval(async () => {
@@ -1276,6 +1304,20 @@ export default function App() {
               </div>
             </div>
             <Server size={14} className="text-white/40 group-hover:text-primary transition-colors shrink-0 ml-1" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex items-center justify-between w-full px-3.5 py-2 rounded-xl bg-white/[0.02] hover:bg-red-500/10 hover:border-red-500/30 border border-white/5 transition-all text-left group cursor-pointer"
+            title="Lock Terminal"
+          >
+            <div className="flex items-center gap-2">
+              <LogOut size={13} className="text-white/40 group-hover:text-red-400 transition-colors" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/60 group-hover:text-red-300">
+                Lock Terminal
+              </span>
+            </div>
           </button>
         </div>
 

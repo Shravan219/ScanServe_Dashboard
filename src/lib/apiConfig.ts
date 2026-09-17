@@ -158,7 +158,29 @@ export function setupApiInterceptor(): void {
   window.fetch = async function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     const base = getApiBaseUrl();
 
-    // If no custom base is set or request is absolute URL, pass through to original fetch
+    const isApiRequest = 
+      (typeof input === 'string' && (input.startsWith('/api/') || input === '/api')) ||
+      (input instanceof URL && input.pathname.startsWith('/api/')) ||
+      (input instanceof Request && new URL(input.url, window.location.origin).pathname.startsWith('/api/'));
+
+    // On native mobile (Capacitor), if no POS server IP has been configured,
+    // relative /api/* requests to localhost cannot succeed and would hang the app for 60s.
+    // Return an immediate fast response so callers failover cleanly to Supabase/offline cache in 0ms.
+    if (Capacitor.isNativePlatform() && !base && isApiRequest) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'No POS server configured on mobile device',
+        orders: [],
+        customers: [],
+        logs: []
+      }), {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // If no custom base is set or request is not /api/*, pass through to original fetch
     if (!base) {
       return window.originalFetch(input, init);
     }
