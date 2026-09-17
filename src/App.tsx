@@ -1349,13 +1349,15 @@ export default function App() {
         )}
 
         {/* Mobile Top Header */}
-        <header className="flex md:hidden h-14 items-center justify-between border-b border-white/10 bg-[#0A0A0A] px-4 z-20 shrink-0">
+        <header className="flex md:hidden items-center justify-between border-b border-white/10 bg-[#0A0A0A] px-4 py-2.5 z-20 shrink-0 pt-[max(env(safe-area-inset-top,0px),10px)] min-h-[56px]">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
               <Coffee size={16} className="text-primary" />
             </div>
-            <span className="font-serif text-lg font-bold tracking-tight">Vy<span className="italic text-primary opacity-80">oma</span></span>
-            <span className="ml-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+            <span className="font-serif text-base font-bold tracking-tight text-white leading-none">
+              Vy<span className="italic text-primary opacity-80">oma</span>
+            </span>
+            <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[8px] font-bold uppercase tracking-wider">
               {activeTab}
             </span>
           </div>
@@ -1381,11 +1383,11 @@ export default function App() {
           </div>
         </header>
 
-        {/* Mobile Quick Tab Bar */}
-        <div className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2.5 gap-2 custom-scrollbar shrink-0">
+        {/* Mobile Quick Tab Bar - Non-squashing horizontal slider */}
+        <div className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2 gap-2 shrink-0 scroll-smooth touch-pan-x" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
           <button
             onClick={() => setActiveTab('captain')}
-            className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+            className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
               activeTab === 'captain'
                 ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                 : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1397,7 +1399,7 @@ export default function App() {
             <>
               <button
                 onClick={() => setActiveTab('counter')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'counter'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1407,7 +1409,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('kitchen')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'kitchen'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1417,7 +1419,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('pickup')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'pickup'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1427,7 +1429,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('payments')}
-                className={`min-h-[38px] flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
                   activeTab === 'payments'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1442,7 +1444,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('menu')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'menu'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1452,7 +1454,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('customers')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'customers'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1461,8 +1463,18 @@ export default function App() {
                 Customers
               </button>
               <button
+                onClick={() => setActiveTab('online')}
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                  activeTab === 'online'
+                    ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
+                    : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
+                }`}
+              >
+                Online
+              </button>
+              <button
                 onClick={() => setActiveTab('invoices')}
-                className={`min-h-[38px] px-3.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
                   activeTab === 'invoices'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'

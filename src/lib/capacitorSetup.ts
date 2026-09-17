@@ -20,6 +20,7 @@ export async function initializeCapacitorAdaptations(options?: {
 
   // 1. Configure Android Status Bar
   try {
+    await StatusBar.setOverlaysWebView({ overlay: false });
     await StatusBar.setStyle({ style: Style.Dark });
     await StatusBar.setBackgroundColor({ color: '#000000' });
   } catch (err) {

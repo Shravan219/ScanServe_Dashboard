@@ -118,14 +118,17 @@ export function TableStatusGrid({
     <div className="flex flex-col gap-6">
       {/* Filter Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-[#0D0E14] p-3.5 sm:p-4 shadow-lg backdrop-blur-md">
-        {/* Section Filters - Scrollable on mobile */}
-        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0 min-w-0">
+        {/* Section Filters - Scrollable on mobile with smooth touch handling */}
+        <div 
+          className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0 min-w-0 touch-pan-x"
+          style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+        >
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 mr-1 shrink-0">Sections:</span>
           <button
             type="button"
             onClick={() => setFilterSection('all')}
             aria-pressed={filterSection === 'all'}
-            className={`min-h-[44px] rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-2 touch-manipulation active:scale-95 ${
+            className={`min-h-[40px] rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 min-w-max flex items-center gap-2 touch-manipulation active:scale-95 ${
               filterSection === 'all'
                 ? 'bg-primary text-black shadow-[0_0_15px_rgba(197,160,89,0.25)]'
                 : 'bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white'
@@ -144,7 +147,7 @@ export function TableStatusGrid({
                 type="button"
                 onClick={() => setFilterSection(sec)}
                 aria-pressed={filterSection === sec}
-                className={`min-h-[44px] rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-2 touch-manipulation active:scale-95 ${
+                className={`min-h-[40px] rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 min-w-max flex items-center gap-2 touch-manipulation active:scale-95 ${
                   filterSection === sec
                     ? 'bg-primary text-black shadow-[0_0_15px_rgba(197,160,89,0.25)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 hover:text-white'
@@ -160,8 +163,8 @@ export function TableStatusGrid({
         </div>
 
         {/* Status Filters, Database Indicator & Refresh */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
-          <div className="hidden lg:flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px] font-bold text-emerald-400">
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <div className="hidden lg:flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px] font-bold text-emerald-400 shrink-0">
             <Database size={12} className="text-emerald-400 animate-pulse" />
             <span>Supabase DB Synced ({tables.length} Tables)</span>
           </div>
@@ -170,7 +173,7 @@ export function TableStatusGrid({
             value={filterStatus}
             aria-label="Filter tables by status"
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="flex-1 sm:flex-none rounded-xl bg-[#141620] border border-white/10 px-3.5 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 min-h-[44px] cursor-pointer touch-manipulation"
+            className="flex-1 sm:w-auto rounded-xl bg-[#141620] border border-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-primary/50 min-h-[44px] cursor-pointer touch-manipulation shrink-0"
           >
             <option value="all">All Statuses</option>
             <option value="available">Available Only</option>
@@ -184,11 +187,12 @@ export function TableStatusGrid({
               type="button"
               onClick={onSeedSupabaseTables}
               disabled={isSyncing}
-              className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer disabled:opacity-50 min-h-[44px] shadow-sm active:scale-95 touch-manipulation"
+              className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 sm:px-4 py-2 text-xs font-bold uppercase tracking-wider text-primary hover:bg-primary hover:text-black transition-all cursor-pointer disabled:opacity-50 min-h-[44px] shadow-sm active:scale-95 touch-manipulation shrink-0 whitespace-nowrap"
               title="Ensure all dining tables are initialized in database"
             >
               <Database size={14} className={isSyncing ? 'animate-spin' : ''} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync Tables'}</span>
+              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync Tables'}</span>
+              <span className="sm:hidden">{isSyncing ? 'Syncing...' : 'Sync'}</span>
             </button>
           )}
 

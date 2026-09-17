@@ -117,41 +117,7 @@ export function ReadyOrdersBanner({
   };
 
   if (readyOrders.length === 0) {
-    return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#0D0E14] px-4 py-3.5 text-xs text-white/70 shadow-sm backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/80">
-            <Bell size={16} />
-          </div>
-          <div>
-            <span className="font-semibold text-white/90">Waiter Notification System Active</span>
-            <span className="hidden sm:inline text-white/60 text-[11px] ml-2 font-medium">• Automatic chime rings whenever kitchen marks food as ready</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleTestChime}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer active:scale-95"
-            title="Test the waiter ready chime sound"
-          >
-            Test Chime
-          </button>
-
-          <button
-            onClick={toggleSound}
-            className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 ${
-              isMuted 
-                ? 'border-red-500/20 bg-red-500/10 text-red-400' 
-                : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-            }`}
-            title={isMuted ? 'Unmute Waiter Ready Chimes' : 'Mute Waiter Ready Chimes'}
-          >
-            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-          </button>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
