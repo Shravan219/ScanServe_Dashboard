@@ -12,10 +12,12 @@ import {
   Check,
   BellRing,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  QrCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
+import { TableQrModal } from '@/src/components/tables/TableQrModal';
 
 interface TableStatusGridProps {
   tables: RestaurantTable[];
@@ -195,6 +197,8 @@ export function TableStatusGrid({
               <span className="sm:hidden">{isSyncing ? 'Syncing...' : 'Sync'}</span>
             </button>
           )}
+
+          <TableQrModal tables={tables} />
 
           {onRefreshTables && (
             <button

@@ -1,0 +1,159 @@
+================================================================================
+REALITY SEED: VYOMA SCANSERVE RESTAURANT OS & CAPTAIN DASHBOARD
+Document Version: 1.0.0-PROD
+Target Ingestion Engine: MiroFish Swarm Intelligence / GraphRAG Engine
+System Class: Michelin-Grade Luxury Restaurant POS, KDS & Captain Operations Mesh
+Primary Domain: High-Velocity Luxury Hospitality & Omnichannel Food Service
+================================================================================
+
+1. SYSTEM IDENTITY & STRATEGIC MISSION
+--------------------------------------------------------------------------------
+Vyoma ScanServe is an ultra-low-latency, mission-critical restaurant management
+ecosystem engineered for high-paced fine dining and luxury hospitality. It unifies
+front-of-house floor operations (Captain ordering tablets), back-of-house culinary
+production (Kitchen Display Systems), administrative cash settlement, and
+multi-channel delivery aggregator intake (Swiggy, Zomato, Magicpin, Dyno API)
+into a synchronized real-time state machine.
+
+Architectural North Star: "The Obsidian Guild"
+- Base Canvas: Deep pitch-black OLED void (#000000) for zero glare in ambient
+  dining and low power draw on handheld floor tablets during 14-hour double shifts.
+- Accent Hierarchy: Imperial Gold (#C5A059) restricted to <10% surface area to
+  preserve visual urgency for primary actions, active tokens, and VIP alerts.
+- Structural Elevation: Smoky obsidian glass cards (#0A0A0E / #0D0E14), 14px-20px
+  backdrop blurring, and 8% white boundary strokes (rgba(255, 255, 255, 0.08)).
+- Typographic Telemetry: Neoclassical serifs (Cormorant Garamond) for titles;
+  geometric sans (Karla) for controls; monospaced tabular fonts (JetBrains Mono)
+  for tokens (#104), elapsed timers (04:12), and currency calculations (Rs/INR).
+- Tactile Ergonomics: Zero double-tap zoom delay (touch-action: manipulation) and
+  strict 44x44px hit bounds (WCAG 2.5.5) with .touch-target expansion for rushed,
+  gloved, or wet kitchen/floor operations.
+
+2. TECHNICAL SPECIFICATIONS & RUNTIME TOPOLOGY
+--------------------------------------------------------------------------------
+Technology Stack Matrix:
+- Core Frontend: React 19, TypeScript 5.8, Vite 6.2, Tailwind CSS 4.
+- UI & Animation: Motion (Framer Motion 12), Lucide React, Shadcn/Radix/Base-UI.
+- Backend & API Layer: Node.js, Express 4.21, TypeScript runtime (tsx / esbuild).
+- Database & Realtime Engine: Supabase PostgreSQL 15+ with Realtime WebSocket
+  replication, Row-Level Security (RLS), and PL/pgSQL triggers.
+- Local Resilience & Caching: In-memory circular ring buffer (orderStore.ts,
+  max 100 historical webhook traces) paired with Server-Sent Events (SSE)
+  broadcast to bypass external cloud latency on local networks.
+- Outbound Messaging: Baileys WhatsApp Web API engine (@whiskeysockets/baileys)
+  for direct-to-patron digital PDF tax receipt dispatch.
+- Document & Print: Server-side and client-side PDF synthesis (jspdf), ESC/POS
+  thermal printing bridge (react-to-print).
+- Cross-Platform Deployments:
+  * Web Terminal: Progressive Web App / Vercel SPA.
+  * Desktop Kiosk: Electron 43 portable Windows executable (electron.cjs).
+  * Floor Tablets: Native Capacitor 8.5 Android package (android/, APK build).
+
+Hardware Footprint:
+- Captain Floor Nodes: 10-inch Android handheld tablets (Capacitor runtime with
+  native wake-lock, orientation locking, and software keyboard avoidance).
+- Kitchen Display Terminals (KDS): Wall-mounted 21-inch touchscreen monitors
+  positioned across Prep, Grill, and Pass stations.
+- Cashier / POS Host: Windows terminal connected to 80mm ESC/POS thermal receipt
+  printer, barcode/QR scanner, and local Express microservice.
+
+3. DOMAIN ENTITIES & KNOWLEDGE GRAPH RELATIONSHIPS
+--------------------------------------------------------------------------------
+[Customer] ----(places)----> [Order] <----(monitors/prepares)---- [KDS Station]
+     |                          |
+     v (upserts via trigger)    v (contains)
+[Loyalty Profile]          [OrderItem] ----(references)----> [MenuItem]
+     |                          |
+     v                          v
+[VIP Tier & Discount]      [Special Cooking Notes]
+     ^                          ^
+     |                          |
+[Captain Staff] --(takes order)-+---> [Restaurant Table]
+
+Core Entities:
+1. Order (public.orders):
+   - id: UUID Primary Key
+   - created_at: Timestamp with time zone
+   - placed_at_ist: IST formatted timestamp string
+   - token: e.g. #101 to #999
+   - status: pending | preparing | ready | waiting for payment | completed | cancelled
+   - total: Numeric 10,2
+   - items: JSONB array of normalized items
+   - customer_name, customer_phone, table_id, gstin
+   - order_type: dine_in | takeaway | delivery | aggregator
+   - aggregator_platform: swiggy | zomato | magicpin | ubereats
+
+2. OrderItem:
+   - id, name, quantity, price, item_notes (cooking instructions)
+
+3. RestaurantTable:
+   - id, table_number (T-01 to T-20), capacity (2 to 12), status (available |
+     occupied | reserved | cleaning), section, occupancy_timer
+
+4. Customer (public.customers):
+   - phone: Primary Key
+   - name, order_count, loyal_vip, discount, gstin, created_at
+   - Computed metrics: totalSpent, favoriteItems, lastOrder
+
+5. MenuItem (public.menu_items):
+   - id, name, description, price, discount_price, category, image, is_sold_out
+
+6. InboundWebhookLog:
+   - Circular buffer recording method, path, ip, headers, raw_body, platform,
+     duration_ms, status_code, success.
+
+4. END-TO-END OPERATIONAL WORKFLOWS
+--------------------------------------------------------------------------------
+Dine-In State Machine:
+1. Table Allocation: Hostess/Captain marks table Occupied on TableStatusGrid.
+2. Order Capture: Captain selects dishes on OrderBuilderSheet, inputs guest notes.
+3. Order Firing: System writes order to Supabase, generates sequence token (#104).
+4. CRM Sync: PostgreSQL trigger trg_sync_customer_from_order upserts customer,
+   computes visit count, and sets loyal_vip = true if >= 3 visits.
+5. Kitchen KDS: Ticket appears instantly on KDS with timer. Chef taps Accept.
+6. Expedite & Handoff: Plated food marked Ready. Captain tablets ring audio chime
+   and flash ReadyOrdersBanner with table ID and token.
+7. Service & Bill Settlement: Captain serves dishes. Cashier opens InvoicesView /
+   Receipt.tsx, applies loyalty discount, validates GSTIN, prints 80mm thermal bill.
+8. WhatsApp Delivery: Headless Baileys bot sends PDF receipt to customer's phone.
+9. Turnover & Reset: Cashier marks order Completed. Table shifts to Cleaning,
+   then Available.
+
+Online Aggregator Inbound Flow:
+1. Inbound JSON webhook arrives at /api/webhooks from Swiggy/Zomato/Dyno API.
+2. Deep parser processWebhook.ts sanitizes body, extracts items, assigns token.
+3. Order stored in local memory ring buffer, broadcast via SSE, and written
+   to Supabase.
+4. Kitchen accepts ticket; outboundWebhook.ts acknowledges aggregator API.
+
+5. SYSTEM CONSTRAINTS, FRICTION POINTS & EFFICIENCY VECTORS
+--------------------------------------------------------------------------------
+For multi-agent swarm modeling, the following vectors govern project efficiency:
+
+1. Network Fluctuations & Split-Brain Risks:
+   Wi-Fi dead zones can cause disconnects. Local in-memory ring buffer (orderStore.ts)
+   and SSE operate in tandem with cloud Supabase. Out-of-sync states between local
+   cache and database can cause duplicate tickets or dropped status updates.
+
+2. Peak-Hour Kitchen Latency Bottlenecks:
+   When 15+ tables order concurrently alongside 10 aggregator orders, KDS ticket
+   queue overflows screen real estate. Chef cognitive overload delays 'Mark Ready'
+   taps, distorting prep analytics and delaying floor service.
+
+3. Front-of-House Serving Handoff Lag:
+   Time elapsed between kitchen marking order 'Ready' and floor captain picking up
+   food from the pass. Food cools down if captains are occupied taking new orders.
+
+4. Instant 86'ing (Sold-Out Propagation):
+   When kitchen runs out of a key item, chef toggles 'is_sold_out'. Delays in
+   real-time propagation to captain tablets cause captains to take invalid orders,
+   wasting 5-10 minutes renegotiating at the table.
+
+5. WhatsApp Bot Lifecycle & Rate Limiting:
+   WhatsApp Baileys socket disconnections, QR expirations, or invalid customer
+   phone numbers cause automated digital invoice failures.
+
+6. Billing & Split Settlement Delays:
+   Customers splitting payments (cash, UPI QR, corporate GSTIN) during peak
+   turnover create front-desk queues, delaying table turnaround time.
+================================================================================

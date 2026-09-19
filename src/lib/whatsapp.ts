@@ -135,8 +135,12 @@ ${itemsList}
 Subtotal: ₹${subtotalVal.toFixed(2)}
 ${taxVal > 0 ? `GST: ₹${taxVal.toFixed(2)}\n` : ''}${discountVal > 0 ? `Discount: -₹${discountVal.toFixed(2)}\n` : ''}*GRAND TOTAL:* *₹${grandTotal.toFixed(2)}*
 *Payment Mode:* ${payMode} (Paid ✅)
-Thank you for dining with us! 🙏
-Have a great day ahead! ✨`;
+
+🌟 *Loved your dining experience?*
+Help us shine with a quick 5-star review on Google:
+👉 https://maps.google.com
+
+Thank you for dining with us! Have a wonderful day ahead! ✨`;
 }
 
 /**

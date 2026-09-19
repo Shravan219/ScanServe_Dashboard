@@ -26,5 +26,20 @@
       ]
     },
     "noEmit": true
-  }
+  },
+  "include": [
+    "src",
+    "components",
+    "lib",
+    "server",
+    "server.ts",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "VyomPOS",
+    "dist",
+    "android",
+    "release"
+  ]
 }

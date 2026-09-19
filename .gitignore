@@ -19,3 +19,6 @@ android/build/
 android/app/build/
 android/capacitor-cordova-android-plugins/build/
 android/local.properties
+
+# Graphify cache
+graphify-out/cache/

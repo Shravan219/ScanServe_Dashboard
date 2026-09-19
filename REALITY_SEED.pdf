@@ -1,0 +1,727 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 6957
+>>
+stream
+0.5670000000000001 w
+0 G
+0.06 0.06 0.08 rg
+51.0236220472441033 790.8663779527558972 493.2283464566929752 -73.7007874015748143 re
+f
+BT
+/F2 15 Tf
+17.25 TL
+0.855 0.647 0.125 rg
+68.031496062992133 762.5199212598424765 Td
+(VYOMA SCANSERVE: REALITY SEED) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.902 g
+68.031496062992133 742.6774015748030706 Td
+(High-Velocity Restaurant OS, KDS & Captain Operations Mesh) Tj
+ET
+BT
+/F1 7.5 Tf
+8.625 TL
+0.667 g
+68.031496062992133 728.5041732283464171 Td
+(Target: MiroFish Prediction Engine | Version: 1.0.0-PROD | Formats: PDF, MD, TXT) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.118 0.118 0.157 rg
+51.0236220472441033 700.15771653543311 Td
+(1. SYSTEM IDENTITY & STRATEGIC MISSION) Tj
+ET
+0.85 0.65 0.13 RG
+1.4173228346456694 w
+51.0236220472441033 694.4884251968503577 m
+164.4094488188976584 694.4884251968503577 l
+S
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+51.0236220472441033 680.3151968503937042 Td
+(Vyoma ScanServe is an ultra-low-latency, mission-critical restaurant management ecosystem engineered for high-paced fine dining) Tj
+T* (and luxury hospitality. It unifies front-of-house floor operations \(Captain ordering tablets\), back-of-house culinary production \(Kitchen) Tj
+T* (Display Systems\), administrative cash settlement, and multi-channel delivery aggregator intake \(Swiggy, Zomato, Magicpin, Dyno) Tj
+T* (API\) into a synchronized real-time state machine.) Tj
+ET
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 627.0238582677164914 Td
+(Architectural North Star \("The Obsidian Guild"\):) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 614.2679527559055259 Td
+(• Base Canvas: Deep pitch-black OLED void \(#000000\) for zero glare in ambient dining and low power draw on handheld floor) Tj
+T* (tablets during 14-hour double shifts.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 584.7876377952754865 Td
+(• Accent Hierarchy: Imperial Gold \(#C5A059\) restricted to <10% surface area to preserve visual urgency for primary actions,) Tj
+T* (active tokens, and VIP alerts.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 555.3073228346456744 Td
+(• Structural Elevation: Smoky obsidian glass cards \(#0A0A0E / #0D0E14\), 14px-20px backdrop blurring, and 8% white boundary) Tj
+T* (strokes \(rgba\(255, 255, 255, 0.08\)\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 525.827007874015635 Td
+(• Typographic Telemetry: Neoclassical serifs \(Cormorant Garamond\) for titles; geometric sans \(Karla\) for controls; monospaced) Tj
+T* (tabular fonts \(JetBrains Mono\) for tokens \(#104\), elapsed timers \(04:12\), and currency calculations \(Rs/INR\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 496.3466929133857093 Td
+(• Tactile Ergonomics: Zero double-tap zoom delay \(touch-action: manipulation\) and strict 44x44px hit bounds \(WCAG 2.5.5\) with) Tj
+T* (.touch-target expansion for rushed, gloved, or wet kitchen/floor operations.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.118 0.118 0.157 rg
+51.0236220472441033 455.5277952755904494 Td
+(2. TECHNICAL SPECIFICATIONS & RUNTIME TOPOLOGY) Tj
+ET
+0.85 0.65 0.13 RG
+1.4173228346456694 w
+51.0236220472441033 449.8585039370077538 m
+164.4094488188976584 449.8585039370077538 l
+S
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 435.6852755905511003 Td
+(Technology Stack Matrix:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 422.929370078740078 Td
+(• Core Frontend: React 19, TypeScript 5.8, Vite 6.2, Tailwind CSS 4.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 405.3545669291337958 Td
+(• UI & Animation: Motion \(Framer Motion 12\), Lucide React, Shadcn/Radix/Base-UI.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 387.7797637795275136 Td
+(• Backend & API Layer: Node.js, Express 4.21, TypeScript runtime \(tsx / esbuild\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 370.2049606299212883 Td
+(• Database & Realtime Engine: Supabase PostgreSQL 15+ with Realtime WebSocket replication, Row-Level Security \(RLS\), and) Tj
+T* (PL/pgSQL triggers.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 340.7246456692913057 Td
+(• Local Resilience & Caching: In-memory circular ring buffer \(orderStore.ts, max 100 historical webhook traces\) paired with) Tj
+T* (Server-Sent Events \(SSE\) broadcast to bypass external cloud latency on local networks.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 311.2443307086614368 Td
+(• Outbound Messaging: Baileys WhatsApp Web API engine \(@whiskeysockets/baileys\) for direct-to-patron digital PDF tax) Tj
+T* (receipt dispatch.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 281.7640157480313974 Td
+(• Document & Print: Server-side and client-side PDF synthesis \(jspdf\), ESC/POS thermal printing bridge \(react-to-print\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 264.1892125984251152 Td
+(• Cross-Platform Deployments: Web Terminal \(Vercel SPA\), Desktop Kiosk \(Electron 43 portable Windows executable\), Floor) Tj
+T* (Tablets \(Native Capacitor 8.5 Android package\).) Tj
+ET
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 234.7088976377951894 Td
+(Hardware Footprint:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 221.952992125984224 Td
+(• Captain Floor Nodes: 10-inch Android handheld tablets \(Capacitor runtime with native wake-lock, orientation locking, and) Tj
+T* (software keyboard avoidance\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 192.4726771653542983 Td
+(• Kitchen Display Terminals \(KDS\): Wall-mounted 21-inch touchscreen monitors positioned across Prep, Grill, and Pass stations.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 174.8978740157480161 Td
+(• Cashier / POS Host: Windows terminal connected to 80mm ESC/POS thermal receipt printer, barcode/QR scanner, and local) Tj
+T* (Express microservice.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.118 0.118 0.157 rg
+51.0236220472441033 134.0789763779526993 Td
+(3. DOMAIN ENTITIES & KNOWLEDGE GRAPH RELATIONSHIPS) Tj
+ET
+0.85 0.65 0.13 RG
+1.4173228346456694 w
+51.0236220472441033 128.4096850393700038 m
+164.4094488188976584 128.4096850393700038 l
+S
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 114.2364566929132934 Td
+(Core Entities & Schema Mapping:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 101.480551181102328 Td
+(• Order \(public.orders\): id \(UUID PK\), token \(#101-#999\), status \(pending, preparing, ready, waiting for payment, completed,) Tj
+T* (cancelled\), total, items \(JSONB\), customer_name, customer_phone, table_id, gstin, order_type \(dine_in, takeaway, delivery,) Tj
+T* (aggregator\), aggregator_platform \(swiggy, zomato, magicpin, ubereats\).) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 6961
+>>
+stream
+1.4173228346456694 w
+0.85 0.65 0.13 RG
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+51.0236220472441033 813.5435433070865656 Td
+(VYOMA SCANSERVE - REALITY SEED \(MIROFISH ENGINE\)) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+515.531968503937037 813.5435433070865656 Td
+(PAGE 2) Tj
+ET
+0.78 G
+0.5669291338582678 w
+51.0236220472441033 807.8742519685039269 m
+544.2519685039370643 807.8742519685039269 l
+S
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+62.3622047244094517 790.8663779527558972 Td
+(• OrderItem: id, name, quantity \(>=1\), price, item_notes \(cooking instructions\).) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+62.3622047244094517 773.291574803149615 Td
+(• RestaurantTable: id, table_number \(T-01 to T-20\), capacity \(2-12\), status \(available, occupied, reserved, cleaning\), section,) Tj
+T* (occupancy_timer.) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+62.3622047244094517 743.8112598425196893 Td
+(• Customer \(public.customers\): phone \(PK\), name, order_count, loyal_vip, discount, gstin, computed metrics \(totalSpent, favoriteItems,) Tj
+T* (lastOrder\).) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+62.3622047244094517 714.3309448818897636 Td
+(• MenuItem \(public.menu_items\): id, name, category, price, discount_price, is_sold_out.) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.549 g
+62.3622047244094517 696.7561417322833677 Td
+(• InboundWebhookLog: Circular buffer recording method, path, ip, headers, raw_body, platform, duration_ms, status_code, success.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.118 0.118 0.157 rg
+51.0236220472441033 667.8427559055116944 Td
+(4. END-TO-END OPERATIONAL WORKFLOWS) Tj
+ET
+0.85 0.65 0.13 RG
+1.4173228346456694 w
+51.0236220472441033 662.1734645669290558 m
+164.4094488188976584 662.1734645669290558 l
+S
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 648.0002362204724022 Td
+(Dine-In State Machine:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 635.2443307086614368 Td
+(1. Table Allocation: Hostess/Captain marks table Occupied on TableStatusGrid.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 617.6695275590550409 Td
+(2. Order Capture: Captain selects dishes on OrderBuilderSheet, inputs guest notes.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 600.0947244094487587 Td
+(3. Order Firing: System writes order to Supabase, generates sequence token \(#104\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 582.5199212598424765 Td
+(4. CRM Sync: PostgreSQL trigger trg_sync_customer_from_order upserts customer, computes visit count, and sets loyal_vip =) Tj
+T* (true if visits >= 3.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 553.0396062992124371 Td
+(5. Kitchen KDS: Ticket appears instantly on KDS with timer. Chef taps Accept.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 535.4648031496062686 Td
+(6. Expedite & Handoff: Plated food marked Ready. Captain tablets ring audio chime and flash ReadyOrdersBanner with table ID) Tj
+T* (and token.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 505.9844881889762291 Td
+(7. Service & Bill Settlement: Captain serves dishes. Cashier opens InvoicesView / Receipt.tsx, applies loyalty discount, validates) Tj
+T* (GSTIN, prints 80mm thermal bill.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 476.5041732283463034 Td
+(8. WhatsApp Delivery: Headless Baileys bot sends PDF receipt to customer phone.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 458.9293700787400212 Td
+(9. Turnover & Reset: Cashier marks order Completed. Table shifts to Cleaning, then Available.) Tj
+ET
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 441.3545669291337958 Td
+(Online Aggregator Inbound Flow:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 428.5986614173227736 Td
+(1. Inbound JSON webhook arrives at /api/webhooks from Swiggy/Zomato/Dyno API.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 411.0238582677164914 Td
+(2. Deep parser processWebhook.ts sanitizes body, extracts items, assigns token.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 393.4490551181102092 Td
+(3. Order stored in local memory ring buffer, broadcast via SSE, and written to Supabase.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 375.8742519685039269 Td
+(4. Kitchen accepts ticket; outboundWebhook.ts acknowledges aggregator API.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.118 0.118 0.157 rg
+51.0236220472441033 346.9608661417323106 Td
+(5. SYSTEM CONSTRAINTS, FRICTION POINTS & EFFICIENCY VECTORS) Tj
+ET
+0.85 0.65 0.13 RG
+1.4173228346456694 w
+51.0236220472441033 341.291574803149615 m
+164.4094488188976584 341.291574803149615 l
+S
+BT
+/F2 8.5 Tf
+9.7749999999999986 TL
+0.235 g
+51.0236220472441033 327.1183464566929615 Td
+(Simulation Vectors for Multi-Agent Swarm Modeling:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 314.3624409448818824 Td
+(1. Network Fluctuations & Split-Brain Risks: Wi-Fi dead zones cause disconnects. Local in-memory ring buffer \(orderStore.ts\)) Tj
+T* (and SSE operate alongside cloud Supabase. Out-of-sync states between local cache and database can cause duplicate tickets) Tj
+T* (or dropped updates.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 272.9766141732284268 Td
+(2. Peak-Hour Kitchen Latency Bottlenecks: When 15+ tables order concurrently alongside 10 aggregator orders, KDS ticket) Tj
+T* (queue overflows screen real estate. Chef cognitive overload delays "Mark Ready" taps, distorting prep analytics and delaying) Tj
+T* (floor service.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 231.5907874015748575 Td
+(3. Front-of-House Serving Handoff Lag: Time elapsed between kitchen marking order "Ready" and floor captain picking up food) Tj
+T* (from the pass. Food cools down if captains are occupied taking new orders.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 202.1104724409449318 Td
+(4. Instant 86'ing \(Sold-Out Propagation\): When kitchen runs out of a key item, chef toggles "is_sold_out". Delays in real-time) Tj
+T* (propagation to captain tablets cause captains to take invalid orders, wasting 5-10 minutes renegotiating at the table.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 172.6301574803150061 Td
+(5. WhatsApp Bot Lifecycle & Rate Limiting: WhatsApp Baileys socket disconnections, QR expirations, or invalid customer phone) Tj
+T* (numbers cause automated digital invoice failures.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.196 g
+62.3622047244094517 143.1498425196850803 Td
+(6. Billing & Split Settlement Delays: Customers splitting payments \(cash, UPI QR, corporate GSTIN\) during peak turnover create) Tj
+T* (front-desk queues, delaying table turnaround time.) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R ]
+/Count 2
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+/F4 10 0 R
+/F5 11 0 R
+/F6 12 0 R
+/F7 13 0 R
+/F8 14 0 R
+/F9 15 0 R
+/F10 16 0 R
+/F11 17 0 R
+/F12 18 0 R
+/F13 19 0 R
+/F14 20 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+21 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260919063819+05'30')
+>>
+endobj
+22 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000014311 00000 n 
+0000016136 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000007161 00000 n 
+0000007298 00000 n 
+0000014374 00000 n 
+0000014499 00000 n 
+0000014629 00000 n 
+0000014762 00000 n 
+0000014900 00000 n 
+0000015024 00000 n 
+0000015153 00000 n 
+0000015285 00000 n 
+0000015421 00000 n 
+0000015549 00000 n 
+0000015676 00000 n 
+0000015805 00000 n 
+0000015938 00000 n 
+0000016040 00000 n 
+0000016386 00000 n 
+0000016472 00000 n 
+trailer
+<<
+/Size 23
+/Root 22 0 R
+/Info 21 0 R
+/ID [ <D4018437F7A9C4ED5E589BBB6A02613A> <D4018437F7A9C4ED5E589BBB6A02613A> ]
+>>
+startxref
+16576
+%%EOF

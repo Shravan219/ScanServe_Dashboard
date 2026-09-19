@@ -337,7 +337,12 @@ export function PaymentsView({
       fetch('/api/whatsapp/send-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: receiptPayload, phone: targetPhone })
+        body: JSON.stringify({ 
+          order: receiptPayload, 
+          phone: targetPhone,
+          restaurantName: 'Vyoma Luxury Dining',
+          googleReviewUrl: 'https://maps.google.com'
+        })
       })
         .then(res => res.json())
         .then(result => {

@@ -51,6 +51,8 @@ import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { PaymentsView } from '@/src/components/payments/PaymentsView';
+import { MenuImporterModal } from '@/src/components/menu/MenuImporterModal';
+import { MenuEngineeringModal } from '@/src/components/menu/MenuEngineeringModal';
 import { ServerConnectionModal } from '@/src/components/ServerConnectionModal';
 import { ErrorBoundary } from '@/src/components/ErrorBoundary';
 import { getApiBaseUrl } from '@/src/lib/apiConfig';
@@ -1845,7 +1847,7 @@ export default function App() {
             {/* MENU MANAGEMENT VIEW */}
             <TabsContent value="menu" className="m-0 h-full flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 md:p-8 outline-none data-[state=inactive]:hidden">
               <ErrorBoundary fallbackTitle="Menu Management Interrupted">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25 text-primary shadow-[0_0_20px_rgba(197,160,89,0.15)] shrink-0">
                       <MenuIcon size={20} />
@@ -1856,16 +1858,33 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="relative w-full sm:w-80">
-                    <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
-                  <Input 
-                    placeholder="Search Dishes, Categories..." 
-                    className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
-                    value={menuSearch}
-                    onChange={(e) => setMenuSearch(e.target.value)}
-                  />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <MenuImporterModal 
+                      onImportSuccess={(newItems) => {
+                        setMenuItems(prev => {
+                          const existingIds = new Set(prev.map(p => p.id));
+                          const filteredNew = newItems.filter(n => !existingIds.has(n.id));
+                          return [...prev, ...filteredNew];
+                        });
+                      }}
+                    />
+
+                    <MenuEngineeringModal 
+                      menuItems={menuItems}
+                      orders={allOrders.length > 0 ? allOrders : orders}
+                    />
+
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
+                      <Input 
+                        placeholder="Search Dishes, Categories..." 
+                        className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
+                        value={menuSearch}
+                        onChange={(e) => setMenuSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
 
               {/* Category Filter Pills */}
               <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 shrink-0">

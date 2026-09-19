@@ -64,12 +64,18 @@ app.get('/api/whatsapp/qr', (_req, res) => {
 
 /**
  * POST /api/whatsapp/send-receipt
- * Body: { order: ReceiptData, phone?: string }
- * Generates a PDF receipt server-side and sends it as a WhatsApp document to the customer.
+ * Body: { order: ReceiptData, phone?: string, googleReviewUrl?: string, restaurantName?: string }
+ * Generates a PDF receipt server-side and sends it as a WhatsApp document to the customer
+ * along with a 5-Star Google Review booster prompt and direct manager feedback fallback.
  */
 app.post('/api/whatsapp/send-receipt', async (req, res) => {
   try {
-    const { order, phone } = req.body as { order: any; phone?: string };
+    const { order, phone, googleReviewUrl, restaurantName } = req.body as { 
+      order: any; 
+      phone?: string;
+      googleReviewUrl?: string;
+      restaurantName?: string;
+    };
 
     if (!order) {
       return res.status(400).json({ success: false, message: 'Missing order data in request body' });
@@ -84,16 +90,32 @@ app.post('/api/whatsapp/send-receipt', async (req, res) => {
     const pdfBuffer = generateReceiptPdfBuffer(order);
     const fileName = `Receipt_${order.token || String(order.id || '').slice(-4)}.pdf`;
 
+    const restName = restaurantName || order.restaurant_name || process.env.RESTAURANT_NAME || 'Vyoma Luxury Dining';
+    const reviewUrl = googleReviewUrl || process.env.GOOGLE_REVIEW_URL || 'https://maps.google.com';
+    const tokenStr = order.token ? ` #${order.token}` : '';
+    const totalStr = order.total ? ` • ₹${Number(order.total).toFixed(2)}` : '';
+
+    const luxuryCaption = [
+      `✨ *Thank you for dining at ${restName}!*`,
+      `🧾 Attached is your official Tax Invoice for Order${tokenStr}${totalStr}.`,
+      ``,
+      `🌟 *Loved your culinary experience?*`,
+      `Help our kitchen team shine with a quick 5-star review on Google:`,
+      `👉 ${reviewUrl}`,
+      ``,
+      `💬 _We value your feedback. For any private queries or suggestions, reply directly to this chat._`
+    ].join('\n');
+
     // Send via Baileys bot
     const result = await whatsAppBot.sendPDFDocument(
       targetPhone,
       pdfBuffer,
       fileName,
-      `🧾 Your receipt from ${order.restaurant_name || 'Vyoma POS'} – Order ${order.token || ''}`
+      luxuryCaption
     );
 
     if (result.success) {
-      return res.json({ success: true, message: result.message, jid: result.jid });
+      return res.json({ success: true, message: result.message, jid: result.jid, reviewBoostActive: true });
     } else {
       return res.status(503).json({ success: false, message: result.message });
     }
