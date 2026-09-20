@@ -44,27 +44,32 @@
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-fade-in: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-wiggle: wiggle 1.2s ease-in-out infinite;
+  --animate-wiggle: chime 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  --animate-chime: chime 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   --animate-glow-pulse: glow-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 
-  @keyframes wiggle {
-    0%, 100% {
+  @keyframes chime {
+    0%, 100%, 30% {
       transform: rotate(0deg);
+      transform-origin: top center;
     }
-    15% {
-      transform: rotate(14deg);
+    4% {
+      transform: rotate(9deg);
     }
-    30% {
-      transform: rotate(-12deg);
+    8% {
+      transform: rotate(-7deg);
     }
-    45% {
-      transform: rotate(10deg);
+    12% {
+      transform: rotate(5deg);
     }
-    60% {
-      transform: rotate(-6deg);
+    16% {
+      transform: rotate(-3deg);
     }
-    75% {
-      transform: rotate(3deg);
+    20% {
+      transform: rotate(1.5deg);
+    }
+    24% {
+      transform: rotate(0deg);
     }
   }
 

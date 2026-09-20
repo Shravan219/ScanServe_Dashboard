@@ -147,7 +147,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(197,160,89,0.15)]"
           >
             <VyomaEmblem size={16} />
@@ -162,7 +162,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.08] max-w-5xl"
           >
             Fine Dining Velocity.{' '}
@@ -175,7 +175,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl font-normal leading-relaxed"
           >
             The mission-critical restaurant management operating system. Zero-latency tableside ordering,
@@ -187,7 +187,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="mt-10 flex flex-col items-center gap-3 w-full max-w-3xl"
           >
             <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary/90 font-bold bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
@@ -248,9 +248,9 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
           {/* Interactive Live Teaser Widget */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="mt-14 w-full max-w-5xl rounded-3xl border border-white/10 bg-[#0A0A0E]/90 p-3 sm:p-5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative group overflow-hidden text-left"
           >
             <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/15 blur-[90px] rounded-full pointer-events-none" />
@@ -325,10 +325,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 {heroPreviewTab === 'tables' && (
                   <motion.div
                     key="tables"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.25 }}
+                    initial={{ opacity: 0, scale: 0.98, y: 4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, y: -4 }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"
                   >
                     {/* Table 1 */}
@@ -409,10 +409,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 {heroPreviewTab === 'kds' && (
                   <motion.div
                     key="kds"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.25 }}
+                    initial={{ opacity: 0, scale: 0.98, y: 4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, y: -4 }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     className="grid grid-cols-1 sm:grid-cols-3 gap-3.5"
                   >
                     {/* Ticket 1 */}
@@ -472,10 +472,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 {heroPreviewTab === 'whatsapp' && (
                   <motion.div
                     key="whatsapp"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.25 }}
+                    initial={{ opacity: 0, scale: 0.98, y: 4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, y: -4 }}
+                    transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     className="flex flex-col sm:flex-row items-center justify-between gap-6 p-4 rounded-2xl bg-gradient-to-r from-[#0C1210] to-[#0A0A0E] border border-emerald-500/20"
                   >
                     <div className="space-y-2 max-w-md">
