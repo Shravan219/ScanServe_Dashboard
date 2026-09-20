@@ -1001,9 +1001,9 @@
     "semantic_hash": "ca7c723df3a1e84cfd233354fa84d5c7"
   },
   "index.html": {
-    "mtime": 1789909406.0826862,
-    "seen": 1789909594.077615,
-    "ast_hash": "2ee7d4a0a29c41c70ed4257b04dcfa0f",
+    "mtime": 1789929702.0891116,
+    "seen": 1789929734.1576557,
+    "ast_hash": "e201a17fdacdafe4e45e1fb5e26d98d5",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -1343,9 +1343,9 @@
     "semantic_hash": ""
   },
   "src/components/landing/LandingPage.tsx": {
-    "mtime": 1789926562.1997006,
-    "seen": 1789926607.0512364,
-    "ast_hash": "71fa163e73298930177072d126848038",
+    "mtime": 1789929209.6755788,
+    "seen": 1789929443.4446125,
+    "ast_hash": "7049eaba1bee77166a1b7acf24a12a81",
     "semantic_hash": ""
   },
   "design-system/vyoma-scanserve/MASTER.md": {
@@ -2552,6 +2552,12 @@
     "mtime": 1789908287.6282415,
     "seen": 1789908608.3318172,
     "ast_hash": "c127ed19a7bf229d7a6a8e65fcbae68e",
+    "semantic_hash": ""
+  },
+  "public/robots.txt": {
+    "mtime": 1789928992.2528532,
+    "seen": 1789929443.4808464,
+    "ast_hash": "24c3bbcbbe2917207c04faadac2e9ade",
     "semantic_hash": ""
   }
 }

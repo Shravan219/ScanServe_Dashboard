@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vyomadashboard.vercel.app/sitemap.xml

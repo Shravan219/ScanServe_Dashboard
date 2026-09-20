@@ -86,36 +86,41 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
-            <button
-              onClick={() => scrollToSection('features')}
+            <a
+              href="#features"
+              onClick={(e) => { e.preventDefault(); scrollToSection('features'); }}
               className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Capabilities
-            </button>
-            <button
-              onClick={() => scrollToSection('architecture')}
+            </a>
+            <a
+              href="#architecture"
+              onClick={(e) => { e.preventDefault(); scrollToSection('architecture'); }}
               className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Operations
-            </button>
-            <button
-              onClick={() => scrollToSection('metrics')}
+            </a>
+            <a
+              href="#metrics"
+              onClick={(e) => { e.preventDefault(); scrollToSection('metrics'); }}
               className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Performance
-            </button>
-            <button
-              onClick={() => scrollToSection('pricing')}
+            </a>
+            <a
+              href="#pricing"
+              onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}
               className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Pricing
-            </button>
-            <button
-              onClick={() => scrollToSection('faq')}
+            </a>
+            <a
+              href="#faq"
+              onClick={(e) => { e.preventDefault(); scrollToSection('faq'); }}
               className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               FAQ
-            </button>
+            </a>
           </nav>
 
           {/* Action CTAs */}
@@ -1298,14 +1303,16 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1.5" />
               </Button>
 
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => scrollToSection('pricing')}
-                className="w-full sm:w-auto h-14 px-8 rounded-2xl border-white/15 bg-white/5 hover:bg-white/10 active:scale-95 touch-manipulation text-white font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+              <a
+                href="#pricing"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('pricing');
+                }}
+                className="inline-flex items-center justify-center w-full sm:w-auto h-14 px-8 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 active:scale-95 touch-manipulation text-white font-bold text-xs uppercase tracking-[0.2em] transition-all cursor-pointer"
               >
                 View Plans & Pricing
-              </Button>
+              </a>
             </div>
           </div>
         </section>
