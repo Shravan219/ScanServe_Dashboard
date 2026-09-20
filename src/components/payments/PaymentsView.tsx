@@ -633,7 +633,7 @@ export function PaymentsView({
               placeholder="Search table, name, token, phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full min-h-[44px] bg-[#141620] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-sans"
+              className="w-full min-h-[44px] bg-[#141620] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 transition-all font-sans"
             />
           </div>
         </div>
@@ -775,7 +775,7 @@ export function PaymentsView({
                                 maxLength={13}
                                 value={customerPhoneInputs[invoice.groupKey] || ''}
                                 onChange={(e) => setCustomerPhoneInputs(prev => ({ ...prev, [invoice.groupKey]: e.target.value.replace(/[^\d+]/g, '').slice(0, 13) }))}
-                                className="min-h-[44px] bg-[#141620] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50 font-mono w-44 touch-manipulation"
+                                className="min-h-[44px] bg-[#141620] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 font-mono w-44 touch-manipulation"
                               />
                             </div>
                           )}
@@ -866,7 +866,7 @@ export function PaymentsView({
                               maxLength={13}
                               value={customerPhoneInputs[invoice.groupKey] || ''}
                               onChange={(e) => setCustomerPhoneInputs(prev => ({ ...prev, [invoice.groupKey]: e.target.value.replace(/[^\d+]/g, '').slice(0, 13) }))}
-                              className="w-full bg-[#10131A] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 font-mono"
+                              className="w-full bg-[#10131A] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-emerald-500/50 font-mono"
                             />
                           )}
 

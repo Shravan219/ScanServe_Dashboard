@@ -439,6 +439,7 @@ export default function App() {
   });
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('vyoma_frequent_discount_enabled', frequentDiscountEnabled.toString());
@@ -612,21 +613,30 @@ export default function App() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password) {
+    if (isAuthenticating) return;
+    if (!password.trim()) {
       setAuthError(true);
       toast.error('Please enter access password');
       return;
     }
 
-    const res = await verifyStaffPassword(password);
-    if (res.success) {
-      setIsAuthenticated(true);
-      setAuthError(false);
-      localStorage.setItem('vyoma_staff_authenticated', 'true');
-      toast.success('Access Granted');
-    } else {
+    setIsAuthenticating(true);
+    try {
+      const res = await verifyStaffPassword(password.trim());
+      if (res.success) {
+        setIsAuthenticated(true);
+        setAuthError(false);
+        localStorage.setItem('vyoma_staff_authenticated', 'true');
+        toast.success('Access Granted');
+      } else {
+        setAuthError(true);
+        toast.error(res.message || 'Invalid Access Password');
+      }
+    } catch (err) {
       setAuthError(true);
-      toast.error(res.message || 'Invalid Access Password');
+      toast.error('Authentication check failed. Please try again.');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -1314,6 +1324,8 @@ export default function App() {
                 <Input 
                   id="staff-password-input"
                   type="password"
+                  maxLength={64}
+                  disabled={isAuthenticating}
                   placeholder="Enter Access Password"
                   aria-label="Staff Access Password"
                   aria-invalid={authError}
@@ -1324,7 +1336,7 @@ export default function App() {
                     if (authError) setAuthError(false);
                   }}
                   className={cn(
-                    "bg-[#0A0A0A] border-white/10 placeholder:text-white/50 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all",
+                    "bg-[#0A0A0A] border-white/10 placeholder:text-white/50 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
                     authError && "border-red-500/60 focus-visible:border-red-500/60"
                   )}
                   autoFocus
@@ -1337,10 +1349,20 @@ export default function App() {
               </div>
               <Button 
                 type="submit"
-                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.35em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group cursor-pointer"
+                disabled={isAuthenticating}
+                className="w-full bg-primary text-black hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-full h-16 text-[11px] uppercase tracking-[0.35em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group cursor-pointer transition-all"
               >
-                Unlock Staff Dashboard
-                <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
+                {isAuthenticating ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <RefreshCcw className="h-4 w-4 animate-spin" />
+                    Verifying Credentials...
+                  </span>
+                ) : (
+                  <>
+                    Unlock Staff Dashboard
+                    <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
               </Button>
             </form>
             

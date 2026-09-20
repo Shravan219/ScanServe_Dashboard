@@ -422,7 +422,7 @@ export function OrderBuilderSheet({
                           className="flex items-center justify-between rounded-xl bg-[#14161C] p-3 border border-white/5 hover:border-white/10 transition-colors"
                         >
                           <div className="flex-1 min-w-0 pr-2">
-                            <p className="text-xs font-bold text-white leading-tight">{item.name}</p>
+                            <p className="text-xs font-bold text-white leading-tight truncate">{item.name}</p>
                             <p className="text-[10px] text-primary/90 font-mono mt-0.5">
                               ₹{item.price} × {quantity} = <span className="font-bold text-primary">₹{item.price * quantity}</span>
                             </p>
@@ -572,7 +572,7 @@ export function OrderBuilderSheet({
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Rahul (Optional)"
-                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all"
+                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 transition-all"
                     />
                   </div>
 
@@ -587,7 +587,7 @@ export function OrderBuilderSheet({
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value.replace(/[^\d+]/g, '').slice(0, 13))}
                       placeholder="+91 98765..."
-                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-all font-mono"
+                      className="w-full rounded-xl bg-[#14161C] border border-white/10 px-3 py-2 text-xs font-medium text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 transition-all font-mono"
                     />
                   </div>
                 </div>
@@ -606,7 +606,7 @@ export function OrderBuilderSheet({
                   onChange={(e) => setCustomInstructions(e.target.value)}
                   placeholder="e.g. Less spicy, extra napkins, serve beverages first..."
                   rows={2}
-                  className="w-full rounded-xl bg-[#14161C] border border-white/10 p-2.5 text-xs font-medium text-white placeholder-white/30 focus:outline-none focus:border-primary/50 resize-none transition-all"
+                  className="w-full rounded-xl bg-[#14161C] border border-white/10 p-2.5 text-xs font-medium text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 resize-none transition-all"
                 />
 
                 {/* Quick Instruction Tags */}
@@ -647,7 +647,7 @@ export function OrderBuilderSheet({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search menu items..."
-                  className="w-full rounded-2xl bg-[#13151B] border border-white/10 pl-11 pr-4 py-3 text-xs font-semibold text-white placeholder-white/40 focus:outline-none focus:border-primary/50 transition-all"
+                  className="w-full rounded-2xl bg-[#13151B] border border-white/10 pl-11 pr-4 py-3 text-xs font-semibold text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 transition-all"
                 />
               </div>
 

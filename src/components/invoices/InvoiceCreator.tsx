@@ -200,6 +200,8 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
   // Submit Handler -> Direct Orders DB save & Inbound Webhook compatibility
   const handleGenerateInvoice = async () => {
+    if (isSubmitting) return;
+
     // Validation
     const validItems = items.filter(it => it.name && it.name.trim().length > 0 && it.price >= 0);
     if (validItems.length === 0) {
@@ -705,7 +707,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
 
                         {/* Quantity Controls (3 cols) */}
                         <div className="col-span-5 sm:col-span-2">
-                          <span className="text-[9px] uppercase tracking-[0.2em] text-white/40 font-bold block mb-1 text-center">
+                          <span className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-bold block mb-1 text-center">
                             Quantity
                           </span>
                           <div className="flex items-center justify-between bg-[#111] border border-white/10 rounded-xl h-11 px-1.5">
@@ -924,7 +926,7 @@ export function InvoiceCreator({ menuItems, onOrderCreated }: InvoiceCreatorProp
                 type="button"
                 onClick={handleGenerateInvoice}
                 disabled={isSubmitting || grandTotal <= 0}
-                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-14 text-[11px] uppercase tracking-[0.35em] font-extrabold shadow-[0_0_30px_rgba(197,160,89,0.35)] transition-all hover:scale-[1.02] duration-300"
+                className="w-full bg-primary text-black hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-full h-14 text-[11px] uppercase tracking-[0.35em] font-extrabold shadow-[0_0_30px_rgba(197,160,89,0.35)] transition-all hover:scale-[1.02] duration-300"
               >
                 {isSubmitting ? 'Issuing & Saving Invoice...' : `Issue & Save Invoice (₹${grandTotal.toFixed(2)})`}
               </Button>
