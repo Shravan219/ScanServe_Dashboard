@@ -1,24 +1,24 @@
 # Graph Report - ScanServe_Dashboard-main  (2026-09-20)
 
 ## Corpus Check
-- 383 files · ~377,956 words
+- 383 files · ~379,107 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 91 file(s) not represented in the graph (top: .csv 57, .xml 11, (none) 6)
 
 ## Summary
-- 4407 nodes · 6319 edges · 335 communities (283 shown, 52 thin omitted)
+- 4412 nodes · 6331 edges · 334 communities (280 shown, 54 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3f29c60c`
+- Built from commit: `f296a909`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Comprehensive Business Case: Vyoma ScanServe
 - orderStore.ts
-- CaptainDashboard.tsx
+- react
 - gray
 - cip/core.py
 - color
@@ -30,28 +30,28 @@
 - Market Opportunity Analysis: Vyoma ScanServe (POS & KDS)
 - html-token-validator.py
 - compilerOptions
-- logo/core.py
+- argparse
 - components.json
-- generate-slide.py
+- test_core.py
 - 1. Terms of Service & Master SaaS Agreement
-- projects.py
+- onsite.py
 - fetch-background.py
 - engine.py
 - fontSize
 - TestShadcnInstaller
 - design_system.py
-- Crawler
+- install_skill.py
 - .check_shadcn_config
 - Design System Master File
 - .test_add_all_components_success
-- TestGeneratedConfigIsValidJs
-- DesignSystemGenerator
-- ErrorBoundary
+- test_tailwind_config_gen.py
+- sys
+- test_validate_tokens.py
 - dependencies
 - Tailwind CSS Utility Reference
 - duration
-- LegalModal.tsx
-- pathlib
+- LandingPage.tsx
+- json
 - lib/dispatch-status.ts
 - ErrorBoundary
 - .generate_config_string
@@ -67,22 +67,22 @@
 - package.json
 - Color Semantics
 - gradlew
-- .generate
+- DesignSystemGenerator
 - app.json
 - electron.cjs
 - extract-colors.cjs
 - validate-asset.cjs
 - ShadcnInstaller
-- log
+- BM25
 - Tailwind CSS Responsive Design
 - MainActivity.java
 - vercel.json
-- install-apk.cjs
+- ref_path
 - .test_add_components_dry_run
 - 1. AGENT SWARM TOPOLOGY & PERSONA ROLES
 - Token Architecture
 - _palette_is_dark
-- ref_path
+- generate-reality-seed-pdf.cjs
 - .test_init_default_project_root
 - Primitive Tokens
 - validate-tokens.cjs
@@ -119,7 +119,7 @@
 - ServerConnectionModal.tsx
 - Routing by Task Type
 - shadcn/ui Theming & Customization
-- PaymentsView.tsx
+- whatsapp.ts
 - Asset Organization Guide
 - Primary Color Meanings
 - Core Logo Types
@@ -180,14 +180,14 @@
 - primary-foreground
 - ring
 - secondary-foreground
-- beyondseo/SKILL.md
-- install_skill.py
+- docs/README.md
+- build_skill.py
 - backlinks.py
 - .test_add_components_already_installed
-- discovery.py
+- normalize_url
 - .test_list_installed_empty
-- research.py
-- react
+- pathlib
+- InvoiceReceiptModal.tsx
 - Content Quality and E-E-A-T Audit
 - .test_add_components_no_components
 - .test_add_plugins_no_duplicates
@@ -197,7 +197,7 @@
 - Full Site Audit Workflow
 - .test_init_default_typescript
 - Install BeyondSEO in your assistant
-- RobotsRules
+- Search discovery that keeps its evidence
 - c_users_anay0216_documents_coding_scanserve_dashboard_main_dist_server_cjs
 - .test_write_config
 - Technical SEO Audit
@@ -210,7 +210,7 @@
 - import_backlink_pdf.py
 - Conversion SEO Audit
 - On-Page SEO Audit
-- utcnow
+- projects.py
 - Keyword-to-Page Map
 - AI-Friendly SEO Report Template
 - Keyword Clustering
@@ -236,8 +236,8 @@
 - Entity SEO Knowledge Graph System
 - Sample Final Audit Output
 - Reputation SEO Proof Stack
-- search-slides.py
-- BM25
+- assets/README.md
+- Review, improve and check again
 - AEO Content Writing Persona
 - Citations and Source-Worthiness
 - GEO AI Citation Optimization
@@ -245,7 +245,7 @@
 - SEO Page Brief Template
 - BeyondSEO — functionality and skill map
 - Command reference
-- BM25
+- BeyondSEO in Lovable
 - Find the right places to publish
 - Conversation SEO Framework
 - Backlink Audit
@@ -256,12 +256,12 @@
 - Complete SEO house workflow
 - BeyondSEO Reputation Score
 - BeyondSEO
-- Config
+- Read pages that use JavaScript
 - Search through an available browser
 - What BeyondSEO installs and accesses
 - SEO roadmap generator
 - What a complete audit delivers
-- _filter_anti_patterns_for_mode
+- validate_data.py
 - _select_palette_for_mode
 - Deep research that explains where a business stands
 - BeyondSEO documentation
@@ -275,7 +275,7 @@
 - A helpful conversation about the website
 - SEO, AEO, and GEO Definitions
 - Local Authority Links
-- Develop BeyondSEO
+- development.md
 - Diagnose the failed operation
 - A score you can inspect
 - AI Overview Opportunity Audit
@@ -310,21 +310,21 @@
 - Blog Support Cluster Strategy
 - Content Hub Strategy
 - Service Page Strategy
-- normalize_url
-- How BeyondSEO works
+- .__init__
+- backlink-quality-scoring.md
 - Reputation and posting plan
 - Backlink Sheet Style Framework
 - Education Report Framework
 - Local Clinic Report Framework
-- _search_csv
-- ._apply_reasoning
-- Our backlink and reputation system
-- About the creator
+- Reporting a security issue
+- .test_add_all_components_no_config
+- .test_list_installed_no_config
+- .test_init_custom_project_root
 - 16
 - 1
 - 3
 - 8
-- .temp_project
+- .test_init_dry_run
 - audit-modes.md
 - capability-detection.md
 - decision-tree.md
@@ -333,17 +333,16 @@
 - onboarding.md
 - PLAYBOOK_DEPTH.md
 - 90-day-roadmap-template.md
-- .test_add_all_components_dry_run
-- .test_get_installed_components_empty
-- .test_add_fonts
-- .test_add_breakpoints
-- .test_recommend_plugins
-- .test_generate_typescript_config
-- .test_validate_config_valid
-- .test_validate_config_empty_theme
-- .test_write_config_invalid_path
-- .test_full_configuration_javascript
-- .test_add_colors
+- .test_check_shadcn_config_not_exists
+- .test_add_color_palette
+- .test_add_spacing
+- .test_generate_config_with_colors
+- .test_generate_config_with_plugins
+- .test_write_config_creates_content
+- .test_full_configuration_typescript
+- .test_default_output_path_typescript
+- .test_base_config_structure
+- .test_default_content_paths_react
 - beyondseo
 
 ## God Nodes (most connected - your core abstractions)
@@ -367,13 +366,13 @@
   REALITY_SEED.md → src/types.ts
 - `Editor support` --references--> `build()`  [INFERRED]
   VyomPOS/README.md → .agents/skills/beyondseo/scripts/build_skill.py
-- `Cards & Tiles` --references--> `TableStatusGrid()`  [INFERRED]
-  DESIGN.md → src/components/captain/TableStatusGrid.tsx
+- `3.1 Core Entity Definitions` --references--> `RestaurantTable`  [INFERRED]
+  REALITY_SEED.md → src/types.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (335 total, 52 thin omitted)
+## Communities (334 total, 54 thin omitted)
 
 ### Community 0 - "Comprehensive Business Case: Vyoma ScanServe"
 Cohesion: 0.06
@@ -383,9 +382,9 @@ Nodes (31): 10.1 Allocation of Proceeds, 10. Funding Request & Use of Proceeds, 
 Cohesion: 0.06
 Nodes (61): handler(), handler(), handler(), formatIST(), getSupabaseClient(), handler(), handler(), safeUUID() (+53 more)
 
-### Community 2 - "CaptainDashboard.tsx"
-Cohesion: 0.20
-Nodes (24): 4.1 Floor Service (Dine-In) State Machine, lucide-react, ref_motion_react, sonner, A. Front-of-House (Floor Staff), CaptainDashboardProps, DEFAULT_TABLES, OrderBuilderSheet() (+16 more)
+### Community 2 - "react"
+Cohesion: 0.13
+Nodes (34): Cards & Tiles, 4.1 Floor Service (Dine-In) State Machine, lucide-react, ref_motion_react, react, sonner, A. Front-of-House (Floor Staff), OrderCard() (+26 more)
 
 ### Community 3 - "gray"
 Cohesion: 0.05
@@ -401,15 +400,15 @@ Nodes (19): $type, $value, background, foreground, muted-foreground, primary, pr
 
 ### Community 6 - "App.tsx"
 Cohesion: 0.08
-Nodes (44): Card(), CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), ScrollArea() (+36 more)
+Nodes (41): Card(), CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), ScrollArea() (+33 more)
 
 ### Community 7 - "card"
 Cohesion: 0.20
 Nodes (12): $type, $value, bg, bg, padding, shadow, card, bg (+4 more)
 
 ### Community 8 - "slide_search_core.py"
-Cohesion: 0.16
-Nodes (19): calculate_pattern_break(), detect_domain(), get_background_config(), get_color_for_emotion(), get_layout_for_goal(), get_typography_for_slide(), _load_decision_csv(), Auto-detect the most relevant domain from query (+11 more)
+Cohesion: 0.08
+Nodes (38): format_context(), format_result(), main(), Format a single search result for display, Slide Search CLI - Search slide design databases for strategies, layouts, copy,…, Format contextual recommendations for display., BM25, calculate_pattern_break() (+30 more)
 
 ### Community 9 - "spacing"
 Cohesion: 0.09
@@ -417,7 +416,7 @@ Nodes (22): $type, $value, $type, $value, $type, $value, $type, $value (+14 more
 
 ### Community 10 - "TestTailwindConfigGenerator"
 Cohesion: 0.07
-Nodes (15): Test adding colors multiple times., Test adding full color palette., Test adding custom spacing., Test TailwindConfigGenerator class., Test generating JavaScript configuration., Test generating config with custom colors., Test generating config with plugins., Test validating config with no content paths. (+7 more)
+Nodes (15): Test adding custom fonts., Test adding custom breakpoints., Test TailwindConfigGenerator class., Test plugin recommendations., Test generating TypeScript configuration., Test generating JavaScript configuration., Test validating valid configuration., Test validating config with no content paths. (+7 more)
 
 ### Community 11 - "Market Opportunity Analysis: Vyoma ScanServe (POS & KDS)"
 Cohesion: 0.09
@@ -431,33 +430,33 @@ Nodes (25): get_context(), is_allowed_exception(), is_allowed_rgba(), is_inside_
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, experimentalDecorators, isolatedModules, jsx, lib, module, moduleDetection (+10 more)
 
-### Community 14 - "logo/core.py"
-Cohesion: 0.15
-Nodes (17): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results, Logo Design Core - BM25 search engine for logo design guidelines (+9 more)
+### Community 14 - "argparse"
+Cohesion: 0.14
+Nodes (18): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results, Logo Design Core - BM25 search engine for logo design guidelines (+10 more)
 
 ### Community 15 - "components.json"
 Cohesion: 0.09
 Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+13 more)
 
-### Community 16 - "generate-slide.py"
-Cohesion: 0.13
-Nodes (22): escape(), walk(), _e(), generate_chart_slide(), generate_cta_slide(), generate_deck(), generate_metrics_slide(), generate_problem_slide() (+14 more)
+### Community 16 - "test_core.py"
+Cohesion: 0.16
+Nodes (11): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, format_master_md(), persist_design_system(), Slugify a name into a single safe path segment. Only [a-z0-9_-] survives; every…, Persist design system to design-system/<project>/ folder using Master +…, Format design system as MASTER.md with hierarchical override logic., safe_slug() (+3 more)
 
 ### Community 17 - "1. Terms of Service & Master SaaS Agreement"
 Cohesion: 0.10
 Nodes (20): 1.1 Acceptance of Agreement, 1.2 License Grant & Scope of Deployment, 1.3 Operational Tiers & Feature Entitlements, 1.4 Service Level Agreement (SLA) & Offline Mesh Guarantee, 1.5 Limitation of Liability, 1. Terms of Service & Master SaaS Agreement, 2.1 Legislative Compliance Framework, 2.2 Categories of Personal Data Collected (+12 more)
 
-### Community 18 - "projects.py"
-Cohesion: 0.06
-Nodes (57): draft_html(), execute(), metadata(), plan_html(), Conservative static-HTML drafts and sitemap drafts; never deploy automatically.…, Only explicitly verified, indexable, canonical 200 URLs enter the draft., register(), short_text() (+49 more)
+### Community 18 - "onsite.py"
+Cohesion: 0.09
+Nodes (29): draft_html(), execute(), metadata(), plan_html(), Conservative static-HTML drafts and sitemap drafts; never deploy automatically.…, Only explicitly verified, indexable, canonical 200 URLs enter the draft., short_text(), single() (+21 more)
 
 ### Community 19 - "fetch-background.py"
 Cohesion: 0.16
 Nodes (18): generate_css_for_background(), get_background_image(), get_curated_images(), get_overlay_css(), get_pexels_search_url(), load_backgrounds_config(), load_brand_colors(), main() (+10 more)
 
 ### Community 20 - "engine.py"
-Cohesion: 0.10
-Nodes (24): Check local Markdown links and embedded asset paths without network requests., challenge_signal(), classify_access(), Explain access failures without mistaking crawler limits for website blocking., summarize_access(), csv_value(), Persistent bounded crawl, sitemap discovery, evidence export, and link analysis., Bounded, restartable reviews with a fresh evidence folder for every cycle. (+16 more)
+Cohesion: 0.06
+Nodes (37): Check local Markdown links and embedded asset paths without network requests., challenge_signal(), classify_access(), Explain access failures without mistaking crawler limits for website blocking., summarize_access(), Crawler, csv_value(), parse_sitemap() (+29 more)
 
 ### Community 21 - "fontSize"
 Cohesion: 0.12
@@ -465,15 +464,15 @@ Nodes (16): $type, $value, $type, $value, $type, $value, $type, $value (+8 more)
 
 ### Community 22 - "TestShadcnInstaller"
 Cohesion: 0.12
-Nodes (9): Test adding components with overwrite flag., Test ShadcnInstaller class., Test listing installed components without config., Test listing installed components when they exist., Test initialization with custom project root., Test initialization with dry run mode., Test checking for existing shadcn config., Test getting installed components when files exist. (+1 more)
+Nodes (10): Test adding components with overwrite flag., Test ShadcnInstaller class., Test adding all components in dry run mode., Create temporary project structure., Test listing installed components when they exist., Test getting installed components when none exist., Test getting installed components when files exist., Test getting installed components without config. (+2 more)
 
 ### Community 23 - "design_system.py"
 Cohesion: 0.09
-Nodes (26): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), hex_to_ansi(), persist_design_system() (+18 more)
+Nodes (24): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides(), hex_to_ansi() (+16 more)
 
-### Community 24 - "Crawler"
-Cohesion: 0.15
-Nodes (8): Crawler, parse_sitemap(), addresses(), origin(), RateLimiter, Connect to a verified resolved IP, retaining the original host for TLS SNI., RobotsCache, Transport
+### Community 24 - "install_skill.py"
+Cohesion: 0.23
+Nodes (11): host_destination(), install(), main(), Copy a clean BeyondSEO skill folder to an explicit destination. No network or…, Resolve documented local roots without changing any host configuration., shell_command(), main(), Set up a local BeyondSEO environment from this source checkout. (+3 more)
 
 ### Community 25 - ".check_shadcn_config"
 Cohesion: 0.21
@@ -487,13 +486,17 @@ Nodes (16): Additional Forbidden Patterns, Anti-Patterns (Do NOT Use), Buttons, 
 Cohesion: 0.22
 Nodes (5): Test successful component addition., Test component addition with subprocess error., Test component addition when npx is not found., Test successful addition of all components., patch
 
-### Community 28 - "TestGeneratedConfigIsValidJs"
-Cohesion: 0.25
-Nodes (7): Reduce a generated TS/JS config to a bare assignable object so it can be handed…, Regression guard for the missing-comma bug between the ``theme`` block and…, The property preceding ``plugins`` must end with a comma (pure-Python check, so…, The emitted config parses as valid JS via ``node --check``., _strip_to_object(), TestGeneratedConfigIsValidJs, parametrize
+### Community 28 - "test_tailwind_config_gen.py"
+Cohesion: 0.16
+Nodes (10): main(), Tailwind CSS Configuration Generator Generate tailwind.config.js/ts with custom…, Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to a bare assignable object so it can be handed…, Regression guard for the missing-comma bug between the ``theme`` block and…, The property preceding ``plugins`` must end with a comma (pure-Python check, so…, The emitted config parses as valid JS via ``node --check``., _strip_to_object() (+2 more)
 
-### Community 29 - "DesignSystemGenerator"
-Cohesion: 0.23
-Nodes (6): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., TestReasoningMatch, The exact reproduction from issue #428., TestEndToEndCoherence
+### Community 29 - "sys"
+Cohesion: 0.20
+Nodes (6): Compatibility entry point for the environment check., Run BeyondSEO directly from a source checkout., Compatibility entrypoint: regenerate evidence reports from a local crawl., Run the bundled CLI from any working directory, without shell activation., os, sys
+
+### Community 30 - "test_validate_tokens.py"
+Cohesion: 0.22
+Nodes (10): Path, Regression tests for validate-tokens.cjs. The validator used to skip any line…, A hardcoded hex on the same line as a var() token is still a violation., A line that references only tokens produces no false positives., _run(), test_flags_hardcoded_hex_sharing_line_with_token(), test_token_only_line_reports_no_violation(), CompletedProcess (+2 more)
 
 ### Community 31 - "dependencies"
 Cohesion: 0.05
@@ -507,13 +510,13 @@ Nodes (43): Arbitrary Values, Aspect Ratio, Background Colors, Border Color, Bor
 Cohesion: 0.20
 Nodes (10): fast, normal, slow, $type, $value, $type, $value, duration (+2 more)
 
-### Community 34 - "LegalModal.tsx"
-Cohesion: 0.27
-Nodes (10): COOKIE_POLICY, DATA_PROCESSING_AGREEMENT, GST_DISCLAIMER, LEGAL_DISCLAIMER_NOTICE, LegalDocument, LegalSection, PRIVACY_POLICY, TERMS_OF_SERVICE (+2 more)
+### Community 34 - "LandingPage.tsx"
+Cohesion: 0.15
+Nodes (17): VyomaEmblem(), VyomaLogo(), VyomaLogoProps, LandingPage(), LandingPageProps, COOKIE_POLICY, DATA_PROCESSING_AGREEMENT, GST_DISCLAIMER (+9 more)
 
-### Community 35 - "pathlib"
-Cohesion: 0.07
-Nodes (35): Compatibility entry point for the environment check., check_files(), check_history(), main(), Read-only release hygiene check. Does not stage, commit, zip or publish files., Run BeyondSEO directly from a source checkout., Compatibility entrypoint: regenerate evidence reports from a local crawl., Regression test for sync-brand-to-tokens.cjs. The color parser required a… (+27 more)
+### Community 35 - "json"
+Cohesion: 0.18
+Nodes (10): check_files(), check_history(), main(), Read-only release hygiene check. Does not stage, commit, zip or publish files., Regression test for sync-brand-to-tokens.cjs. The color parser required a…, main(), Slide Token Validator (Legacy Wrapper) Now delegates to html-token-validator.py…, Delegate to unified html-token-validator.py with --type slides. (+2 more)
 
 ### Community 36 - "lib/dispatch-status.ts"
 Cohesion: 0.28
@@ -528,8 +531,8 @@ Cohesion: 0.20
 Nodes (6): Generate configuration file content. Returns: Configuration file as string, Generate TypeScript configuration., Generate JavaScript configuration., Format plugins array for config. Validates each plugin name against a strict…, Add indentation to JSON string., Write configuration to file. Returns: Tuple of (success, message)
 
 ### Community 39 - "icon/generate.py"
-Cohesion: 0.08
-Nodes (31): Run the bundled CLI from any working directory, without shell activation., apply_color(), apply_viewbox_size(), extract_svgs(), generate_batch(), generate_icon(), generate_sizes(), load_env() (+23 more)
+Cohesion: 0.10
+Nodes (28): apply_color(), apply_viewbox_size(), extract_svgs(), generate_batch(), generate_icon(), generate_sizes(), load_env(), main() (+20 more)
 
 ### Community 40 - "lib/dyno-adapter.ts"
 Cohesion: 0.33
@@ -537,7 +540,7 @@ Nodes (3): DynoCustomer, DynoItem, NormalizedDynoOrder
 
 ### Community 41 - "SimulateOrderModal.tsx"
 Cohesion: 0.10
-Nodes (27): Badge(), badgeVariants, Dialog(), DialogContent(), DialogDescription(), DialogFooter(), DialogHeader(), DialogOverlay() (+19 more)
+Nodes (31): Badge(), badgeVariants, Button(), buttonVariants, Dialog(), DialogContent(), DialogDescription(), DialogFooter() (+23 more)
 
 ### Community 42 - "Brand Guidelines v1.0"
 Cohesion: 0.05
@@ -575,9 +578,9 @@ Nodes (17): Accent, Applying Semantic Tokens, Background & Foreground, Border & 
 Cohesion: 0.83
 Nodes (3): gradlew script, die(), warn()
 
-### Community 51 - ".generate"
-Cohesion: 0.20
-Nodes (6): Execute searches across multiple domains., Select best matching result based on priority keywords., Extract results list from search result dict., Generate complete design system recommendation. variance/motion/density are…, Bucket a 1-10 dial value into its tier config. Returns None if value is None., _resolve_dial()
+### Community 51 - "DesignSystemGenerator"
+Cohesion: 0.13
+Nodes (12): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Execute searches across multiple domains., Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict. (+4 more)
 
 ### Community 52 - "app.json"
 Cohesion: 0.09
@@ -596,20 +599,20 @@ Cohesion: 0.25
 Nodes (13): checkManifest(), formatBytes(), formatOutput(), fs, main(), parseFilename(), path, RULES (+5 more)
 
 ### Community 56 - "ShadcnInstaller"
-Cohesion: 0.17
-Nodes (8): main(), Path, Handle shadcn/ui component installation., Initialize installer. Args: project_root: Project root directory (default:…, ShadcnInstaller, Test adding all components without config., Test checking for non-existent shadcn config., Test getting installed components without config.
-
-### Community 57 - "log"
 Cohesion: 0.22
-Nodes (6): log(), _normalize(), Apply synonym substitution before tokenizing., Lowercase, normalize synonyms, split, remove punctuation, filter stopwords, Build BM25 index from documents, Score all documents against query
+Nodes (8): main(), Handle shadcn/ui component installation., shadcn/ui Component Installer Add shadcn/ui components to project with…, ShadcnInstaller, Tests for shadcn_add.py, Test checking for existing shadcn config., typing, unittest_mock
+
+### Community 57 - "BM25"
+Cohesion: 0.09
+Nodes (15): log(), BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, BM25, _normalize() (+7 more)
 
 ### Community 58 - "Tailwind CSS Responsive Design"
 Cohesion: 0.06
 Nodes (32): 1. Mobile-First Design, 2. Consistent Breakpoint Usage, 3. Test at Breakpoint Boundaries, 4. Use Container for Content Width, 5. Progressive Enhancement, 6. Avoid Too Many Breakpoints, Best Practices, Breakpoint System (+24 more)
 
-### Community 61 - "install-apk.cjs"
-Cohesion: 0.29
-Nodes (5): ref_child_process, adbPath, { execSync, spawn }, fs, path
+### Community 61 - "ref_path"
+Cohesion: 0.15
+Nodes (9): ref_child_process, ref_fs, ref_path, adbPath, { execSync, spawn }, fs, path, whatsAppBot (+1 more)
 
 ### Community 63 - "1. AGENT SWARM TOPOLOGY & PERSONA ROLES"
 Cohesion: 0.14
@@ -620,12 +623,12 @@ Cohesion: 0.15
 Nodes (12): Categories, Dark Mode, File Organization, Layer 1: Primitive Tokens, Layer 2: Semantic Tokens, Layer 3: Component Tokens, Layer Overview, Migration from Flat Tokens (+4 more)
 
 ### Community 65 - "_palette_is_dark"
-Cohesion: 0.27
-Nodes (5): _palette_is_dark(), WCAG relative luminance of a #RRGGBB string, or None if unparseable., True when a colors.csv row's Background is a dark surface., _relative_luminance(), TestLuminance
+Cohesion: 0.18
+Nodes (7): _palette_is_dark(), WCAG relative luminance of a #RRGGBB string, or None if unparseable., True when a colors.csv row's Background is a dark surface., _relative_luminance(), The exact reproduction from issue #428., TestEndToEndCoherence, TestLuminance
 
-### Community 66 - "ref_path"
-Cohesion: 0.20
-Nodes (10): ref_fs, ref_path, fs, generatePdf(), checkPageBreak(), drawHeaderFooter(), { jsPDF }, path (+2 more)
+### Community 66 - "generate-reality-seed-pdf.cjs"
+Cohesion: 0.33
+Nodes (6): fs, generatePdf(), checkPageBreak(), drawHeaderFooter(), { jsPDF }, path
 
 ### Community 68 - "Primitive Tokens"
 Cohesion: 0.17
@@ -645,11 +648,11 @@ Nodes (12): devDependencies, autoprefixer, @capacitor/cli, concurrently, cross-e
 
 ### Community 72 - "TailwindConfigGenerator"
 Cohesion: 0.09
-Nodes (13): main(), Add custom font families. Args: fonts: Dict of font_type: [font_names] e.g.,…, Add custom spacing values. Args: spacing: Dict of name: value e.g., {'18':…, Add custom breakpoints. Args: breakpoints: Dict of name: width e.g., {'3xl':…, Add plugin requirements. Args: plugins: List of plugin names e.g.,…, Get plugin recommendations based on configuration. Returns: List of recommended…, Generate Tailwind CSS configuration files., Validate configuration. Returns: Tuple of (valid, message) (+5 more)
+Nodes (12): Add custom font families. Args: fonts: Dict of font_type: [font_names] e.g.,…, Add custom spacing values. Args: spacing: Dict of name: value e.g., {'18':…, Add custom breakpoints. Args: breakpoints: Dict of name: width e.g., {'3xl':…, Add plugin requirements. Args: plugins: List of plugin names e.g.,…, Get plugin recommendations based on configuration. Returns: List of recommended…, Generate Tailwind CSS configuration files., Validate configuration. Returns: Tuple of (valid, message), Add custom colors to theme. Args: colors: Dict of color_name: color_value Value… (+4 more)
 
 ### Community 73 - "scripts/core.py"
-Cohesion: 0.06
-Nodes (32): BM25, detect_domain(), _domain_keywords(), _get_bm25(), _load_csv(), _load_product_keywords(), BM25 ranking algorithm for text search, All indexed terms, for suggestion/typo-recovery purposes. (+24 more)
+Cohesion: 0.13
+Nodes (17): _domain_keywords(), _get_bm25(), _load_csv(), _load_product_keywords(), Load CSV and return list of dicts, with mtime-based caching., Fitted BM25 index for this file+columns, with mtime-based caching., Core search function using BM25. Returns (results, bm25_or_none)., Nearest known vocabulary terms for a query that returned 0 hits, so the caller… (+9 more)
 
 ### Community 74 - "design-tokens-starter.json"
 Cohesion: 0.15
@@ -664,8 +667,8 @@ Cohesion: 0.05
 Nodes (31): Brand, Brand Sync Workflow, Quick Start, References, Routing, Scripts, Subcommands, Templates (+23 more)
 
 ### Community 77 - "beyondseo/README.md"
-Cohesion: 0.08
-Nodes (28): BeyondSEO brand assets, Contributing to BeyondSEO, Release hygiene, Apply website work and monitor it, BeyondSEO in Lovable, Crawl and interpret the result, Install and start, Prepare execution without modifying the app (+20 more)
+Cohesion: 0.06
+Nodes (29): How BeyondSEO works, Interpretation boundaries, Python usage, Source layout, Try BeyondSEO locally, A score you can explain, About the creator, Ask BeyondSEO to do the work (+21 more)
 
 ### Community 78 - "inject-brand-context.cjs"
 Cohesion: 0.31
@@ -688,8 +691,8 @@ Cohesion: 0.40
 Nodes (3): @tailwindcss/vite, vite, @vitejs/plugin-react
 
 ### Community 90 - "cip/generate.py"
-Cohesion: 0.21
-Nodes (14): build_cip_prompt(), check_logo_required(), generate_cip_set(), generate_with_nano_banana(), load_env(), load_logo_image(), main(), Generate image using Gemini Nano Banana (native image generation) Supports two… (+6 more)
+Cohesion: 0.19
+Nodes (15): build_cip_prompt(), check_logo_required(), generate_cip_set(), generate_with_nano_banana(), load_env(), load_logo_image(), main(), Generate image using Gemini Nano Banana (native image generation) Supports two… (+7 more)
 
 ### Community 91 - "generate-tokens.cjs"
 Cohesion: 0.36
@@ -752,8 +755,8 @@ Cohesion: 0.09
 Nodes (22): @apply Directive, Best Practices, Color Customization, Complete Tailwind Config, Configuration Examples, Content Configuration, Custom Color Palette, Custom Font Sizes (+14 more)
 
 ### Community 106 - "ServerConnectionModal.tsx"
-Cohesion: 0.07
-Nodes (39): Cards & Tiles, @capacitor/app, @capacitor/core, @capacitor/status-bar, ref_react_dom_client, react-router-dom, App(), OrderCard() (+31 more)
+Cohesion: 0.08
+Nodes (32): @capacitor/app, @capacitor/core, @capacitor/status-bar, ref_react_dom_client, react-router-dom, App(), ServerConnectionModal, CaptainDashboard() (+24 more)
 
 ### Community 107 - "Routing by Task Type"
 Cohesion: 0.10
@@ -763,9 +766,9 @@ Nodes (19): Banner Design Tasks, Brand Identity Tasks, Component Creation, Corpo
 Cohesion: 0.08
 Nodes (20): Base Color Presets, Best Practices, Color Customization, Color Format, Component Customization, CSS Variable System, Customize Styles, Customize Variants (+12 more)
 
-### Community 109 - "PaymentsView.tsx"
-Cohesion: 0.22
-Nodes (18): PaymentsView, GroupedInvoice, groupOrdersByCustomerAndTable(), PaymentsView(), SettledInvoiceRecord, createWhatsAppReceiptLink(), downloadReceiptPDF(), formatPhoneNumber() (+10 more)
+### Community 109 - "whatsapp.ts"
+Cohesion: 0.29
+Nodes (14): groupOrdersByCustomerAndTable(), PaymentsView(), createWhatsAppReceiptLink(), downloadReceiptPDF(), formatPhoneNumber(), generateReceiptPDF(), generateWhatsAppReceiptText(), getWhatsAppLink() (+6 more)
 
 ### Community 110 - "Asset Organization Guide"
 Cohesion: 0.11
@@ -788,8 +791,8 @@ Cohesion: 0.11
 Nodes (17): Apparel (Polo/T-Shirt), Base Prompt Structure, Business Card, CIP Mockup Prompt Engineering, Context Modifiers, Corporate Minimal, Deliverable-Specific Modifiers, Letterhead (+9 more)
 
 ### Community 115 - "reports.py"
-Cohesion: 0.10
-Nodes (34): Check the delivery, Content format, Generate a report, Reports that look like BeyondSEO, Write the content first, asset(), _e(), export_report() (+26 more)
+Cohesion: 0.06
+Nodes (56): Check the delivery, Content format, Generate a report, Reports that look like BeyondSEO, Write the content first, escape(), walk(), asset() (+48 more)
 
 ### Community 116 - "Design System Master File"
 Cohesion: 0.12
@@ -888,8 +891,8 @@ Cohesion: 0.29
 Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integration, CSS Variables Reference, HTML Slide Template
 
 ### Community 141 - "test_design_system_mode.py"
-Cohesion: 0.21
-Nodes (9): _query_wants_dark(), True when a styles.csv row describes itself as dark-first., True when the query explicitly asks for a dark theme., Resolve the mode the rest of the output has to agree with., _resolve_color_mode(), _style_is_dark_primary(), Regression tests for color-mode coherence in design_system.py (issue #428).…, TestModeResolution (+1 more)
+Cohesion: 0.14
+Nodes (12): _filter_anti_patterns_for_mode(), _query_wants_dark(), True when a styles.csv row describes itself as dark-first., True when the query explicitly asks for a dark theme., Resolve the mode the rest of the output has to agree with., Drop "avoid dark mode" advice once dark mode is the resolved answer., _resolve_color_mode(), _style_is_dark_primary() (+4 more)
 
 ### Community 142 - "BM25"
 Cohesion: 0.28
@@ -936,8 +939,8 @@ Cohesion: 0.67
 Nodes (4): $type, $value, none, none
 
 ### Community 157 - "cli.py"
-Cohesion: 0.09
-Nodes (30): A readable readiness review, Check supplied backlinks, Compare and repeat audits, Connect to hosting, Draft and apply website text, Project-based website improvements, Review, improve and check again, Review and implementation commands (+22 more)
+Cohesion: 0.14
+Nodes (26): Compare and repeat audits, Review and implementation commands, check_sources(), main(), OutputLock, parser(), BeyondSEO: inspect, improve and review your website's search foundations., write_csv() (+18 more)
 
 ### Community 159 - "input"
 Cohesion: 0.29
@@ -983,29 +986,29 @@ Nodes (3): ring, $type, $value
 Cohesion: 0.67
 Nodes (3): secondary-foreground, $type, $value
 
-### Community 170 - "beyondseo/SKILL.md"
-Cohesion: 0.16
-Nodes (8): Free article and posting-site catalog, A practical reputation prospect directory, Backlink quality and opportunities, Free posting workflow, Competitor crawl and comparison, Competitor discovery, BeyondSEO reputation checks, What website observations establish
+### Community 170 - "docs/README.md"
+Cohesion: 0.21
+Nodes (4): Free article and posting-site catalog, A practical reputation prospect directory, Free posting workflow, Competitor crawl and comparison
 
-### Community 171 - "install_skill.py"
-Cohesion: 0.12
-Nodes (23): build(), main(), Build a complete beyondseo/ upload ZIP from reviewed source, with a SHA-256…, bundle_files(), host_destination(), install(), main(), Copy a clean BeyondSEO skill folder to an explicit destination. No network or… (+15 more)
+### Community 171 - "build_skill.py"
+Cohesion: 0.18
+Nodes (13): build(), main(), Build a complete beyondseo/ upload ZIP from reviewed source, with a SHA-256…, bundle_files(), main(), Check BeyondSEO bundle metadata and local references. This is not a host safety…, validate(), Editor support (+5 more)
 
 ### Community 172 - "backlinks.py"
-Cohesion: 0.16
-Nodes (24): mention_evidence(), Verify discovered pages, preserving access and rendering limits., target_links(), verify_source(), markdown_from_html(), Small, deterministic HTML-to-Markdown conversion for readable crawl exports., capture_quality(), combined_index_signals() (+16 more)
+Cohesion: 0.10
+Nodes (30): mention_evidence(), Verify discovered pages, preserving access and rendering limits., target_links(), verify_source(), markdown_from_html(), Small, deterministic HTML-to-Markdown conversion for readable crawl exports., capture_quality(), combined_index_signals() (+22 more)
 
-### Community 174 - "discovery.py"
-Cohesion: 0.09
-Nodes (22): Actual search methods and fallbacks, Browser-assisted Google search, Deliver checkable findings, Search discovery that keeps its evidence, Start with the business, Use the assistant's available search tool, Verify candidates and select competitors, Work when live search is unavailable (+14 more)
+### Community 174 - "normalize_url"
+Cohesion: 0.08
+Nodes (31): Work when live search is unavailable, Use the Python interface, Ask for the whole engagement, Use it in your assistant, failure_detail(), Classify observed evidence, without attributing a generic failure to a provider., consolidate(), discover() (+23 more)
 
-### Community 176 - "research.py"
-Cohesion: 0.17
-Nodes (25): source_rows(), comparison_from_manifest(), read_relative(), reputation_queries(), research_plan(), host_attempts(), Read tool outputs recorded by the host; never pretend Python called a host tool., write_json() (+17 more)
-
-### Community 177 - "react"
+### Community 176 - "pathlib"
 Cohesion: 0.14
-Nodes (20): Button(), buttonVariants, Input(), ref_base_ui_react_button, ref_base_ui_react_input, react, InvoicesView, InvoiceCreator() (+12 more)
+Nodes (32): Write searches the customer would use, source_rows(), compare_reputation(), comparison_from_manifest(), read_relative(), _date(), Portable research plans and conservative comparison of captured reputation…, Rank only a matched, adequately reviewed cohort; always retain usable results. (+24 more)
+
+### Community 177 - "InvoiceReceiptModal.tsx"
+Cohesion: 0.14
+Nodes (17): Input(), ref_base_ui_react_input, InvoicesView, InvoiceCreator(), InvoiceCreatorProps, InvoiceItemLine, InvoiceHistory(), InvoiceHistoryProps (+9 more)
 
 ### Community 178 - "Content Quality and E-E-A-T Audit"
 Cohesion: 0.07
@@ -1027,6 +1030,10 @@ Nodes (25): 10. On-Page SEO Review, 11. Content Quality and E-E-A-T Review, 12. 
 Cohesion: 0.08
 Nodes (25): Ask Work to install from GitHub, ChatGPT Work, Check model access separately, Claude Code, Claude website and desktop Skills, Codex, Crawler setup in a hosted environment, Cursor (+17 more)
 
+### Community 187 - "Search discovery that keeps its evidence"
+Cohesion: 0.29
+Nodes (7): Actual search methods and fallbacks, Browser-assisted Google search, Deliver checkable findings, Search discovery that keeps its evidence, Start with the business, Use the assistant's available search tool, Verify candidates and select competitors
+
 ### Community 190 - "Technical SEO Audit"
 Cohesion: 0.09
 Nodes (22): 10. Canonical Audit, 11. URL Architecture, 12. JavaScript Rendering Audit, 13. Mobile and Speed Audit, 14. Image and Media Audit, 15. Internal Link Accessibility, 16. Security and HTTPS, 17. Tracking Basics (+14 more)
@@ -1044,8 +1051,8 @@ Cohesion: 0.09
 Nodes (22): 10. Keyword-to-Page Map, 11. Competitor Gap, 12. Local SEO Gap, 13. Backlink / Authority Gap, 14. AEO / GEO Gap, 15. Conversion SEO Gap, 16. 30-Day Plan, 17. 60-Day Plan (+14 more)
 
 ### Community 197 - "import_backlink_pdf.py"
-Cohesion: 0.60
-Nodes (5): group_rows(), main(), parse_pages(), Import visible posting-site rows from a supplied PDF, retaining unverified…, site_key()
+Cohesion: 0.21
+Nodes (8): Classify a supplied CSV's user-assessed relevance/risk; does not measure…, group_rows(), main(), parse_pages(), Import visible posting-site rows from a supplied PDF, retaining unverified…, site_key(), Heuristic URL-label helper; URL tokens do not establish page intent., csv
 
 ### Community 198 - "Conversion SEO Audit"
 Cohesion: 0.09
@@ -1055,9 +1062,9 @@ Nodes (21): 10. Course/Academy Conversion, 11. Ecommerce Conversion, 12. Query/L
 Cohesion: 0.09
 Nodes (21): 10. Entity and Topic Coverage, 11. Content Depth Audit, 12. Internal Link Audit, 13. Image and Media On-Page Audit, 14. CTA and Conversion Alignment, 15. Trust Proof Audit, 16. On-Page Issue Severity, 17. On-Page Output Template (+13 more)
 
-### Community 200 - "utcnow"
-Cohesion: 0.25
-Nodes (16): compare_reputation(), _date(), Portable research plans and conservative comparison of captured reputation…, Rank only a matched, adequately reviewed cohort; always retain usable results., write_csv(), utcnow(), assess(), export_assessment() (+8 more)
+### Community 200 - "projects.py"
+Cohesion: 0.20
+Nodes (27): utcnow(), add_jobs(), configure(), connection(), dashboard_html(), esc(), verification_html(), event() (+19 more)
 
 ### Community 201 - "Keyword-to-Page Map"
 Cohesion: 0.10
@@ -1108,8 +1115,8 @@ Cohesion: 0.15
 Nodes (13): 30/60/90-day execution, Backlink and prospect plan, Business goal and scope, Competitor websites and responses, Complete website SEO plan, Coverage across the SEO house, Current evidence, Entity, authority and reputation (+5 more)
 
 ### Community 213 - "backlink_sources.py"
-Cohesion: 0.15
-Nodes (15): Classify a supplied CSV's user-assessed relevance/risk; does not measure…, build_plan(), catalog_markdown(), cell(), load_sources(), main(), plan_markdown(), publication_role() (+7 more)
+Cohesion: 0.28
+Nodes (12): build_plan(), catalog_markdown(), cell(), load_sources(), main(), plan_markdown(), publication_role(), Browse posting sites or draft a website-specific backlink prospect plan; no API… (+4 more)
 
 ### Community 214 - "Set up BeyondSEO"
 Cohesion: 0.17
@@ -1159,13 +1166,13 @@ Nodes (10): 90-Day Plan, Audit Mode, Data Sources Used, Executive Summary, Main 
 Cohesion: 0.18
 Nodes (10): 1. Reputation Layers, 2. Website Proof Pages, 3. Review Platforms by Type, 4. Third-Party Authority Article Rules, 5. Free Sources, 6. Paid / PR Sources, 7. Evidence Workflow, 8. Reputation SEO Report Template (+2 more)
 
-### Community 226 - "search-slides.py"
-Cohesion: 0.27
-Nodes (10): format_context(), format_result(), main(), Format a single search result for display, Slide Search CLI - Search slide design databases for strategies, layouts, copy,…, Format contextual recommendations for display., Main search function with auto-domain detection, Search across all domains for comprehensive results (+2 more)
+### Community 226 - "assets/README.md"
+Cohesion: 0.20
+Nodes (3): BeyondSEO brand assets, Competitor discovery, BeyondSEO reputation checks
 
-### Community 227 - "BM25"
-Cohesion: 0.28
-Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
+### Community 227 - "Review, improve and check again"
+Cohesion: 0.33
+Nodes (6): A readable readiness review, Check supplied backlinks, Connect to hosting, Draft and apply website text, Project-based website improvements, Review, improve and check again
 
 ### Community 228 - "AEO Content Writing Persona"
 Cohesion: 0.20
@@ -1195,9 +1202,9 @@ Nodes (10): Authorised website work and private monitoring, BeyondSEO — functi
 Cohesion: 0.20
 Nodes (10): Access diagnostics, Branded client deliverables, Browser options, Command reference, Commands, Extraction and output options, Output files, Resume and scale (+2 more)
 
-### Community 235 - "BM25"
-Cohesion: 0.28
-Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
+### Community 235 - "BeyondSEO in Lovable"
+Cohesion: 0.40
+Nodes (5): Apply website work and monitor it, BeyondSEO in Lovable, Crawl and interpret the result, Install and start, Prepare execution without modifying the app
 
 ### Community 236 - "Find the right places to publish"
 Cohesion: 0.22
@@ -1239,9 +1246,9 @@ Nodes (8): BeyondSEO Reputation Score, Commands, Consistent treatment of every w
 Cohesion: 0.25
 Nodes (8): Apply an authorised website goal, BeyondSEO, Build reputation, Capability-first execution, Explain and improve, Keep improving, Run in the available host, Understand and inspect
 
-### Community 246 - "Config"
-Cohesion: 0.13
-Nodes (13): Read pages that use JavaScript, Robots policy, Scroll and capture, Three modes, Understand a failed capture, Wait for something meaningful, Website dependencies, Use the Python interface (+5 more)
+### Community 246 - "Read pages that use JavaScript"
+Cohesion: 0.29
+Nodes (7): Read pages that use JavaScript, Robots policy, Scroll and capture, Three modes, Understand a failed capture, Wait for something meaningful, Website dependencies
 
 ### Community 247 - "Search through an available browser"
 Cohesion: 0.29
@@ -1259,9 +1266,9 @@ Nodes (6): Convert each finding into work, Inputs, Keep the full practice repres
 Cohesion: 0.29
 Nodes (7): A readable first page, A usable plan follows the evidence, Backlinks and reputation are included, Competitor websites are included, Evidence and discovery contract, Preserve the engagement evidence, What a complete audit delivers
 
-### Community 251 - "_filter_anti_patterns_for_mode"
-Cohesion: 0.43
-Nodes (3): _filter_anti_patterns_for_mode(), Drop "avoid dark mode" advice once dark mode is the resolved answer., TestAntiPatternGating
+### Community 251 - "validate_data.py"
+Cohesion: 0.60
+Nodes (4): _check_file(), main(), Data integrity guardrail for ui-ux-pro-max. Stdlib-only, no pytest dependency,…, _read_rows()
 
 ### Community 252 - "_select_palette_for_mode"
 Cohesion: 0.43
@@ -1315,9 +1322,9 @@ Nodes (5): AEO, GEO, Important, SEO, SEO, AEO, and GEO Definitions
 Cohesion: 0.33
 Nodes (5): 1. Best Local Link Types, 2. Medical/Dental Examples, 3. Evaluation Checklist, 4. Output Template, Local Authority Links
 
-### Community 265 - "Develop BeyondSEO"
-Cohesion: 0.40
-Nodes (5): Build a skill upload asset, Check a change, Develop BeyondSEO, Prepare the environment, Update the posting library
+### Community 265 - "development.md"
+Cohesion: 0.22
+Nodes (7): Contributing to BeyondSEO, Release hygiene, Build a skill upload asset, Check a change, Develop BeyondSEO, Prepare the environment, Update the posting library
 
 ### Community 266 - "Diagnose the failed operation"
 Cohesion: 0.40
@@ -1455,14 +1462,6 @@ Nodes (4): Content Hub Strategy, Goal, Output, Structure
 Cohesion: 0.40
 Nodes (4): Output, Sections, SEO, Service Page Strategy
 
-### Community 300 - "normalize_url"
-Cohesion: 0.24
-Nodes (10): clean(), extract(), absolute(), content(), invalid_json_constant(), schema_types(), normalize_url(), render_page() (+2 more)
-
-### Community 301 - "How BeyondSEO works"
-Cohesion: 0.50
-Nodes (4): How BeyondSEO works, Interpretation boundaries, Python usage, Source layout
-
 ### Community 302 - "Reputation and posting plan"
 Cohesion: 0.50
 Nodes (4): First, understand the gap, Measure and continue, Reputation and posting plan, Select and sequence
@@ -1478,18 +1477,6 @@ Nodes (3): Education Report Framework, Structure, Use
 ### Community 305 - "Local Clinic Report Framework"
 Cohesion: 0.50
 Nodes (3): Local Clinic Report Framework, Structure, Use
-
-### Community 306 - "_search_csv"
-Cohesion: 0.50
-Nodes (4): _load_csv(), Load CSV and return list of dicts, Core search function using BM25, _search_csv()
-
-### Community 308 - "Our backlink and reputation system"
-Cohesion: 0.67
-Nodes (3): A score you can explain, Find the right places to publish, Our backlink and reputation system
-
-### Community 309 - "About the creator"
-Cohesion: 0.67
-Nodes (3): About the creator, Contributors, Stay connected
 
 ### Community 310 - "16"
 Cohesion: 0.67
@@ -1508,24 +1495,24 @@ Cohesion: 0.67
 Nodes (3): $type, $value, 8
 
 ## Knowledge Gaps
-- **2172 isolated node(s):** `beyondseo`, `Response`, `fs`, `path`, `fs` (+2167 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2747 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **52 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2174 isolated node(s):** `beyondseo`, `Response`, `fs`, `path`, `fs` (+2169 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2749 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Use it in your assistant` connect `Config` to `Crawler`, `beyondseo/README.md`?**
+- **Why does `Use it in your assistant` connect `normalize_url` to `engine.py`, `beyondseo/README.md`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `Crawler` connect `Crawler` to `backlinks.py`, `How BeyondSEO works`, `normalize_url`, `projects.py`, `engine.py`, `Config`, `cli.py`?**
+- **Why does `Config` connect `normalize_url` to `projects.py`, `Command reference`, `backlinks.py`, `engine.py`, `Read pages that use JavaScript`, `cli.py`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `Crawler` connect `engine.py` to `projects.py`, `backlinks.py`, `beyondseo/README.md`, `normalize_url`, `cli.py`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
-- **Why does `Config` connect `Config` to `Command reference`, `backlinks.py`, `discovery.py`, `projects.py`, `engine.py`, `cli.py`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
   _`TailwindConfigGenerator` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `beyondseo`, `Response`, `fs` to the rest of the system?**
-  _2172 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2174 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Comprehensive Business Case: Vyoma ScanServe` be split into smaller, more focused modules?**
   _Cohesion score 0.0625 - nodes in this community are weakly interconnected._
 - **Should `orderStore.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.055246913580246915 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05679974034404414 - nodes in this community are weakly interconnected._

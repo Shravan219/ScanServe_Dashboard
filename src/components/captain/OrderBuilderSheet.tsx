@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MenuItem, RestaurantTable, Order, OrderItem } from '@/src/types';
 import { supabase } from '@/src/lib/supabase';
+import { soundService } from '@/src/lib/sound';
 import { 
   X, 
   Search, 
@@ -15,7 +16,9 @@ import {
   Sparkles,
   ChevronRight,
   Trash2,
-  Table as TableIcon
+  Table as TableIcon,
+  Crown,
+  Flame
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -40,6 +43,104 @@ const QUICK_INSTRUCTION_TAGS = [
   'Mild Spice'
 ];
 
+interface VipProfile {
+  name: string;
+  phonePrefix: string;
+  visitCount: number;
+  preferredTable: string;
+  perk: string;
+  discount: number;
+  noteText: string;
+}
+
+const KNOWN_VIP_PATRONS: VipProfile[] = [
+  {
+    name: 'Dr. Rajesh Khanna',
+    phonePrefix: '9811002233',
+    visitCount: 7,
+    preferredTable: 'Table T-04',
+    perk: 'Prefers quiet alcove table. Enjoys extra shaved Perigord truffle.',
+    discount: 10,
+    noteText: "VIP Patron: Complimentary Chef's Amuse-Bouche & extra Perigord truffle"
+  },
+  {
+    name: 'Lord Somnath Sterling',
+    phonePrefix: '9988112244',
+    visitCount: 16,
+    preferredTable: 'Private Salon T-12',
+    perk: 'Private dining room patron. Direct cellar vintage selection.',
+    discount: 15,
+    noteText: "VIP Patron (Salon): Complimentary Sommelier pour & Chef's welcome"
+  },
+  {
+    name: 'Ambassador Rajeshwar Kapoor',
+    phonePrefix: '9811223344',
+    visitCount: 9,
+    preferredTable: 'Main Terrace T-08',
+    perk: 'Diplomatic guest. Requires mild spice profile and prompt course pacing.',
+    discount: 10,
+    noteText: 'VIP Guest: Diplomatic hospitality protocol • Prompt course pacing'
+  },
+  {
+    name: 'Dr. Elena Rostova',
+    phonePrefix: '9833445566',
+    visitCount: 6,
+    preferredTable: 'Table T-01',
+    perk: 'Prefers window seating. Sparkling water upon arrival.',
+    discount: 10,
+    noteText: "VIP Patron: Complimentary sparkling water & chef dessert pairing"
+  },
+  {
+    name: 'Ananya Deshmukh',
+    phonePrefix: '9844556677',
+    visitCount: 5,
+    preferredTable: 'Table T-07',
+    perk: 'Prefers medium rare preparation on all prime cuts.',
+    discount: 10,
+    noteText: "VIP Patron: Chef's amuse-bouche • Prime cut priority"
+  },
+  {
+    name: 'Vikram Joshi',
+    phonePrefix: '9988776655',
+    visitCount: 12,
+    preferredTable: 'Cafe Table 3',
+    perk: 'Loyal morning espresso and artisanal bakery guest.',
+    discount: 10,
+    noteText: 'VIP Patron: 10% Loyalty Privilege applied'
+  }
+];
+
+const getStationRouting = (items: OrderItem[]) => {
+  const routing: Record<string, number> = {
+    'Grill & Char': 0,
+    'Hot Kitchen': 0,
+    'Bar & Cellar': 0,
+    'Pantry & Cold Larder': 0
+  };
+
+  items.forEach(it => {
+    const name = (it.name || '').toLowerCase();
+    if (name.includes('wagyu') || name.includes('lamb') || name.includes('steak') || name.includes('charcoal') || name.includes('chops') || name.includes('grilled') || name.includes('tandoor')) {
+      routing['Grill & Char'] += it.quantity;
+    } else if (name.includes('brew') || name.includes('coffee') || name.includes('latte') || name.includes('wine') || name.includes('beverage') || name.includes('tea') || name.includes('cocktail')) {
+      routing['Bar & Cellar'] += it.quantity;
+    } else if (name.includes('burrata') || name.includes('salad') || name.includes('croissant') || name.includes('tartine') || name.includes('sphere') || name.includes('dessert') || name.includes('pastry')) {
+      routing['Pantry & Cold Larder'] += it.quantity;
+    } else {
+      routing['Hot Kitchen'] += it.quantity;
+    }
+  });
+
+  const activeStations = Object.entries(routing)
+    .filter(([_, qty]) => qty > 0)
+    .map(([station, qty]) => `${station}: ${qty} ${qty === 1 ? 'item' : 'items'}`);
+
+  return {
+    activeStations,
+    stationCount: activeStations.length
+  };
+};
+
 export function OrderBuilderSheet({
   isOpen,
   onClose,
@@ -52,6 +153,22 @@ export function OrderBuilderSheet({
   const [customerName, setCustomerName] = useState<string>('Guest');
   const [customerPhone, setCustomerPhone] = useState<string>('');
   const [customInstructions, setCustomInstructions] = useState<string>('');
+  
+  const matchedVip = useMemo<VipProfile | null>(() => {
+    const rawName = (customerName || '').toLowerCase().trim();
+    const cleanPhone = (customerPhone || '').replace(/\D/g, '');
+    const selectedTableName = (selectedTable?.customer_name || '').toLowerCase().trim();
+
+    if (!rawName && !cleanPhone && !selectedTableName) return null;
+
+    return KNOWN_VIP_PATRONS.find(vip => {
+      const vipNameLower = vip.name.toLowerCase();
+      if (cleanPhone && cleanPhone.length >= 6 && cleanPhone.includes(vip.phonePrefix)) return true;
+      if (rawName && rawName.length > 2 && (vipNameLower.includes(rawName) || rawName.includes(vipNameLower))) return true;
+      if (selectedTableName && selectedTableName.length > 2 && (vipNameLower.includes(selectedTableName) || selectedTableName.includes(vipNameLower))) return true;
+      return false;
+    }) || null;
+  }, [customerName, customerPhone, selectedTable?.customer_name]);
   
   // Menu filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -263,9 +380,16 @@ export function OrderBuilderSheet({
         }
       }
 
-      // 3. Notify and callback
-      toast.success(`Order ${token} sent to counter successfully!`, {
-        description: `Table ${tableNumber} • ${totalItemCount} items • ₹${totalAmount}`
+      // 3. Tactile KOT Fire Ceremony: Sound, Haptics & Station Telemetry
+      soundService.playTicketDispatchChime();
+      soundService.triggerVibration([70, 40, 70]);
+
+      const { activeStations, stationCount } = getStationRouting(orderItems);
+      const routingSummary = activeStations.join(' • ');
+
+      toast.success(`🔥 KOT #${token} Fired to Kitchen Pass!`, {
+        description: `Table ${tableNumber} • ${totalItemCount} items routed across ${stationCount} stations (${routingSummary}) • KDS Synced`,
+        duration: 6000
       });
 
       if (onOrderCreated) {
@@ -591,6 +715,54 @@ export function OrderBuilderSheet({
                     />
                   </div>
                 </div>
+
+                {/* Michelin Concierge VIP Recognition Card */}
+                {matchedVip && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border border-primary/50 bg-gradient-to-br from-[#1C1810] via-primary/10 to-[#0A0A0E] p-3 flex flex-col gap-2 shadow-[0_0_20px_rgba(197,160,89,0.15)] ring-1 ring-primary/30"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary border border-primary/40">
+                          <Crown size={11} className="text-primary" />
+                        </div>
+                        <span className="text-[11px] font-serif font-bold text-primary">
+                          Michelin Concierge VIP Recognized
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-black bg-primary px-2 py-0.5 rounded-full shadow-sm">
+                        Visit #{matchedVip.visitCount}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5 text-xs">
+                      <p className="font-semibold text-white/95">{matchedVip.name}</p>
+                      <p className="text-[10px] text-white/70 leading-relaxed font-sans">{matchedVip.perk}</p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] font-mono">
+                      <span className="text-primary/90 font-bold">
+                        ⭐ {matchedVip.discount}% Loyalty Privilege
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!customInstructions.includes(matchedVip.noteText)) {
+                            setCustomInstructions(prev => prev ? `${prev}, ${matchedVip.noteText}` : matchedVip.noteText);
+                            toast.success("VIP Kitchen Instruction Attached", {
+                              description: matchedVip.noteText
+                            });
+                          }
+                        }}
+                        className="text-[10px] font-mono font-bold text-primary hover:text-white transition-colors underline cursor-pointer active:scale-95 touch-manipulation px-1 py-0.5"
+                      >
+                        + Attach VIP Memo
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
               {/* 3. Custom Instructions / Kitchen Notes */}

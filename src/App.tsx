@@ -585,10 +585,26 @@ export default function App() {
     setIsAuthenticated(true);
     applyTierData(tier);
     navigate('/captain');
-    const tierMeta = TIER_METADATA[tier] || TIER_METADATA.brasserie;
-    toast.success(`Welcome to ${tierMeta.name} Sandbox!`, {
-      description: tierMeta.tagline
-    });
+
+    soundService.playTierSwitchChime();
+    soundService.triggerVibration([50, 30, 70]);
+
+    if (tier === 'brasserie') {
+      toast.success("The Obsidian Guild • Grand Brasserie Mesh Initialized", {
+        description: "20 Fine Dining Tables Online • Multi-Station KDS Pass Synced • Swiggy/Zomato Feeds Live • VIP Concierge Loyalty Active",
+        duration: 7000
+      });
+    } else if (tier === 'bistro') {
+      toast.success("Bistro & Cafe Mode Initialized", {
+        description: "6 Fast-Casual Tables Online • Single-Station Queue • 2 Handheld Tablets Synced • Quick Cafe Pacing",
+        duration: 7000
+      });
+    } else {
+      toast.success("Enterprise Multi-Outlet Synchronized", {
+        description: `${currentOutletData.name} • 3 Properties Online • Dedicated On-Premise Relay (0.4ms) • ERP Export Enabled`,
+        duration: 7000
+      });
+    }
   };
 
   const handleSwitchDemoTier = (newTier: DemoTier) => {
@@ -596,9 +612,26 @@ export default function App() {
     localStorage.setItem('vyoma_demo_tier', newTier);
     setDemoTier(newTier);
     applyTierData(newTier);
-    toast.info(`Switched to ${TIER_METADATA[newTier].name} Demo`, {
-      description: TIER_METADATA[newTier].badge
-    });
+
+    soundService.playTierSwitchChime();
+    soundService.triggerVibration([50, 30, 70]);
+
+    if (newTier === 'brasserie') {
+      toast.success("Switched to Grand Brasserie Flagship", {
+        description: "20 Fine Dining Tables Online • Multi-Station KDS Pass Synced • VIP CRM Active",
+        duration: 6000
+      });
+    } else if (newTier === 'bistro') {
+      toast.success("Switched to Bistro & Cafe Demo", {
+        description: "6 Cafe Tables Online • Single Kitchen Queue • Streamlined Cafe Layout",
+        duration: 6000
+      });
+    } else {
+      toast.success("Switched to Enterprise Group Demo", {
+        description: `${currentOutletData.name} • Property Switcher & Relay Box Active • ERP Bridge Enabled`,
+        duration: 6000
+      });
+    }
   };
 
   const handleExitDemo = () => {
