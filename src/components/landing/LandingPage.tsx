@@ -32,9 +32,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { DemoTier } from '@/src/lib/demoData';
 
 interface LandingPageProps {
-  onLaunchDemo: () => void;
+  onLaunchDemo: (tier: DemoTier) => void;
   onStaffLogin?: () => void;
 }
 
@@ -125,7 +126,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             )}
 
             <Button
-              onClick={onLaunchDemo}
+              onClick={() => onLaunchDemo('brasserie')}
               className="relative group overflow-hidden rounded-xl bg-gradient-to-r from-primary via-[#D4AF37] to-primary text-black font-extrabold text-[11px] uppercase tracking-[0.2em] px-5 py-2.5 shadow-[0_0_25px_rgba(197,160,89,0.3)] hover:shadow-[0_0_35px_rgba(197,160,89,0.5)] transition-all duration-300 active:scale-95 cursor-pointer border border-primary/50"
             >
               <span className="flex items-center gap-2 relative z-10">
@@ -182,36 +183,67 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             omnichannel delivery intake engineered for high-tempo luxury hospitality.
           </motion.p>
 
-          {/* Hero CTAs */}
+          {/* Tier-Specific Live Demo Direct Launch Bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-10 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
+            className="mt-10 flex flex-col items-center gap-3 w-full max-w-3xl"
           >
-            <Button
-              size="lg"
-              onClick={onLaunchDemo}
-              className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-primary text-black hover:bg-[#D4AF37] font-extrabold text-xs uppercase tracking-[0.25em] shadow-[0_0_30px_rgba(197,160,89,0.35)] transition-all duration-300 active:scale-95 cursor-pointer group flex items-center justify-center gap-3 border border-primary"
-            >
-              <Zap size={16} className="text-black fill-black" />
-              Launch Live Interactive Demo
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1.5" />
-            </Button>
+            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary/90 font-bold bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+              Explore Live Demos by Tier:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => onLaunchDemo('bistro')}
+                className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-sky-500/30 bg-sky-500/5 hover:bg-sky-500/15 text-white transition-all cursor-pointer active:scale-95 group shadow-sm text-left"
+              >
+                <div>
+                  <div className="flex items-center gap-2 text-sky-400 font-bold text-xs">
+                    <Coffee size={14} className="group-hover:scale-110 transition-transform" />
+                    <span>Bistro & Cafe Demo</span>
+                  </div>
+                  <p className="text-[10px] text-white/50 font-mono mt-0.5">1 KDS • 2 Tablets • Quick Cafe</p>
+                </div>
+                <ArrowRight size={13} className="text-sky-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
+              </button>
 
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => scrollToSection('pricing')}
-              className="w-full sm:w-auto h-14 px-8 rounded-2xl border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-white font-bold text-xs uppercase tracking-[0.2em] backdrop-blur-md transition-all active:scale-95 cursor-pointer"
-            >
-              Explore Pricing & Plans
-            </Button>
+              <button
+                type="button"
+                onClick={() => onLaunchDemo('brasserie')}
+                className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-primary bg-gradient-to-r from-primary/15 via-[#1A1810] to-primary/10 hover:from-primary/25 hover:to-primary/20 text-white transition-all cursor-pointer active:scale-95 group shadow-[0_0_25px_rgba(197,160,89,0.2)] ring-1 ring-primary/40 text-left"
+              >
+                <div>
+                  <div className="flex items-center gap-2 text-primary font-bold text-xs">
+                    <Sparkles size={14} className="group-hover:rotate-12 transition-transform text-primary" />
+                    <span>Grand Brasserie Demo</span>
+                  </div>
+                  <p className="text-[10px] text-primary/80 font-mono mt-0.5">Multi-KDS • Swiggy • VIP CRM</p>
+                </div>
+                <ArrowRight size={13} className="text-primary group-hover:translate-x-1 transition-all shrink-0 ml-1" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onLaunchDemo('enterprise')}
+                className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/15 text-white transition-all cursor-pointer active:scale-95 group shadow-sm text-left"
+              >
+                <div>
+                  <div className="flex items-center gap-2 text-purple-400 font-bold text-xs">
+                    <Layers size={14} className="group-hover:scale-110 transition-transform" />
+                    <span>Enterprise Demo</span>
+                  </div>
+                  <p className="text-[10px] text-white/50 font-mono mt-0.5">Multi-Outlet • Relay Box • ERP</p>
+                </div>
+                <ArrowRight size={13} className="text-purple-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
+              </button>
+            </div>
           </motion.div>
 
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-white/50 font-mono">
+          <div className="mt-5 flex items-center gap-2 text-[11px] text-white/50 font-mono">
             <CheckCircle2 size={13} className="text-emerald-400" />
-            <span>Instant Sandbox Access • No Credit Card Required • Preloaded Fine Dining Menu</span>
+            <span>Instant In-Browser Sandboxes • Switch Between Tiers Anytime Inside Dashboard</span>
           </div>
 
           {/* Interactive Live Teaser Widget */}
@@ -471,7 +503,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </div>
 
               <button
-                onClick={onLaunchDemo}
+                onClick={() => onLaunchDemo('brasserie')}
                 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#E8D49E] transition-colors cursor-pointer group"
               >
                 Click to enter full interactive playground
@@ -708,7 +740,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </p>
               <Button
                 size="lg"
-                onClick={onLaunchDemo}
+                onClick={() => onLaunchDemo('brasserie')}
                 className="h-13 px-8 rounded-xl bg-primary text-black hover:bg-[#D4AF37] font-extrabold text-xs uppercase tracking-[0.25em] shadow-[0_0_25px_rgba(197,160,89,0.3)] active:scale-95 cursor-pointer"
               >
                 <Zap size={15} className="mr-2" /> Launch Live Demo Sandbox
@@ -813,11 +845,11 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
               <div className="mt-8 pt-6 border-t border-white/8">
                 <Button
-                  onClick={onLaunchDemo}
+                  onClick={() => onLaunchDemo('bistro')}
                   variant="outline"
-                  className="w-full rounded-xl h-12 border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+                  className="w-full rounded-xl h-12 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 font-bold text-xs uppercase tracking-[0.2em] cursor-pointer active:scale-95"
                 >
-                  Test In Live Demo
+                  <Coffee size={14} className="mr-2" /> Launch Bistro Live Demo
                 </Button>
               </div>
             </Card>
@@ -889,10 +921,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
               <div className="mt-8 pt-6 border-t border-primary/20">
                 <Button
-                  onClick={onLaunchDemo}
+                  onClick={() => onLaunchDemo('brasserie')}
                   className="w-full rounded-xl h-12 bg-primary text-black hover:bg-[#D4AF37] font-extrabold text-xs uppercase tracking-[0.25em] shadow-[0_0_25px_rgba(197,160,89,0.35)] cursor-pointer active:scale-95"
                 >
-                  <Zap size={14} className="mr-2 fill-black" /> Launch Live Demo
+                  <Zap size={14} className="mr-2 fill-black" /> Launch Grand Brasserie Live Demo
                 </Button>
               </div>
             </Card>
@@ -950,11 +982,11 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
               <div className="mt-8 pt-6 border-t border-white/8">
                 <Button
-                  onClick={onLaunchDemo}
+                  onClick={() => onLaunchDemo('enterprise')}
                   variant="outline"
-                  className="w-full rounded-xl h-12 border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+                  className="w-full rounded-xl h-12 border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs uppercase tracking-[0.2em] cursor-pointer active:scale-95"
                 >
-                  Explore in Demo
+                  <Layers size={14} className="mr-2" /> Launch Enterprise Live Demo
                 </Button>
               </div>
             </Card>
@@ -1014,6 +1046,24 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   <td className="text-center py-3.5">Yes</td>
                   <td className="text-center py-3.5 text-primary font-bold">Yes</td>
                   <td className="text-center py-3.5">Yes + On-Premises Relay</td>
+                </tr>
+                <tr className="border-t border-white/10">
+                  <td className="py-4 font-sans font-bold text-white">Experience Live Sandbox</td>
+                  <td className="text-center py-4">
+                    <Button onClick={() => onLaunchDemo('bistro')} variant="outline" size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 border-sky-500/30 text-sky-300 hover:bg-sky-500/10 cursor-pointer">
+                      Bistro Demo
+                    </Button>
+                  </td>
+                  <td className="text-center py-4">
+                    <Button onClick={() => onLaunchDemo('brasserie')} size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 bg-primary text-black hover:bg-primary/90 shadow-[0_0_15px_rgba(197,160,89,0.3)] cursor-pointer">
+                      Brasserie Demo
+                    </Button>
+                  </td>
+                  <td className="text-center py-4">
+                    <Button onClick={() => onLaunchDemo('enterprise')} variant="outline" size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 border-purple-500/30 text-purple-300 hover:bg-purple-500/10 cursor-pointer">
+                      Enterprise Demo
+                    </Button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1101,7 +1151,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
-                onClick={onLaunchDemo}
+                onClick={() => onLaunchDemo('brasserie')}
                 className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-primary text-black hover:bg-[#D4AF37] font-extrabold text-xs uppercase tracking-[0.25em] shadow-[0_0_35px_rgba(197,160,89,0.4)] transition-all duration-300 active:scale-95 cursor-pointer group"
               >
                 <Zap size={16} className="mr-2 fill-black" />

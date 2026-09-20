@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789824288.005396,
-    "seen": 1789824442.6572077,
-    "ast_hash": "3f86ca8007214d5a4a9fda98b4b110da",
+    "mtime": 1789879158.4736075,
+    "seen": 1789879215.348744,
+    "ast_hash": "eaad7c9d4152bc14c348d2056ad14481",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -1340,6 +1340,24 @@
     "mtime": 1789787023.2355955,
     "seen": 1789824442.6764734,
     "ast_hash": "b8639de872c3e71c296b48d18b76a88f",
+    "semantic_hash": ""
+  },
+  "src/components/landing/LandingPage.tsx": {
+    "mtime": 1789879046.3237388,
+    "seen": 1789879215.3517148,
+    "ast_hash": "1fba947a9f150ebda3092247263fe2f6",
+    "semantic_hash": ""
+  },
+  "design-system/vyoma-scanserve/MASTER.md": {
+    "mtime": 1789878975.2948027,
+    "seen": 1789879215.3664343,
+    "ast_hash": "a43be7f94b0d3b879707ed7b81a66e3b",
+    "semantic_hash": ""
+  },
+  "design-system/vyoma-scanserve/pages/landing.md": {
+    "mtime": 1789878975.3109589,
+    "seen": 1789879215.3664372,
+    "ast_hash": "f4ca4940d51852eb68f56767a749549d",
     "semantic_hash": ""
   }
 }

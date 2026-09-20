@@ -43,12 +43,28 @@ import {
   VolumeX,
   Sparkles,
   Filter,
-  Server
+  Server,
+  Building2,
+  Radio,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { LandingPage } from '@/src/components/landing/LandingPage';
+import { 
+  DemoTier, 
+  TIER_METADATA, 
+  ENTERPRISE_OUTLETS, 
+  BISTRO_ORDERS, 
+  BRASSERIE_ORDERS, 
+  ENTERPRISE_ORDERS, 
+  BISTRO_MENU_ITEMS, 
+  BRASSERIE_MENU_ITEMS,
+  BISTRO_CUSTOMERS,
+  BRASSERIE_CUSTOMERS,
+  ENTERPRISE_CUSTOMERS
+} from '@/src/lib/demoData';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { PaymentsView } from '@/src/components/payments/PaymentsView';
@@ -503,14 +519,86 @@ export default function App() {
     }
   }, [location.pathname, navigate]);
 
-  const handleLaunchDemo = () => {
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    return localStorage.getItem('vyoma_demo_mode') === 'true';
+  });
+  const [demoTier, setDemoTier] = useState<DemoTier>(() => {
+    const saved = localStorage.getItem('vyoma_demo_tier');
+    return (saved === 'bistro' || saved === 'brasserie' || saved === 'enterprise') ? saved : 'brasserie';
+  });
+  const [selectedOutlet, setSelectedOutlet] = useState<string>('downtown');
+
+  const currentOutletData = useMemo(() => {
+    return ENTERPRISE_OUTLETS.find(o => o.id === selectedOutlet) || ENTERPRISE_OUTLETS[0];
+  }, [selectedOutlet]);
+
+  const applyTierData = React.useCallback((tier: DemoTier) => {
+    if (tier === 'bistro') {
+      setMenuItems(BISTRO_MENU_ITEMS);
+      const active = BISTRO_ORDERS.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      setOrders(active);
+      setAllOrders(BISTRO_ORDERS);
+      setDbCustomers(BISTRO_CUSTOMERS);
+      setStats({ preparedToday: 42, avgTime: '6m' });
+    } else if (tier === 'brasserie') {
+      setMenuItems(BRASSERIE_MENU_ITEMS);
+      const active = BRASSERIE_ORDERS.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      setOrders(active);
+      setAllOrders(BRASSERIE_ORDERS);
+      setDbCustomers(BRASSERIE_CUSTOMERS);
+      setStats({ preparedToday: 78, avgTime: '18m' });
+    } else {
+      setMenuItems(BRASSERIE_MENU_ITEMS);
+      const active = ENTERPRISE_ORDERS.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      setOrders(active);
+      setAllOrders(ENTERPRISE_ORDERS);
+      setDbCustomers(ENTERPRISE_CUSTOMERS);
+      setStats({ preparedToday: 245, avgTime: '12m' });
+    }
+  }, []);
+
+  const handleSimulateErpExport = () => {
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 800)),
+      {
+        loading: `Connecting to ${currentOutletData.relayIp} for SAP/Tally sync...`,
+        success: `Exported 142 vouchers for ${currentOutletData.name} to SAP ERP & Tally Prime format!`,
+        error: 'Export failed'
+      }
+    );
+  };
+
+  const handleLaunchDemo = (tier: DemoTier = 'brasserie') => {
     localStorage.setItem('vyoma_staff_authenticated', 'true');
     localStorage.setItem('vyoma_demo_mode', 'true');
+    localStorage.setItem('vyoma_demo_tier', tier);
+    setIsDemoMode(true);
+    setDemoTier(tier);
     setIsAuthenticated(true);
+    applyTierData(tier);
     navigate('/captain');
-    toast.success('Welcome to Vyoma Live Demo Sandbox!', {
-      description: 'Explore live table tracking, orders, KDS routing, and WhatsApp invoicing.'
+    const tierMeta = TIER_METADATA[tier] || TIER_METADATA.brasserie;
+    toast.success(`Welcome to ${tierMeta.name} Sandbox!`, {
+      description: tierMeta.tagline
     });
+  };
+
+  const handleSwitchDemoTier = (newTier: DemoTier) => {
+    if (newTier === demoTier) return;
+    localStorage.setItem('vyoma_demo_tier', newTier);
+    setDemoTier(newTier);
+    applyTierData(newTier);
+    toast.info(`Switched to ${TIER_METADATA[newTier].name} Demo`, {
+      description: TIER_METADATA[newTier].badge
+    });
+  };
+
+  const handleExitDemo = () => {
+    localStorage.removeItem('vyoma_demo_mode');
+    localStorage.removeItem('vyoma_demo_tier');
+    setIsDemoMode(false);
+    navigate('/landing');
+    toast.info('Exited Live Demo Sandbox');
   };
 
   const handleStaffLoginNav = () => {
@@ -540,6 +628,8 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem('vyoma_staff_authenticated');
     localStorage.removeItem('vyoma_demo_mode');
+    localStorage.removeItem('vyoma_demo_tier');
+    setIsDemoMode(false);
     setIsAuthenticated(false);
     setPassword('');
     toast.info('Terminal Locked');
@@ -550,6 +640,14 @@ export default function App() {
   };
 
   const fetchData = React.useCallback(async () => {
+    const isDemo = localStorage.getItem('vyoma_demo_mode') === 'true';
+    if (isDemo) {
+      const currentTier = (localStorage.getItem('vyoma_demo_tier') || 'brasserie') as DemoTier;
+      applyTierData(currentTier);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     // Safety timer: ensure full-screen loading spinner dismisses in at most 1000ms
     const safetyTimer = setTimeout(() => {
@@ -1392,21 +1490,144 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden flex flex-col relative">
-        {/* Live Demo Sandbox Banner */}
-        {localStorage.getItem('vyoma_demo_mode') === 'true' && (
-          <div className="bg-primary/15 border-b border-primary/30 text-white px-4 py-2 text-xs flex items-center justify-between z-30 shrink-0 backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span className="font-mono text-[11px] text-white/90">
-                <strong className="text-primary">LIVE DEMO SANDBOX:</strong> You are exploring live fine dining operations.
-              </span>
+        {/* Live Demo Sandbox Ribbon */}
+        {isDemoMode && (
+          <div className="bg-[#0A0A0A]/95 border-b border-white/10 text-white px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3 z-30 shrink-0 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.7)]">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Tier Badge & Live Indicator */}
+              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                <span className="font-mono text-[10px] font-extrabold uppercase tracking-wider text-primary">
+                  {TIER_METADATA[demoTier].badge}
+                </span>
+              </div>
+
+              {/* Tier Switcher Pills */}
+              <div className="flex items-center gap-1 bg-black/80 p-1 rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => handleSwitchDemoTier('bistro')}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95",
+                    demoTier === 'bistro'
+                      ? "bg-[#38BDF8] text-black shadow-[0_0_12px_rgba(56,189,248,0.4)] font-extrabold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <Coffee size={12} />
+                  <span>Bistro</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSwitchDemoTier('brasserie')}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95",
+                    demoTier === 'brasserie'
+                      ? "bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.4)] font-extrabold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <Sparkles size={12} />
+                  <span>Grand Brasserie</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSwitchDemoTier('enterprise')}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95",
+                    demoTier === 'enterprise'
+                      ? "bg-[#A855F7] text-white shadow-[0_0_12px_rgba(168,85,247,0.4)] font-extrabold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <Building2 size={12} />
+                  <span>Enterprise</span>
+                </button>
+              </div>
+
+              {/* Tier Details Pill */}
+              <div className="hidden xl:flex items-center gap-2 text-white/70 text-[11px] font-sans">
+                {demoTier === 'bistro' && (
+                  <span className="flex items-center gap-1.5 text-[#38BDF8]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
+                    Fast-Casual Cafe &bull; 1 Single-Queue KDS &bull; Aggregators Preview
+                  </span>
+                )}
+                {demoTier === 'brasserie' && (
+                  <span className="flex items-center gap-1.5 text-primary">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Michelin Fine Dining &bull; Multi-Station KDS Routing &bull; Swiggy/Zomato Webhooks &bull; VIP CRM
+                  </span>
+                )}
+                {demoTier === 'enterprise' && (
+                  <span className="flex items-center gap-1.5 text-[#C084FC]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#C084FC]" />
+                    Multi-Property Franchise Mesh &bull; Relay Server {currentOutletData.relayIp} ({currentOutletData.relayPing})
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Right controls: Outlet Switcher (if enterprise), ERP action, or View Plans */}
+            <div className="flex items-center gap-2.5 ml-auto">
+              {demoTier === 'enterprise' && (
+                <div className="flex items-center gap-2">
+                  {/* Outlet selector dropdown */}
+                  <div className="flex items-center gap-1.5 bg-black/70 border border-[#A855F7]/40 rounded-xl px-2.5 py-1 text-[10px] font-bold">
+                    <Radio size={11} className="text-emerald-400 animate-pulse shrink-0" />
+                    <span className="text-white/50 uppercase tracking-wider text-[9px] shrink-0">Outlet:</span>
+                    <select
+                      value={selectedOutlet}
+                      onChange={(e) => {
+                        const outletId = e.target.value;
+                        setSelectedOutlet(outletId);
+                        const found = ENTERPRISE_OUTLETS.find(o => o.id === outletId);
+                        if (found) {
+                          toast.success(`Switched terminal to ${found.name}`, {
+                            description: `Dedicated Relay ${found.relayIp} • Latency ${found.relayPing}`
+                          });
+                        }
+                      }}
+                      className="bg-transparent text-[#E9D5FF] font-sans font-bold text-xs focus:outline-none cursor-pointer border-none py-0.5"
+                    >
+                      {ENTERPRISE_OUTLETS.map(out => (
+                        <option key={out.id} value={out.id} className="bg-[#0E0F15] text-white">
+                          {out.name} ({out.relayPing})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSimulateErpExport}
+                    className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-white/5 hover:bg-[#A855F7]/20 border border-[#A855F7]/40 text-[#E9D5FF] rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                    title="Export consolidated ledger to Tally / SAP ERP"
+                  >
+                    <FileSpreadsheet size={12} className="text-[#C084FC]" />
+                    <span>SAP/Tally</span>
+                  </button>
+                </div>
+              )}
+
               <button
                 onClick={() => navigate('/landing')}
-                className="px-2.5 py-1 bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-[#D4AF37] transition-all cursor-pointer shadow-[0_0_10px_rgba(197,160,89,0.2)] active:scale-95"
+                className="px-3 py-1 bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-[#D4AF37] transition-all cursor-pointer shadow-[0_0_12px_rgba(197,160,89,0.25)] active:scale-95 whitespace-nowrap"
               >
-                View Plans & Pricing
+                Pricing & Features
+              </button>
+
+              <button
+                onClick={handleExitDemo}
+                className="px-2.5 py-1 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 text-white/70 hover:text-red-300 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                title="Exit live demo sandbox"
+              >
+                Exit Demo
               </button>
             </div>
           </div>
@@ -1833,7 +2054,28 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
+                  {isDemoMode && (
+                    <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0D0E15] px-3.5 py-2 shadow-inner">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-white/50">Routing:</span>
+                      {demoTier === 'bistro' && (
+                        <span className="text-[10px] font-mono font-bold text-[#38BDF8]">
+                          Single Queue KDS
+                        </span>
+                      )}
+                      {demoTier === 'brasserie' && (
+                        <span className="text-[10px] font-mono font-bold text-primary">
+                          Pass &bull; Grill &bull; Saute &bull; Pastry
+                        </span>
+                      )}
+                      {demoTier === 'enterprise' && (
+                        <span className="text-[10px] font-mono font-bold text-[#C084FC]">
+                          {currentOutletData.name} Relay ({currentOutletData.relayPing})
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0D0E15] px-4 py-2 shadow-inner">
                     <Utensils size={14} className="text-primary/80" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">
@@ -2369,6 +2611,31 @@ export default function App() {
             </TabsContent>
 
             <TabsContent value="online" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+              {isDemoMode && demoTier === 'bistro' && (
+                <div className="mx-4 sm:mx-8 mt-6 p-5 rounded-2xl bg-gradient-to-r from-[#38BDF8]/15 via-[#0A0A0A] to-primary/15 border border-[#38BDF8]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+                  <div className="flex items-start gap-3.5">
+                    <div className="h-10 w-10 rounded-xl bg-[#38BDF8]/20 border border-[#38BDF8]/40 flex items-center justify-center text-[#38BDF8] shrink-0 mt-0.5 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                      <Globe size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">Specialty Bistro Tier Notice</span>
+                        <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-mono text-white/70">Preview Mode</span>
+                      </div>
+                      <p className="text-xs text-white/70 mt-1 max-w-2xl leading-relaxed">
+                        In the <strong>Bistro &amp; Cafe</strong> tier, direct food aggregator bi-directional webhooks are disabled in favor of streamlined counter and QR orders. Live Swiggy &amp; Zomato synchronization is fully unlocked in the <strong>Grand Brasserie</strong> and <strong>Enterprise</strong> tiers.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => handleSwitchDemoTier('brasserie')}
+                    className="shrink-0 bg-primary text-black hover:bg-primary/90 text-[10px] font-extrabold uppercase tracking-widest rounded-xl px-5 py-2.5 cursor-pointer shadow-[0_0_20px_rgba(197,160,89,0.25)] active:scale-95"
+                  >
+                    <Sparkles size={13} className="mr-1.5" />
+                    Switch to Grand Brasserie Demo
+                  </Button>
+                </div>
+              )}
               <ErrorBoundary>
                 <OnlineOrdersView
                   orders={orders}
@@ -2412,6 +2679,29 @@ export default function App() {
             </TabsContent>
 
             <TabsContent value="invoices" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-hidden">
+              {isDemoMode && demoTier === 'enterprise' && (
+                <div className="mx-4 sm:mx-8 mt-4 mb-2 p-4 rounded-xl bg-[#A855F7]/10 border border-[#A855F7]/30 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#C084FC] shrink-0">
+                      <Building2 size={16} />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-mono text-white/90">
+                        <strong className="text-[#C084FC]">ENTERPRISE ERP CONNECTOR:</strong> Consolidated general ledger active for <strong>{currentOutletData.name}</strong>.
+                      </span>
+                      <p className="text-[10px] text-white/50">Multi-outlet tax compliance and automated Tally XML / SAP ECC batch reconciliation.</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleSimulateErpExport}
+                    size="sm"
+                    className="bg-[#A855F7] hover:bg-[#9333EA] text-white font-extrabold text-[10px] uppercase tracking-wider rounded-lg px-3 py-1.5 cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95"
+                  >
+                    <FileSpreadsheet size={13} className="mr-1.5" />
+                    Export to SAP / Tally XML
+                  </Button>
+                </div>
+              )}
               <ErrorBoundary>
                 <InvoicesView
                   menuItems={menuItems}
