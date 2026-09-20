@@ -3617,7 +3617,7 @@
       "file_type": "code",
       "norm_label": "ordercard()",
       "source_file": "src/App.tsx",
-      "source_location": "L2924"
+      "source_location": "L2939"
     },
     {
       "id": "src_components_captain_orderbuildersheet_orderbuildersheet",
@@ -5937,7 +5937,7 @@
       "file_type": "code",
       "norm_label": "editmenuitemdialog()",
       "source_file": "src/App.tsx",
-      "source_location": "L2742"
+      "source_location": "L2757"
     },
     {
       "id": "src_app_menuitemimage",
@@ -5961,7 +5961,7 @@
       "file_type": "code",
       "norm_label": "navitem()",
       "source_file": "src/App.tsx",
-      "source_location": "L2892"
+      "source_location": "L2907"
     },
     {
       "id": "src_components_landing_landingpage_landingpage",
@@ -37367,7 +37367,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L1090",
+      "source_location": "L1095",
       "weight": 1.0
     },
     {
@@ -37379,7 +37379,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L1093",
+      "source_location": "L1098",
       "weight": 1.0
     },
     {
@@ -37391,7 +37391,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L1101",
+      "source_location": "L1106",
       "weight": 1.0
     },
     {
@@ -37403,7 +37403,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L1307",
+      "source_location": "L1312",
       "weight": 1.0
     },
     {
@@ -37427,7 +37427,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L616",
+      "source_location": "L620",
       "weight": 1.0
     },
     {
@@ -37439,7 +37439,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L715",
+      "source_location": "L720",
       "weight": 1.0
     },
     {
@@ -37451,7 +37451,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L2868",
+      "source_location": "L2883",
       "weight": 1.0
     },
     {
@@ -37463,7 +37463,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L2899",
+      "source_location": "L2914",
       "weight": 1.0
     },
     {
@@ -37475,7 +37475,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3049",
+      "source_location": "L3064",
       "weight": 1.0
     },
     {
@@ -37487,7 +37487,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3099",
+      "source_location": "L3114",
       "weight": 1.0
     },
     {
@@ -37499,7 +37499,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3208",
+      "source_location": "L3223",
       "weight": 1.0
     },
     {
@@ -69286,7 +69286,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2742",
+      "source_location": "L2757",
       "weight": 1.0
     },
     {
@@ -69297,7 +69297,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2892",
+      "source_location": "L2907",
       "weight": 1.0
     },
     {
@@ -69308,7 +69308,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2924",
+      "source_location": "L2939",
       "weight": 1.0
     },
     {
@@ -76526,5 +76526,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4b4be642f2a8c6a7da334742365342cfda9d95b0"
+  "built_at_commit": "31641079cf9fd9a313de041da96ced00e450d698"
 }

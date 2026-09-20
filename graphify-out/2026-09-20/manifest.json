@@ -1343,9 +1343,9 @@
     "semantic_hash": ""
   },
   "src/components/landing/LandingPage.tsx": {
-    "mtime": 1789880541.0543816,
-    "seen": 1789880817.4071388,
-    "ast_hash": "39a27371f8d7caa5e416d37e01362f0f",
+    "mtime": 1789882789.938934,
+    "seen": 1789882813.392323,
+    "ast_hash": "77e92b7a0712d4b1243b0a2691a5f85f",
     "semantic_hash": ""
   },
   "design-system/vyoma-scanserve/MASTER.md": {
@@ -1364,6 +1364,36 @@
     "mtime": 1789880696.438669,
     "seen": 1789880817.4082,
     "ast_hash": "90e3ac848e1e15e06009091cc78de10d",
+    "semantic_hash": ""
+  },
+  "src/components/legal/LegalModal.tsx": {
+    "mtime": 1789882755.2345252,
+    "seen": 1789882813.3923264,
+    "ast_hash": "d4de52d9e68398ef6f2a81fc76c6bac2",
+    "semantic_hash": ""
+  },
+  "src/components/legal/legalContent.ts": {
+    "mtime": 1789882745.4599652,
+    "seen": 1789882813.392328,
+    "ast_hash": "09ad4c457e14991c52294f8cfcc2aa8c",
+    "semantic_hash": ""
+  },
+  "LEGAL_COMPLIANCE_SUITE.md": {
+    "mtime": 1789882762.25474,
+    "seen": 1789882813.4031541,
+    "ast_hash": "28003078998a9afae9d8bcae2c19c20b",
+    "semantic_hash": ""
+  },
+  "business-case-vyoma-scanserve-2026-09-20.md": {
+    "mtime": 1789882503.126235,
+    "seen": 1789882813.4039326,
+    "ast_hash": "797ee2bca6210185d2b2b6ee939a4cb7",
+    "semantic_hash": ""
+  },
+  "market-opportunity-analysis-2026-09-20.md": {
+    "mtime": 1789882424.7172275,
+    "seen": 1789882813.404345,
+    "ast_hash": "d3e18f0872c89d069ceff7925363c563",
     "semantic_hash": ""
   }
 }

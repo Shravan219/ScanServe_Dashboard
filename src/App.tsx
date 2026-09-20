@@ -399,7 +399,11 @@ export default function App() {
   const isLandingRoute = useMemo(() => {
     if (Capacitor.isNativePlatform()) return false;
     const path = location.pathname;
-    return path === '/' || path === '' || path === '/landing';
+    const clean = path.replace(/^\//, '').toLowerCase();
+    const dashboardTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices'];
+    // Default to landing page on root, empty, home, or any non-dashboard route
+    if (path === '/' || path === '' || path === '/landing' || path === '/home') return true;
+    return !dashboardTabs.includes(clean);
   }, [location.pathname]);
 
   const activeTab = useMemo(() => {
@@ -407,7 +411,7 @@ export default function App() {
     const path = location.pathname.split('/')[1];
     if (path === 'landing' || isLandingRoute) return 'landing';
     const validTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices', 'landing'];
-    return validTabs.includes(path) ? path : 'captain';
+    return validTabs.includes(path) ? path : (Capacitor.isNativePlatform() ? 'captain' : 'landing');
   }, [location.pathname, isKioskLocked, isLandingRoute]);
 
   const waitingForPaymentCount = useMemo(() => {
@@ -632,7 +636,8 @@ export default function App() {
     setIsDemoMode(false);
     setIsAuthenticated(false);
     setPassword('');
-    toast.info('Terminal Locked');
+    navigate('/landing');
+    toast.info('Terminal Locked - Returned to Main Page');
   };
 
   const playPopSound = () => {
@@ -1329,7 +1334,7 @@ export default function App() {
                 onClick={() => navigate('/landing')}
                 className="text-[11px] text-primary/80 hover:text-primary font-mono tracking-wider uppercase transition-colors cursor-pointer"
               >
-                ← Back to Landing Page & Pricing
+                ← Back to Main Page
               </button>
             </div>
           </div>
@@ -1355,17 +1360,22 @@ export default function App() {
       {/* Sidebar Navigation */}
       <aside className="hidden md:flex md:w-56 lg:w-60 flex-col justify-between border-r border-white/5 bg-[#0A0A0A] p-4 py-6 z-20 shrink-0">
         <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-3 px-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-[0_0_20px_rgba(197,160,89,0.1)] shrink-0">
+          <button 
+            type="button"
+            onClick={() => navigate('/landing')}
+            className="flex items-center gap-3 px-2 text-left group cursor-pointer hover:opacity-90 transition-opacity"
+            title="Return to Main Page"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-[0_0_20px_rgba(197,160,89,0.1)] shrink-0 group-hover:border-primary/40 transition-colors">
               <Coffee size={20} className="text-primary" />
             </div>
             <div className="flex flex-col">
               <span className="font-serif text-lg font-bold tracking-tight text-white leading-none">
                 Vy<span className="italic text-primary opacity-80">oma</span>
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/50 mt-1">POS & KDS</span>
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/50 mt-1 group-hover:text-primary/70 transition-colors">POS & KDS</span>
             </div>
-          </div>
+          </button>
 
           <nav className="flex flex-col gap-1.5 w-full">
             {!isKioskLocked && (
@@ -1433,7 +1443,7 @@ export default function App() {
               <div className="pt-2 border-t border-white/5 my-1">
                 <NavItem 
                   icon={<Sparkles size={16} strokeWidth={1.5} className="text-primary" />} 
-                  label="Landing & Pricing" 
+                  label="Main Page" 
                   active={activeTab === 'landing'} 
                   onClick={() => navigate('/landing')}
                 />
@@ -1619,7 +1629,7 @@ export default function App() {
                 onClick={() => navigate('/landing')}
                 className="px-3 py-1 bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-[#D4AF37] transition-all cursor-pointer shadow-[0_0_12px_rgba(197,160,89,0.25)] active:scale-95 whitespace-nowrap"
               >
-                Pricing & Features
+                Main Page
               </button>
 
               <button
@@ -1650,7 +1660,12 @@ export default function App() {
 
         {/* Mobile Top Header */}
         <header className="flex md:hidden items-center justify-between border-b border-white/10 bg-[#0A0A0A] px-4 py-2.5 z-20 shrink-0 pt-[max(env(safe-area-inset-top,0px),10px)] min-h-[56px]">
-          <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => navigate('/landing')}
+            className="flex items-center gap-2.5 text-left cursor-pointer hover:opacity-90 transition-opacity"
+            title="Return to Main Page"
+          >
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
               <Coffee size={16} className="text-primary" />
             </div>
@@ -1660,7 +1675,7 @@ export default function App() {
             <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[8px] font-bold uppercase tracking-wider">
               {activeTab}
             </span>
-          </div>
+          </button>
 
           <div className="flex items-center gap-2">
             <button
@@ -1892,7 +1907,7 @@ export default function App() {
                     }}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-primary/10 border border-primary/30 text-primary mt-1 cursor-pointer"
                   >
-                    <Sparkles size={16} /> Landing Page & Pricing
+                    <Sparkles size={16} /> Main Page
                   </button>
                 </>
               )}
