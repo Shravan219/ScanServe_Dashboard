@@ -71,7 +71,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       </div>
 
       {/* Top Floating Glass Navigation */}
-      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-black/65 border-b border-white/8 transition-all duration-300">
+      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-black/65 border-b border-white/[0.08] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Brand Emblem */}
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -82,31 +82,31 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
             <button
               onClick={() => scrollToSection('features')}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Capabilities
             </button>
             <button
               onClick={() => scrollToSection('architecture')}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Operations
             </button>
             <button
               onClick={() => scrollToSection('metrics')}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Performance
             </button>
             <button
               onClick={() => scrollToSection('pricing')}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               Pricing
             </button>
             <button
               onClick={() => scrollToSection('faq')}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className="hover:text-primary transition-colors cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:text-primary"
             >
               FAQ
             </button>
@@ -117,7 +117,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             {onStaffLogin && (
               <button
                 onClick={onStaffLogin}
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-[11px] font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-[11px] font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10 active:scale-95 touch-manipulation transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 <Shield size={13} className="text-primary" />
                 Staff Access
@@ -256,7 +256,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/15 blur-[90px] rounded-full pointer-events-none" />
 
             {/* Widget Top Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/8 px-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/[0.08] px-2">
               <div className="flex items-center gap-2.5">
                 <div className="flex gap-1.5">
                   <div className="h-3 w-3 rounded-full bg-red-500/80" />
@@ -280,7 +280,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   aria-selected={heroPreviewTab === 'tables'}
                   aria-controls="hero-preview-tables"
                   onClick={() => setHeroPreviewTab('tables')}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
                     heroPreviewTab === 'tables'
                       ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                       : 'text-white/70 hover:text-white'
@@ -294,7 +294,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   aria-selected={heroPreviewTab === 'kds'}
                   aria-controls="hero-preview-kds"
                   onClick={() => setHeroPreviewTab('kds')}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
                     heroPreviewTab === 'kds'
                       ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                       : 'text-white/70 hover:text-white'
@@ -308,7 +308,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   aria-selected={heroPreviewTab === 'whatsapp'}
                   aria-controls="hero-preview-whatsapp"
                   onClick={() => setHeroPreviewTab('whatsapp')}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
                     heroPreviewTab === 'whatsapp'
                       ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                       : 'text-white/70 hover:text-white'
@@ -343,7 +343,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                         <p className="text-xs text-white/90 font-medium truncate">Dr. Rajesh Khanna (VIP)</p>
                         <p className="text-[10px] text-white/50 font-mono">4 Guests • 38 mins seated</p>
                       </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-white/8 mt-2">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
                         <span className="text-[10px] font-mono text-white/40 uppercase">Bill Amount</span>
                         <span className="font-mono text-sm font-bold text-primary">₹ 4,850.00</span>
                       </div>
@@ -361,7 +361,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                         <p className="text-xs text-white/90 font-medium truncate">Ananya Deshmukh</p>
                         <p className="text-[10px] text-white/50 font-mono">2 Guests • 54 mins seated</p>
                       </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-white/8 mt-2">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
                         <span className="text-[10px] font-mono text-white/40 uppercase">Settlement</span>
                         <span className="font-mono text-sm font-bold text-amber-300">₹ 12,400.00</span>
                       </div>
@@ -379,7 +379,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                         <p className="text-xs text-white/60 font-medium">Main Terrace Section</p>
                         <p className="text-[10px] text-white/40 font-mono">Capacity: 6 Seats</p>
                       </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-white/8 mt-2">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
                         <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
                           <Check size={11} /> Sanitized & Ready
                         </span>
@@ -398,7 +398,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                         <p className="text-xs text-white/90 font-medium truncate">Lord Somnath Party</p>
                         <p className="text-[10px] text-white/50 font-mono">Private Salon • 8 Guests</p>
                       </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-white/8 mt-2">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
                         <span className="text-[10px] font-mono text-white/40 uppercase">Pre-Auth</span>
                         <span className="font-mono text-sm font-bold text-purple-300">₹ 25,000.00</span>
                       </div>
@@ -508,7 +508,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </div>
 
             {/* Bottom Demo Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/8 px-2 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/[0.08] px-2 text-xs">
               <div className="flex items-center gap-3 text-white/60 font-mono text-[11px]">
                 <span className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -520,7 +520,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
               <button
                 onClick={() => onLaunchDemo('brasserie')}
-                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#E8D49E] transition-colors cursor-pointer group"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#E8D49E] active:scale-95 touch-manipulation transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 rounded-md px-1"
               >
                 Click to enter full interactive playground
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
@@ -530,7 +530,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
         </section>
 
         {/* METRICS & PERFORMANCE STRIP */}
-        <section id="metrics" className="border-y border-white/8 bg-[#070709] py-14">
+        <section id="metrics" className="border-y border-white/[0.08] bg-[#070709] py-14">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div className="flex flex-col items-center">
@@ -601,7 +601,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Feature 1: Captain Ordering */}
-            <Card className="rounded-3xl border-white/8 bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
+            <Card className="rounded-3xl border-white/[0.08] bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-6 group-hover:scale-110 transition-transform">
                 <Smartphone size={24} />
               </div>
@@ -616,7 +616,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </Card>
 
             {/* Feature 2: Kitchen Display KDS */}
-            <Card className="rounded-3xl border-white/8 bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
+            <Card className="rounded-3xl border-white/[0.08] bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-6 group-hover:scale-110 transition-transform">
                 <ChefHat size={24} />
               </div>
@@ -631,7 +631,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </Card>
 
             {/* Feature 3: Omnichannel Aggregators */}
-            <Card className="rounded-3xl border-white/8 bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
+            <Card className="rounded-3xl border-white/[0.08] bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-6 group-hover:scale-110 transition-transform">
                 <Globe size={24} />
               </div>
@@ -646,7 +646,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </Card>
 
             {/* Feature 4: WhatsApp Invoicing */}
-            <Card className="rounded-3xl border-white/8 bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
+            <Card className="rounded-3xl border-white/[0.08] bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
                 <MessageSquare size={24} />
               </div>
@@ -661,7 +661,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </Card>
 
             {/* Feature 5: VIP Loyalty & CRM */}
-            <Card className="rounded-3xl border-white/8 bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
+            <Card className="rounded-3xl border-white/[0.08] bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 mb-6 group-hover:scale-110 transition-transform">
                 <Users size={24} />
               </div>
@@ -676,7 +676,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </Card>
 
             {/* Feature 6: Local Resilience */}
-            <Card className="rounded-3xl border-white/8 bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
+            <Card className="rounded-3xl border-white/[0.08] bg-[#0A0A0E] p-6 hover:border-primary/40 transition-all duration-300 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-6 group-hover:scale-110 transition-transform">
                 <Server size={24} />
               </div>
@@ -693,7 +693,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
         </section>
 
         {/* 4-STEP OPERATIONS FLOW */}
-        <section id="architecture" className="py-20 border-t border-white/8 bg-gradient-to-b from-[#0A0A0E] to-black">
+        <section id="architecture" className="py-20 border-t border-white/[0.08] bg-gradient-to-b from-[#0A0A0E] to-black">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-primary">
@@ -709,7 +709,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
               {/* Step 1 */}
-              <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
+              <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-primary/40">01</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">Floor Seating & Intake</h4>
                 <p className="text-xs text-white/75 leading-relaxed">
@@ -718,7 +718,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </div>
 
               {/* Step 2 */}
-              <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
+              <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-amber-400/40">02</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">KDS Station Routing</h4>
                 <p className="text-xs text-white/75 leading-relaxed">
@@ -727,7 +727,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </div>
 
               {/* Step 3 */}
-              <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
+              <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-emerald-400/40">03</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">Expedite & Audio Chime</h4>
                 <p className="text-xs text-white/75 leading-relaxed">
@@ -736,7 +736,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </div>
 
               {/* Step 4 */}
-              <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
+              <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-primary/40">04</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">WhatsApp Settlement</h4>
                 <p className="text-xs text-white/75 leading-relaxed">
@@ -872,11 +872,11 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/8">
+              <div className="mt-8 pt-6 border-t border-white/[0.08]">
                 <Button
                   onClick={() => onLaunchDemo('bistro')}
                   variant="outline"
-                  className="w-full rounded-xl h-12 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 font-bold text-xs uppercase tracking-[0.2em] cursor-pointer active:scale-95"
+                  className="w-full rounded-xl h-12 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 font-bold text-xs uppercase tracking-[0.2em] cursor-pointer active:scale-95 touch-manipulation"
                 >
                   <Coffee size={14} className="mr-2" /> Launch Bistro Live Demo
                 </Button>
@@ -1009,11 +1009,11 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/8">
+              <div className="mt-8 pt-6 border-t border-white/[0.08]">
                 <Button
                   onClick={() => onLaunchDemo('enterprise')}
                   variant="outline"
-                  className="w-full rounded-xl h-12 border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs uppercase tracking-[0.2em] cursor-pointer active:scale-95"
+                  className="w-full rounded-xl h-12 border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs uppercase tracking-[0.2em] cursor-pointer active:scale-95 touch-manipulation"
                 >
                   <Layers size={14} className="mr-2" /> Launch Enterprise Live Demo
                 </Button>
@@ -1022,7 +1022,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           </div>
 
           {/* FEATURE COMPARISON MATRIX */}
-          <div className="mt-20 overflow-x-auto rounded-3xl border border-white/8 bg-[#0A0A0E] p-6 sm:p-8 touch-pan-x custom-scrollbar">
+          <div className="mt-20 overflow-x-auto rounded-3xl border border-white/[0.08] bg-[#0A0A0E] p-6 sm:p-8 touch-pan-x custom-scrollbar">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-2xl font-bold text-white">Detailed Plan Comparison</h3>
               <span className="text-[10px] font-mono text-primary/80 uppercase tracking-wider sm:hidden">
@@ -1039,19 +1039,19 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-white/85 font-mono">
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">Captain Tablets Supported</td>
                   <td className="text-center py-3.5">Up to 2</td>
                   <td className="text-center py-3.5 text-primary font-bold">Unlimited</td>
                   <td className="text-center py-3.5">Unlimited</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">Kitchen KDS Stations</td>
                   <td className="text-center py-3.5">1 Screen</td>
                   <td className="text-center py-3.5 text-primary font-bold">Multi-Station (4+)</td>
                   <td className="text-center py-3.5">Unlimited</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">Swiggy & Zomato Aggregator Intake</td>
                   <td className="text-center py-3.5">
                     <span className="text-white/60 font-semibold" aria-hidden="true">—</span>
@@ -1060,13 +1060,13 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   <td className="text-center py-3.5 text-primary font-bold">Included</td>
                   <td className="text-center py-3.5">Included + Custom APIs</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">Automated WhatsApp PDF Invoicing</td>
                   <td className="text-center py-3.5">500 / month</td>
                   <td className="text-center py-3.5 text-primary font-bold">Unlimited</td>
                   <td className="text-center py-3.5">Unlimited</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">VIP Loyalty & Frequency Tagging</td>
                   <td className="text-center py-3.5">
                     <span className="text-white/60 font-semibold" aria-hidden="true">—</span>
@@ -1075,32 +1075,32 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   <td className="text-center py-3.5 text-primary font-bold">Included</td>
                   <td className="text-center py-3.5">Included + Advanced ML</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">ESC/POS 80mm Thermal Printer Bridge</td>
                   <td className="text-center py-3.5">Standard</td>
                   <td className="text-center py-3.5 text-primary font-bold">Fast Dual-Print</td>
                   <td className="text-center py-3.5">Enterprise Multi-Lane</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 font-sans font-medium">Offline In-Memory Ring Buffer</td>
                   <td className="text-center py-3.5">Yes</td>
                   <td className="text-center py-3.5 text-primary font-bold">Yes</td>
                   <td className="text-center py-3.5">Yes + On-Premises Relay</td>
                 </tr>
-                <tr className="border-t border-white/10">
+                <tr className="border-t border-white/10 hover:bg-white/[0.02] transition-colors">
                   <td className="py-4 font-sans font-bold text-white">Experience Live Sandbox</td>
                   <td className="text-center py-4">
-                    <Button onClick={() => onLaunchDemo('bistro')} variant="outline" size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 border-sky-500/30 text-sky-300 hover:bg-sky-500/10 cursor-pointer">
+                    <Button onClick={() => onLaunchDemo('bistro')} variant="outline" size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 border-sky-500/30 text-sky-300 hover:bg-sky-500/10 active:scale-95 touch-manipulation cursor-pointer">
                       Bistro Demo
                     </Button>
                   </td>
                   <td className="text-center py-4">
-                    <Button onClick={() => onLaunchDemo('brasserie')} size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 bg-primary text-black hover:bg-primary/90 shadow-[0_0_15px_rgba(197,160,89,0.3)] cursor-pointer">
+                    <Button onClick={() => onLaunchDemo('brasserie')} size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 bg-primary text-black hover:bg-primary/90 active:scale-95 touch-manipulation shadow-[0_0_15px_rgba(197,160,89,0.3)] cursor-pointer">
                       Brasserie Demo
                     </Button>
                   </td>
                   <td className="text-center py-4">
-                    <Button onClick={() => onLaunchDemo('enterprise')} variant="outline" size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 border-purple-500/30 text-purple-300 hover:bg-purple-500/10 cursor-pointer">
+                    <Button onClick={() => onLaunchDemo('enterprise')} variant="outline" size="sm" className="text-[10px] uppercase font-bold tracking-wider rounded-lg h-8 border-purple-500/30 text-purple-300 hover:bg-purple-500/10 active:scale-95 touch-manipulation cursor-pointer">
                       Enterprise Demo
                     </Button>
                   </td>
@@ -1111,7 +1111,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
         </section>
 
         {/* FAQ ACCORDION SECTION */}
-        <section id="faq" className="py-20 border-t border-white/8 bg-[#070709]">
+        <section id="faq" className="py-20 border-t border-white/[0.08] bg-[#070709]">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-primary">
@@ -1155,7 +1155,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                     aria-expanded={activeFaq === idx}
                     aria-controls={`faq-panel-${idx}`}
                     onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left text-sm font-bold text-white hover:text-primary transition-colors cursor-pointer"
+                    className="w-full px-6 py-5 flex items-center justify-between text-left text-sm font-bold text-white hover:text-primary active:scale-[0.99] touch-manipulation transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50"
                   >
                     <span>{item.q}</span>
                     <ChevronDown
@@ -1202,7 +1202,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               <Button
                 size="lg"
                 onClick={() => onLaunchDemo('brasserie')}
-                className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-primary text-black hover:bg-[#D4AF37] font-extrabold text-xs uppercase tracking-[0.25em] shadow-[0_0_35px_rgba(197,160,89,0.4)] transition-all duration-300 active:scale-95 cursor-pointer group"
+                className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-primary text-black hover:bg-[#D4AF37] font-extrabold text-xs uppercase tracking-[0.25em] shadow-[0_0_35px_rgba(197,160,89,0.4)] transition-all duration-300 active:scale-95 touch-manipulation cursor-pointer group"
               >
                 <Zap size={16} className="mr-2 fill-black" />
                 Launch Live Demo Dashboard
@@ -1213,7 +1213,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 size="lg"
                 variant="outline"
                 onClick={() => scrollToSection('pricing')}
-                className="w-full sm:w-auto h-14 px-8 rounded-2xl border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+                className="w-full sm:w-auto h-14 px-8 rounded-2xl border-white/15 bg-white/5 hover:bg-white/10 active:scale-95 touch-manipulation text-white font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
               >
                 View Plans & Pricing
               </Button>
@@ -1223,7 +1223,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/8 bg-black py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col gap-8 text-xs text-white/50 font-mono">
+      <footer className="border-t border-white/[0.08] bg-black py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col gap-8 text-xs text-white/50 font-mono">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary/20 via-black to-[#0A0A0E] border border-primary/30 flex items-center justify-center shadow-[0_0_15px_rgba(197,160,89,0.15)]">
@@ -1248,7 +1248,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <button
               type="button"
               onClick={() => handleOpenLegal('terms')}
-              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary active:scale-95 touch-manipulation transition-colors cursor-pointer focus-visible:outline-none focus-visible:text-primary"
             >
               Terms of Service
             </button>
@@ -1256,7 +1256,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <button
               type="button"
               onClick={() => handleOpenLegal('privacy')}
-              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary active:scale-95 touch-manipulation transition-colors cursor-pointer focus-visible:outline-none focus-visible:text-primary"
             >
               Privacy Policy (DPDP Act)
             </button>
@@ -1264,7 +1264,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <button
               type="button"
               onClick={() => handleOpenLegal('dpa')}
-              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary active:scale-95 touch-manipulation transition-colors cursor-pointer focus-visible:outline-none focus-visible:text-primary"
             >
               Data Processing (DPA)
             </button>
@@ -1272,7 +1272,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <button
               type="button"
               onClick={() => handleOpenLegal('cookies')}
-              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary active:scale-95 touch-manipulation transition-colors cursor-pointer focus-visible:outline-none focus-visible:text-primary"
             >
               Cookie &amp; Storage Policy
             </button>
@@ -1280,7 +1280,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <button
               type="button"
               onClick={() => handleOpenLegal('gst')}
-              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary active:scale-95 touch-manipulation transition-colors cursor-pointer focus-visible:outline-none focus-visible:text-primary"
             >
               GST Tax Disclaimer
             </button>
