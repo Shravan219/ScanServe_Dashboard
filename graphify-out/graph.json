@@ -2036,7 +2036,7 @@
       "file_type": "code",
       "norm_label": "ordercard()",
       "source_file": "src/App.tsx",
-      "source_location": "L3043"
+      "source_location": "L3046"
     },
     {
       "id": "src_components_captain_captaindashboard_captaindashboard",
@@ -8724,7 +8724,7 @@
       "file_type": "code",
       "norm_label": "editmenuitemdialog()",
       "source_file": "src/App.tsx",
-      "source_location": "L2861"
+      "source_location": "L2864"
     },
     {
       "id": "src_app_menuitemimage",
@@ -8748,7 +8748,7 @@
       "file_type": "code",
       "norm_label": "navitem()",
       "source_file": "src/App.tsx",
-      "source_location": "L3011"
+      "source_location": "L3014"
     },
     {
       "id": "src_components_brand_vyomalogo_vyomaemblem",
@@ -61797,7 +61797,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L2987",
+      "source_location": "L2990",
       "weight": 1.0
     },
     {
@@ -61809,7 +61809,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3018",
+      "source_location": "L3021",
       "weight": 1.0
     },
     {
@@ -61821,7 +61821,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3168",
+      "source_location": "L3171",
       "weight": 1.0
     },
     {
@@ -61833,7 +61833,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3218",
+      "source_location": "L3221",
       "weight": 1.0
     },
     {
@@ -61845,7 +61845,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3327",
+      "source_location": "L3330",
       "weight": 1.0
     },
     {
@@ -112460,7 +112460,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2861",
+      "source_location": "L2864",
       "weight": 1.0
     },
     {
@@ -112471,7 +112471,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L3011",
+      "source_location": "L3014",
       "weight": 1.0
     },
     {
@@ -112482,7 +112482,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L3043",
+      "source_location": "L3046",
       "weight": 1.0
     },
     {
@@ -123752,5 +123752,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "947da09f5fdf18d79f695a72c7093826b336034a"
+  "built_at_commit": "c174e0e89c6a82122a2963aac7d178ded858cb77"
 }

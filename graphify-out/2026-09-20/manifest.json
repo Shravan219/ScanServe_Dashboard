@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789908205.436609,
-    "seen": 1789908356.5499887,
-    "ast_hash": "214678a8a951eb1e2ff867192f1d0859",
+    "mtime": 1789909511.5290828,
+    "seen": 1789909594.0268137,
+    "ast_hash": "8c2ede7bf2c154818c6d02719eccde68",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -468,10 +468,10 @@
     "semantic_hash": "c8d08a5ec6115fc752ebd450c1a6995a"
   },
   "src/components/OnlineOrdersView.tsx": {
-    "mtime": 1789608932.0004027,
-    "seen": 1789780154.2242448,
-    "ast_hash": "93736d039073a7111be3f4e1b1c33212",
-    "semantic_hash": "93736d039073a7111be3f4e1b1c33212"
+    "mtime": 1789909557.3497515,
+    "seen": 1789909594.027023,
+    "ast_hash": "fff08d3f97a8b02e7f73a2410691996f",
+    "semantic_hash": ""
   },
   "src/components/Receipt.tsx": {
     "mtime": 1789556200.076087,
@@ -594,9 +594,9 @@
     "semantic_hash": "50a416341598a03fea0fd05e2f3144d2"
   },
   "src/lib/whatsapp.ts": {
-    "mtime": 1789824246.155166,
-    "seen": 1789824442.6609461,
-    "ast_hash": "bb40d58fd76e4dd3305620251d490de8",
+    "mtime": 1789908915.507341,
+    "seen": 1789909594.032408,
+    "ast_hash": "291dbdcb0346689c9d1666cac2e01e82",
     "semantic_hash": ""
   },
   "src/main.tsx": {
@@ -606,10 +606,10 @@
     "semantic_hash": "9f0480c8bb150eb57ddf06040c73d963"
   },
   "src/types.ts": {
-    "mtime": 1788257591.7692132,
-    "seen": 1789780154.2242818,
-    "ast_hash": "334ce28281b0f4dc60596b8fc3a26bdd",
-    "semantic_hash": "334ce28281b0f4dc60596b8fc3a26bdd"
+    "mtime": 1789909312.8533132,
+    "seen": 1789909594.0325723,
+    "ast_hash": "6277d07730477e0db2aeacbd1ac11349",
+    "semantic_hash": ""
   },
   "supabase_schema.sql": {
     "mtime": 1788257591.5084498,
@@ -629,10 +629,10 @@
     "semantic_hash": "d4b18e0310d2ea4512712ba232fd30d3"
   },
   "vite.config.ts": {
-    "mtime": 1789555317.796394,
-    "seen": 1789780154.224287,
-    "ast_hash": "f42cce90bd0d5c20e8e25e9cb2a15dd1",
-    "semantic_hash": "f42cce90bd0d5c20e8e25e9cb2a15dd1"
+    "mtime": 1789909219.929998,
+    "seen": 1789909594.0329893,
+    "ast_hash": "c09f3a260056c8e62be299883d683875",
+    "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
     "mtime": 1789701776.8703413,
@@ -1001,9 +1001,9 @@
     "semantic_hash": "ca7c723df3a1e84cfd233354fa84d5c7"
   },
   "index.html": {
-    "mtime": 1789908138.7678657,
-    "seen": 1789908356.563849,
-    "ast_hash": "896f1c4d3f6200f94e0fab0f55495433",
+    "mtime": 1789909406.0826862,
+    "seen": 1789909594.077615,
+    "ast_hash": "2ee7d4a0a29c41c70ed4257b04dcfa0f",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -1343,9 +1343,9 @@
     "semantic_hash": ""
   },
   "src/components/landing/LandingPage.tsx": {
-    "mtime": 1789908564.936698,
-    "seen": 1789908608.3159485,
-    "ast_hash": "e4c92a1f999507e29103f67101554f50",
+    "mtime": 1789924595.1610937,
+    "seen": 1789924662.490052,
+    "ast_hash": "53b7be467a84a49c1055b08552269390",
     "semantic_hash": ""
   },
   "design-system/vyoma-scanserve/MASTER.md": {

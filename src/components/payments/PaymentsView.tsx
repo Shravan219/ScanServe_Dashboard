@@ -862,6 +862,7 @@ export function PaymentsView({
                           {!activePhone && (
                             <input
                               type="tel"
+                              aria-label="Customer phone number for WhatsApp digital receipt"
                               placeholder="Enter Phone (+91...)"
                               maxLength={13}
                               value={customerPhoneInputs[invoice.groupKey] || ''}

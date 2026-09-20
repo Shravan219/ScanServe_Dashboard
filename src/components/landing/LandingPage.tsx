@@ -74,9 +74,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-black/65 border-b border-white/[0.08] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Brand Emblem */}
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <button
+            type="button"
+            aria-label="Vyoma ScanServe - Return to top of page"
+            className="flex items-center gap-3 cursor-pointer group text-left border-none bg-transparent p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-xl active:scale-95 touch-manipulation transition-all"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
             <VyomaLogo variant="horizontal" size={26} subtitle="ScanServe OS" />
-          </div>
+          </button>
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.15em] text-white/70">

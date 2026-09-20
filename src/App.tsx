@@ -2111,6 +2111,7 @@ export default function App() {
                 <div className="relative w-full sm:w-80">
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                   <Input 
+                    aria-label="Search orders by token number, customer name, or table"
                     placeholder="Search Token ID, Name..." 
                     className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
                     value={searchToken}
@@ -2325,6 +2326,7 @@ export default function App() {
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                       <Input 
+                        aria-label="Search dishes and categories"
                         placeholder="Search Dishes, Categories..." 
                         className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
                         value={menuSearch}
@@ -2444,6 +2446,7 @@ export default function App() {
                 <div className="relative w-full md:w-80">
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                   <Input 
+                    aria-label="Search customer directory by name or phone number"
                     placeholder="Search by name, phone..." 
                     className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
                     value={customerSearch}
