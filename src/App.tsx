@@ -48,6 +48,7 @@ import {
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
+import { LandingPage } from '@/src/components/landing/LandingPage';
 import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
 import { InvoicesView } from '@/src/components/invoices/InvoicesView';
 import { PaymentsView } from '@/src/components/payments/PaymentsView';
@@ -379,12 +380,19 @@ export default function App() {
     }
   }, [isKioskLocked, location.pathname, navigate]);
 
+  const isLandingRoute = useMemo(() => {
+    if (Capacitor.isNativePlatform()) return false;
+    const path = location.pathname;
+    return path === '/' || path === '' || path === '/landing';
+  }, [location.pathname]);
+
   const activeTab = useMemo(() => {
     if (isKioskLocked) return 'captain';
     const path = location.pathname.split('/')[1];
-    const validTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices'];
+    if (path === 'landing' || isLandingRoute) return 'landing';
+    const validTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices', 'landing'];
     return validTabs.includes(path) ? path : 'captain';
-  }, [location.pathname, isKioskLocked]);
+  }, [location.pathname, isKioskLocked, isLandingRoute]);
 
   const waitingForPaymentCount = useMemo(() => {
     return (allOrders && allOrders.length > 0 ? allOrders : orders).filter(
@@ -484,10 +492,30 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (location.pathname === '/' || location.pathname === '' || location.pathname === '/service') {
-      navigate('/captain', { replace: true });
+    if (Capacitor.isNativePlatform()) {
+      if (location.pathname === '/' || location.pathname === '' || location.pathname === '/service') {
+        navigate('/captain', { replace: true });
+      }
+    } else {
+      if (location.pathname === '/service') {
+        navigate('/captain', { replace: true });
+      }
     }
   }, [location.pathname, navigate]);
+
+  const handleLaunchDemo = () => {
+    localStorage.setItem('vyoma_staff_authenticated', 'true');
+    localStorage.setItem('vyoma_demo_mode', 'true');
+    setIsAuthenticated(true);
+    navigate('/captain');
+    toast.success('Welcome to Vyoma Live Demo Sandbox!', {
+      description: 'Explore live table tracking, orders, KDS routing, and WhatsApp invoicing.'
+    });
+  };
+
+  const handleStaffLoginNav = () => {
+    navigate('/captain');
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -511,6 +539,7 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('vyoma_staff_authenticated');
+    localStorage.removeItem('vyoma_demo_mode');
     setIsAuthenticated(false);
     setPassword('');
     toast.info('Terminal Locked');
@@ -1144,6 +1173,15 @@ export default function App() {
     return list;
   }, [menuItems, menuSearch, menuCategoryFilter]);
 
+  if (isLandingRoute) {
+    return (
+      <>
+        <LandingPage onLaunchDemo={handleLaunchDemo} onStaffLogin={handleStaffLoginNav} />
+        <Toaster position="top-center" theme="dark" richColors />
+      </>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black text-white p-6">
@@ -1177,16 +1215,25 @@ export default function App() {
               </div>
               <Button 
                 type="submit"
-                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.4em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group"
+                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.4em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group cursor-pointer"
               >
                 Authenticate
                 <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
               </Button>
             </form>
             
-            <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-semibold mt-8">
-              Authorized Personnel Only
-            </p>
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-semibold">
+                Authorized Personnel Only
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/landing')}
+                className="text-[11px] text-primary/80 hover:text-primary font-mono tracking-wider uppercase transition-colors cursor-pointer"
+              >
+                ← Back to Landing Page & Pricing
+              </button>
+            </div>
           </div>
         </motion.div>
         <Toaster position="top-center" theme="dark" richColors />
@@ -1283,6 +1330,17 @@ export default function App() {
               active={activeTab === 'captain'} 
               onClick={() => setActiveTab('captain')}
             />
+
+            {!isKioskLocked && (
+              <div className="pt-2 border-t border-white/5 my-1">
+                <NavItem 
+                  icon={<Sparkles size={16} strokeWidth={1.5} className="text-primary" />} 
+                  label="Landing & Pricing" 
+                  active={activeTab === 'landing'} 
+                  onClick={() => navigate('/landing')}
+                />
+              </div>
+            )}
           </nav>
         </div>
 
@@ -1334,6 +1392,25 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden flex flex-col relative">
+        {/* Live Demo Sandbox Banner */}
+        {localStorage.getItem('vyoma_demo_mode') === 'true' && (
+          <div className="bg-primary/15 border-b border-primary/30 text-white px-4 py-2 text-xs flex items-center justify-between z-30 shrink-0 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="font-mono text-[11px] text-white/90">
+                <strong className="text-primary">LIVE DEMO SANDBOX:</strong> You are exploring live fine dining operations.
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/landing')}
+                className="px-2.5 py-1 bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-[#D4AF37] transition-all cursor-pointer shadow-[0_0_10px_rgba(197,160,89,0.2)] active:scale-95"
+              >
+                View Plans & Pricing
+              </button>
+            </div>
+          </div>
+        )}
         {/* Offline Connection Alert Bar */}
         {!isOnline && (
           <div className="bg-red-500 text-white px-4 py-2 text-xs font-bold flex items-center justify-between z-50 shrink-0 shadow-lg animate-pulse">
@@ -1484,6 +1561,12 @@ export default function App() {
               >
                 Invoices
               </button>
+              <button
+                onClick={() => navigate('/landing')}
+                className="shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20"
+              >
+                Pricing & Info
+              </button>
             </>
           )}
         </div>
@@ -1580,6 +1663,15 @@ export default function App() {
                     }`}
                   >
                     <FileText size={16} /> Invoices & Billing
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate('/landing');
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-primary/10 border border-primary/30 text-primary mt-1 cursor-pointer"
+                  >
+                    <Sparkles size={16} /> Landing Page & Pricing
                   </button>
                 </>
               )}
