@@ -33,6 +33,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { DemoTier } from '@/src/lib/demoData';
+import { LegalModal, LegalDocType } from '@/src/components/legal/LegalModal';
 
 interface LandingPageProps {
   onLaunchDemo: (tier: DemoTier) => void;
@@ -43,6 +44,13 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
   const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [heroPreviewTab, setHeroPreviewTab] = useState<'tables' | 'kds' | 'whatsapp'>('tables');
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [selectedLegalDoc, setSelectedLegalDoc] = useState<LegalDocType>('terms');
+
+  const handleOpenLegal = (doc: LegalDocType) => {
+    setSelectedLegalDoc(doc);
+    setLegalModalOpen(true);
+  };
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -1173,23 +1181,82 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/8 bg-black py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-white/50 font-mono">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Coffee size={14} className="text-primary" />
+      <footer className="border-t border-white/8 bg-black py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col gap-8 text-xs text-white/50 font-mono">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Coffee size={14} className="text-primary" />
+            </div>
+            <span className="font-serif text-sm font-bold text-white">Vyoma ScanServe</span>
+            <span>&copy; 2026 &bull; The Obsidian Guild</span>
           </div>
-          <span className="font-serif text-sm font-bold text-white">Vyoma ScanServe</span>
-          <span>© 2026 • The Obsidian Guild</span>
+
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              All Systems Operational
+            </span>
+            <span>WebSocket <strong className="text-white">v1.0-PROD</strong></span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <span className="flex items-center gap-1.5 text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            All Systems Operational
-          </span>
-          <span>WebSocket <strong className="text-white">v1.0-PROD</strong></span>
+        {/* Legal & Compliance Links */}
+        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px]">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2">
+            <button
+              type="button"
+              onClick={() => handleOpenLegal('terms')}
+              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+            >
+              Terms of Service
+            </button>
+            <span className="text-white/20">&bull;</span>
+            <button
+              type="button"
+              onClick={() => handleOpenLegal('privacy')}
+              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+            >
+              Privacy Policy (DPDP Act)
+            </button>
+            <span className="text-white/20">&bull;</span>
+            <button
+              type="button"
+              onClick={() => handleOpenLegal('dpa')}
+              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+            >
+              Data Processing (DPA)
+            </button>
+            <span className="text-white/20">&bull;</span>
+            <button
+              type="button"
+              onClick={() => handleOpenLegal('cookies')}
+              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+            >
+              Cookie &amp; Storage Policy
+            </button>
+            <span className="text-white/20">&bull;</span>
+            <button
+              type="button"
+              onClick={() => handleOpenLegal('gst')}
+              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+            >
+              GST Tax Disclaimer
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-white/40 text-[10px]">
+            <ShieldCheck size={13} className="text-primary/70" />
+            <span>DPDP Act 2023 Compliant &bull; ISO 27001 Aligned</span>
+          </div>
         </div>
       </footer>
+
+      {/* Compliance & Legal Center Modal */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        onClose={() => setLegalModalOpen(false)}
+        initialDoc={selectedLegalDoc}
+      />
     </div>
   );
 }
