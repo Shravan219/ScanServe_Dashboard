@@ -52,6 +52,7 @@ import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
 import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { LandingPage } from '@/src/components/landing/LandingPage';
+import { VyomaLogo, VyomaEmblem } from '@/src/components/brand/VyomaLogo';
 import { 
   DemoTier, 
   TIER_METADATA, 
@@ -1294,8 +1295,11 @@ export default function App() {
           className="w-full max-w-md"
         >
           <div className="flex flex-col items-center gap-8 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-primary/20 bg-[#0A0A0A] shadow-[0_0_30px_rgba(197,160,89,0.1)]">
-              <Lock size={32} strokeWidth={1.5} className="text-primary" />
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/20 via-black to-[#0A0A0E] shadow-[0_0_35px_rgba(197,160,89,0.25)]">
+                <VyomaEmblem size={44} />
+              </div>
+              <VyomaLogo variant="horizontal" size={28} subtitle="Terminal Security" />
             </div>
             <div>
               <h1 className="text-4xl font-serif tracking-tight mb-2">Staff <span className="italic opacity-60 text-primary">Access</span></h1>
@@ -1348,8 +1352,11 @@ export default function App() {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black text-white">
         <div className="flex flex-col items-center gap-6">
-          <RefreshCcw className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="font-serif text-2xl tracking-tight text-primary">Vy<span className="italic opacity-60">oma</span></p>
+          <div className="relative flex items-center justify-center">
+            <VyomaEmblem size={52} className="animate-pulse" />
+            <RefreshCcw className="h-20 w-20 animate-spin text-primary/20 absolute -inset-2 pointer-events-none" />
+          </div>
+          <VyomaLogo variant="horizontal" subtitle="Operations Synchronizing..." size={26} />
         </div>
       </div>
     );
@@ -1363,18 +1370,10 @@ export default function App() {
           <button 
             type="button"
             onClick={() => navigate('/landing')}
-            className="flex items-center gap-3 px-2 text-left group cursor-pointer hover:opacity-90 transition-opacity"
+            className="text-left group cursor-pointer hover:opacity-90 transition-opacity px-2"
             title="Return to Main Page"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-[0_0_20px_rgba(197,160,89,0.1)] shrink-0 group-hover:border-primary/40 transition-colors">
-              <Coffee size={20} className="text-primary" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-lg font-bold tracking-tight text-white leading-none">
-                Vy<span className="italic text-primary opacity-80">oma</span>
-              </span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/50 mt-1 group-hover:text-primary/70 transition-colors">POS & KDS</span>
-            </div>
+            <VyomaLogo variant="horizontal" size={24} subtitle="POS & KDS" />
           </button>
 
           <nav className="flex flex-col gap-1.5 w-full">
@@ -1666,8 +1665,8 @@ export default function App() {
             className="flex items-center gap-2.5 text-left cursor-pointer hover:opacity-90 transition-opacity"
             title="Return to Main Page"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
-              <Coffee size={16} className="text-primary" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/30 bg-[#0A0A0E] shadow-[0_0_15px_rgba(197,160,89,0.2)] shrink-0">
+              <VyomaEmblem size={20} />
             </div>
             <span className="font-serif text-base font-bold tracking-tight text-white leading-none">
               Vy<span className="italic text-primary opacity-80">oma</span>

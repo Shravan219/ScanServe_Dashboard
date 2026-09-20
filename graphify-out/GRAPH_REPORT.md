@@ -1,17 +1,17 @@
 # Graph Report - ScanServe_Dashboard-main  (2026-09-20)
 
 ## Corpus Check
-- 198 files · ~178,558 words
+- 199 files · ~199,781 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 81 file(s) not represented in the graph (top: .csv 51, .xml 11, (none) 4)
 
 ## Summary
-- 2794 nodes · 3856 edges · 167 communities (141 shown, 26 thin omitted)
+- 2798 nodes · 3866 edges · 196 communities (154 shown, 42 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `31641079`
+- Built from commit: `b81977e7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,13 +20,13 @@
 - orderStore.ts
 - CaptainDashboard.tsx
 - gray
-- cip/generate.py
+- cip/core.py
 - color
 - App.tsx
-- button
+- card
 - slide_search_core.py
 - spacing
-- TailwindConfigGenerator
+- TestTailwindConfigGenerator
 - Market Opportunity Analysis: Vyoma ScanServe (POS & KDS)
 - html-token-validator.py
 - compilerOptions
@@ -36,11 +36,11 @@
 - 1. Terms of Service & Master SaaS Agreement
 - generate_design_system
 - fetch-background.py
-- design_system.py
+- icon/generate.py
 - fontSize
 - TestShadcnInstaller
-- persist_design_system
-- react
+- design_system.py
+- cn
 - .check_shadcn_config
 - Design System Master File
 - .test_add_all_components_success
@@ -51,13 +51,13 @@
 - Tailwind CSS Utility Reference
 - primitive
 - LegalModal.tsx
-- test_validate_tokens.py
+- pathlib
 - lib/dispatch-status.ts
 - ErrorBoundary
 - .generate_config_string
 - generate_icon
 - lib/dyno-adapter.ts
-- cn
+- react
 - Brand Guidelines v1.0
 - Design
 - ExampleInstrumentedTest.java
@@ -73,7 +73,7 @@
 - extract-colors.cjs
 - validate-asset.cjs
 - ShadcnInstaller
-- scripts/core.py
+- BM25
 - Tailwind CSS Responsive Design
 - MainActivity.java
 - vercel.json
@@ -81,26 +81,26 @@
 - .test_add_components_dry_run
 - 1. AGENT SWARM TOPOLOGY & PERSONA ROLES
 - Token Architecture
-- _palette_is_dark
+- test_design_system_mode.py
 - generate-reality-seed-pdf.cjs
 - .test_init_default_project_root
 - Primitive Tokens
 - validate-tokens.cjs
 - lg
 - devDependencies
-- _filter_anti_patterns_for_mode
-- _select_palette_for_mode
-- ._apply_reasoning
+- TailwindConfigGenerator
+- scripts/core.py
+- design-tokens-starter.json
 - scripts
 - Brand
-- generate_html
+- render-html.py
 - inject-brand-context.cjs
 - embed-tokens.cjs
 - Component Tokens
-- 3
+- test_core.py
 - capacitor.config.ts
 - vite.config.ts
-- 4
+- generate_cip_set
 - generate-tokens.cjs
 - Typography Specifications
 - Logo Usage Rules
@@ -125,7 +125,7 @@
 - Core Logo Types
 - Brand Consistency Checklist
 - CIP Mockup Prompt Engineering
-- 5
+- main.tsx
 - Design System Master File
 - Design Principles
 - Design Principles
@@ -151,7 +151,7 @@
 - Slides Reference
 - HTML Slide Template
 - HTML Slide Template
-- test_design_system_mode.py
+- _resolve_color_mode
 - BM25
 - Slides
 - Brand Guidelines Template
@@ -159,31 +159,60 @@
 - Vyoma - Dashboard
 - build
 - shadow
-- 8
+- button
 - graphify.md
 - slides-create.md
 - graphify/SKILL.md
 - create.md
 - compilerOptions
+- ._base_config
 - none
+- search
 - .test_add_components_no_config
-- generate_logo
+- input
+- $type
+- radius
+- padding-y
+- md
+- destructive
+- destructive-foreground
+- muted
+- primary-foreground
+- ring
+- secondary-foreground
+- dotenv
+- .test_add_fonts
 - .temp_project
 - .test_add_components_already_installed
 - .test_add_all_components_dry_run
 - .test_list_installed_empty
+- .test_add_breakpoints
 - Vyompos
 - .test_get_installed_components_empty
 - .test_add_components_no_components
+- .test_add_plugins_no_duplicates
 - xl
+- .test_recommend_plugins
+- .test_recommend_plugins_nextjs
+- .test_generate_typescript_config
+- .test_init_default_typescript
+- .test_validate_config_valid
+- .test_validate_config_empty_theme
 - c_users_anay0216_documents_coding_scanserve_dashboard_main_dist_server_cjs
+- .test_write_config
+- .test_write_config_invalid_path
+- .test_init_framework
+- .test_full_configuration_javascript
+- .test_default_output_path_javascript
+- .test_default_content_paths_nextjs
+- .test_add_colors
 
 ## God Nodes (most connected - your core abstractions)
 1. `TailwindConfigGenerator` - 58 edges
 2. `cn()` - 37 edges
 3. `TestTailwindConfigGenerator` - 35 edges
 4. `ShadcnInstaller` - 34 edges
-5. `react` - 27 edges
+5. `react` - 28 edges
 6. `TestShadcnInstaller` - 26 edges
 7. `lucide-react` - 22 edges
 8. `DesignSystemGenerator` - 21 edges
@@ -195,17 +224,17 @@
   .agents/skills/ui-ux-pro-max/SKILL.md → components/ui/button.tsx
 - `5. SYSTEM CONSTRAINTS, FRICTION POINTS & EFFICIENCY VECTORS` --references--> `MenuItem`  [INFERRED]
   REALITY_SEED.md → src/types.ts
-- `4.1 Floor Service (Dine-In) State Machine` --references--> `InvoicesView()`  [INFERRED]
-  REALITY_SEED.md → src/components/invoices/InvoicesView.tsx
 - `3.1 Core Entity Definitions` --references--> `RestaurantTable`  [INFERRED]
   REALITY_SEED.md → src/types.ts
 - `3.1 Core Entity Definitions` --references--> `total()`  [INFERRED]
   REALITY_SEED.md → VyomPOS/src/core.ts
+- `Subcommands` --references--> `update()`  [INFERRED]
+  .agents/skills/brand/SKILL.md → VyomPOS/src/core.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (167 total, 26 thin omitted)
+## Communities (196 total, 42 thin omitted)
 
 ### Community 0 - "Comprehensive Business Case: Vyoma ScanServe"
 Cohesion: 0.06
@@ -216,40 +245,40 @@ Cohesion: 0.06
 Nodes (61): handler(), handler(), handler(), formatIST(), getSupabaseClient(), handler(), handler(), safeUUID() (+53 more)
 
 ### Community 2 - "CaptainDashboard.tsx"
-Cohesion: 0.14
-Nodes (31): Cards & Tiles, 4.1 Floor Service (Dine-In) State Machine, ref_motion_react, sonner, A. Front-of-House (Floor Staff), OrderCard(), CaptainDashboardProps, DEFAULT_TABLES (+23 more)
+Cohesion: 0.12
+Nodes (35): Cards & Tiles, 4.1 Floor Service (Dine-In) State Machine, ref_motion_react, sonner, A. Front-of-House (Floor Staff), OrderCard(), CaptainDashboardProps, DEFAULT_TABLES (+27 more)
 
 ### Community 3 - "gray"
 Cohesion: 0.05
 Nodes (53): $type, $value, $type, $value, $type, $value, $type, $value (+45 more)
 
-### Community 4 - "cip/generate.py"
-Cohesion: 0.10
-Nodes (33): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+25 more)
+### Community 4 - "cip/core.py"
+Cohesion: 0.16
+Nodes (19): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+11 more)
 
 ### Community 5 - "color"
-Cohesion: 0.04
-Nodes (46): $type, $value, background, destructive, destructive-foreground, foreground, muted, muted-foreground (+38 more)
+Cohesion: 0.11
+Nodes (19): $type, $value, background, foreground, muted-foreground, primary, primary-hover, secondary (+11 more)
 
 ### Community 6 - "App.tsx"
-Cohesion: 0.08
-Nodes (32): CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), Toaster(), DEFAULT_CATEGORY_IMAGES (+24 more)
+Cohesion: 0.09
+Nodes (29): Toaster(), DEFAULT_CATEGORY_IMAGES, VyomaEmblem(), VyomaLogo(), VyomaLogoProps, LandingPage(), LandingPageProps, LegalModal() (+21 more)
 
-### Community 7 - "button"
-Cohesion: 0.06
-Nodes (45): $type, $value, $type, $value, bg, fg, font-size, hover-bg (+37 more)
+### Community 7 - "card"
+Cohesion: 0.20
+Nodes (12): $type, $value, bg, bg, padding, shadow, card, bg (+4 more)
 
 ### Community 8 - "slide_search_core.py"
 Cohesion: 0.08
 Nodes (38): format_context(), format_result(), main(), Format a single search result for display, Slide Search CLI - Search slide design databases for strategies, layouts, copy,…, Format contextual recommendations for display., BM25, calculate_pattern_break() (+30 more)
 
 ### Community 9 - "spacing"
-Cohesion: 0.09
-Nodes (22): $type, $value, $type, $value, $type, $value, $type, $value (+14 more)
+Cohesion: 0.06
+Nodes (34): $type, $value, $type, $value, $type, $value, $type, $value (+26 more)
 
-### Community 10 - "TailwindConfigGenerator"
-Cohesion: 0.03
-Nodes (49): Path, Add custom font families. Args: fonts: Dict of font_type: [font_names] e.g.,…, Add custom spacing values. Args: spacing: Dict of name: value e.g., {'18':…, Add custom breakpoints. Args: breakpoints: Dict of name: width e.g., {'3xl':…, Add plugin requirements. Args: plugins: List of plugin names e.g.,…, Get plugin recommendations based on configuration. Returns: List of recommended…, Generate Tailwind CSS configuration files., Validate configuration. Returns: Tuple of (valid, message) (+41 more)
+### Community 10 - "TestTailwindConfigGenerator"
+Cohesion: 0.07
+Nodes (15): Test adding colors multiple times., Test adding full color palette., Test adding custom spacing., Test TailwindConfigGenerator class., Test generating JavaScript configuration., Test generating config with custom colors., Test generating config with plugins., Test validating config with no content paths. (+7 more)
 
 ### Community 11 - "Market Opportunity Analysis: Vyoma ScanServe (POS & KDS)"
 Cohesion: 0.09
@@ -264,8 +293,8 @@ Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, experimentalDecorators, isolatedModules, jsx, lib, module, moduleDetection (+10 more)
 
 ### Community 14 - "logo/core.py"
-Cohesion: 0.12
-Nodes (20): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results, Logo Design Core - BM25 search engine for logo design guidelines (+12 more)
+Cohesion: 0.14
+Nodes (18): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results, Logo Design Core - BM25 search engine for logo design guidelines (+10 more)
 
 ### Community 15 - "components.json"
 Cohesion: 0.09
@@ -280,16 +309,16 @@ Cohesion: 0.10
 Nodes (20): 1.1 Acceptance of Agreement, 1.2 License Grant & Scope of Deployment, 1.3 Operational Tiers & Feature Entitlements, 1.4 Service Level Agreement (SLA) & Offline Mesh Guarantee, 1.5 Limitation of Liability, 1. Terms of Service & Master SaaS Agreement, 2.1 Legislative Compliance Framework, 2.2 Categories of Personal Data Collected (+12 more)
 
 ### Community 18 - "generate_design_system"
-Cohesion: 0.13
-Nodes (13): ansi_ljust(), format_ascii_box(), format_markdown(), generate_design_system(), hex_to_ansi(), Convert hex color to ANSI True Color swatch (██) with fallback., Like str.ljust but accounts for zero-width ANSI escape sequences., Create a Unicode section separator: ├─── NAME ───...┤ (+5 more)
+Cohesion: 0.33
+Nodes (5): format_markdown(), generate_design_system(), Format design system as markdown., Main entry point for design system generation. Args: query: Search query (e.g.,…, TestPersistence
 
 ### Community 19 - "fetch-background.py"
 Cohesion: 0.16
 Nodes (18): generate_css_for_background(), get_background_image(), get_curated_images(), get_overlay_css(), get_pexels_search_url(), load_backgrounds_config(), load_brand_colors(), main() (+10 more)
 
-### Community 20 - "design_system.py"
-Cohesion: 0.08
-Nodes (37): CIP HTML Presentation Renderer Generates a professional HTML presentation from…, load_env(), Load .env files in priority order, Icon Generation Script using Gemini 3.1 Pro Preview API Generates SVG icons via…, load_env(), Logo Generation Script using Gemini Nano Banana API Uses Gemini 2.5 Flash Image…, Load .env files in priority order, format_output() (+29 more)
+### Community 20 - "icon/generate.py"
+Cohesion: 0.09
+Nodes (31): load_env(), CIP Design Generator - Generate corporate identity mockups using Gemini Nano…, Load environment variables from .env files, load_env(), Load .env files in priority order, Icon Generation Script using Gemini 3.1 Pro Preview API Generates SVG icons via…, enhance_prompt(), generate_batch() (+23 more)
 
 ### Community 21 - "fontSize"
 Cohesion: 0.12
@@ -299,13 +328,13 @@ Nodes (16): $type, $value, $type, $value, $type, $value, $type, $value (+8 more)
 Cohesion: 0.12
 Nodes (9): Test adding components with overwrite flag., Test ShadcnInstaller class., Test listing installed components without config., Test listing installed components when they exist., Test initialization with custom project root., Test initialization with dry run mode., Test checking for existing shadcn config., Test getting installed components when files exist. (+1 more)
 
-### Community 23 - "persist_design_system"
-Cohesion: 0.17
-Nodes (12): _detect_page_type(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), persist_design_system(), Format a page-specific override file with intelligent AI-generated content., Generate intelligent overrides based on page type using layered search. Uses…, Detect page type from context and search results. (+4 more)
+### Community 23 - "design_system.py"
+Cohesion: 0.11
+Nodes (22): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), hex_to_ansi(), persist_design_system() (+14 more)
 
-### Community 24 - "react"
-Cohesion: 0.15
-Nodes (21): Button(), buttonVariants, Card(), Input(), ref_base_ui_react_button, ref_base_ui_react_input, lucide-react, react (+13 more)
+### Community 24 - "cn"
+Cohesion: 0.11
+Nodes (24): Card(), CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle(), DialogOverlay() (+16 more)
 
 ### Community 25 - ".check_shadcn_config"
 Cohesion: 0.21
@@ -324,8 +353,8 @@ Cohesion: 0.25
 Nodes (7): Reduce a generated TS/JS config to a bare assignable object so it can be handed…, Regression guard for the missing-comma bug between the ``theme`` block and…, The property preceding ``plugins`` must end with a comma (pure-Python check, so…, The emitted config parses as valid JS via ``node --check``., _strip_to_object(), TestGeneratedConfigIsValidJs, parametrize
 
 ### Community 29 - "DesignSystemGenerator"
-Cohesion: 0.23
-Nodes (6): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., TestReasoningMatch, The exact reproduction from issue #428., TestEndToEndCoherence
+Cohesion: 0.16
+Nodes (8): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Find matching reasoning rule for a category., Apply reasoning rules to search results., TestReasoningMatch, The exact reproduction from issue #428., TestEndToEndCoherence
 
 ### Community 31 - "dependencies"
 Cohesion: 0.05
@@ -336,16 +365,16 @@ Cohesion: 0.05
 Nodes (43): Arbitrary Values, Aspect Ratio, Background Colors, Border Color, Border Radius, Border Style, Border Width, Borders (+35 more)
 
 ### Community 33 - "primitive"
-Cohesion: 0.14
-Nodes (13): dark, fast, normal, slow, $type, $value, $type, $value (+5 more)
+Cohesion: 0.18
+Nodes (11): fast, normal, slow, $type, $value, $type, $value, primitive (+3 more)
 
 ### Community 34 - "LegalModal.tsx"
-Cohesion: 0.31
-Nodes (9): COOKIE_POLICY, DATA_PROCESSING_AGREEMENT, GST_DISCLAIMER, LEGAL_DISCLAIMER_NOTICE, LegalDocument, LegalSection, PRIVACY_POLICY, TERMS_OF_SERVICE (+1 more)
+Cohesion: 0.27
+Nodes (10): COOKIE_POLICY, DATA_PROCESSING_AGREEMENT, GST_DISCLAIMER, LEGAL_DISCLAIMER_NOTICE, LegalDocument, LegalSection, PRIVACY_POLICY, TERMS_OF_SERVICE (+2 more)
 
-### Community 35 - "test_validate_tokens.py"
-Cohesion: 0.18
-Nodes (11): Regression test for sync-brand-to-tokens.cjs. The color parser required a…, Path, Regression tests for validate-tokens.cjs. The validator used to skip any line…, A hardcoded hex on the same line as a var() token is still a violation., A line that references only tokens produces no false positives., _run(), test_flags_hardcoded_hex_sharing_line_with_token(), test_token_only_line_reports_no_violation() (+3 more)
+### Community 35 - "pathlib"
+Cohesion: 0.12
+Nodes (19): Regression test for sync-brand-to-tokens.cjs. The color parser required a…, main(), Slide Token Validator (Legacy Wrapper) Now delegates to html-token-validator.py…, Delegate to unified html-token-validator.py with --type slides., Path, Regression tests for validate-tokens.cjs. The validator used to skip any line…, A hardcoded hex on the same line as a var() token is still a violation., A line that references only tokens produces no false positives. (+11 more)
 
 ### Community 36 - "lib/dispatch-status.ts"
 Cohesion: 0.28
@@ -367,9 +396,9 @@ Nodes (13): apply_color(), apply_viewbox_size(), extract_svgs(), generate_batch(
 Cohesion: 0.33
 Nodes (3): DynoCustomer, DynoItem, NormalizedDynoOrder
 
-### Community 41 - "cn"
-Cohesion: 0.10
-Nodes (33): Badge(), badgeVariants, Dialog(), DialogContent(), DialogDescription(), DialogFooter(), DialogHeader(), DialogOverlay() (+25 more)
+### Community 41 - "react"
+Cohesion: 0.12
+Nodes (33): Badge(), badgeVariants, Button(), buttonVariants, Dialog(), DialogContent(), DialogDescription(), DialogFooter() (+25 more)
 
 ### Community 42 - "Brand Guidelines v1.0"
 Cohesion: 0.05
@@ -396,8 +425,8 @@ Cohesion: 0.06
 Nodes (32): Accordion, Alert, Alert Dialog, Avatar, Badge, Button, Card, Checkbox (+24 more)
 
 ### Community 48 - "package.json"
-Cohesion: 0.05
-Nodes (37): main, name, private, type, version, autoprefixer, @base-ui/react, @capacitor/android (+29 more)
+Cohesion: 0.06
+Nodes (35): main, name, private, type, version, autoprefixer, @base-ui/react, @capacitor/android (+27 more)
 
 ### Community 49 - "Color Semantics"
 Cohesion: 0.11
@@ -408,8 +437,8 @@ Cohesion: 0.83
 Nodes (3): gradlew script, die(), warn()
 
 ### Community 51 - ".generate"
-Cohesion: 0.20
-Nodes (6): Execute searches across multiple domains., Select best matching result based on priority keywords., Extract results list from search result dict., Generate complete design system recommendation. variance/motion/density are…, Bucket a 1-10 dial value into its tier config. Returns None if value is None., _resolve_dial()
+Cohesion: 0.16
+Nodes (8): _filter_anti_patterns_for_mode(), Drop "avoid dark mode" advice once dark mode is the resolved answer., Select best matching result based on priority keywords., Extract results list from search result dict., Generate complete design system recommendation. variance/motion/density are…, Bucket a 1-10 dial value into its tier config. Returns None if value is None., _resolve_dial(), TestAntiPatternGating
 
 ### Community 52 - "app.json"
 Cohesion: 0.09
@@ -431,9 +460,9 @@ Nodes (13): checkManifest(), formatBytes(), formatOutput(), fs, main(), parseFil
 Cohesion: 0.17
 Nodes (8): main(), Path, Handle shadcn/ui component installation., Initialize installer. Args: project_root: Project root directory (default:…, ShadcnInstaller, Test adding all components without config., Test checking for non-existent shadcn config., Test getting installed components without config.
 
-### Community 57 - "scripts/core.py"
-Cohesion: 0.05
-Nodes (37): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, BM25, detect_domain(), _domain_keywords() (+29 more)
+### Community 57 - "BM25"
+Cohesion: 0.10
+Nodes (14): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, BM25, _normalize(), Apply synonym substitution before tokenizing. (+6 more)
 
 ### Community 58 - "Tailwind CSS Responsive Design"
 Cohesion: 0.06
@@ -451,9 +480,9 @@ Nodes (13): 1. AGENT SWARM TOPOLOGY & PERSONA ROLES, 2. MULTI-PHASE PEAK-HOUR SC
 Cohesion: 0.15
 Nodes (12): Categories, Dark Mode, File Organization, Layer 1: Primitive Tokens, Layer 2: Semantic Tokens, Layer 3: Component Tokens, Layer Overview, Migration from Flat Tokens (+4 more)
 
-### Community 65 - "_palette_is_dark"
-Cohesion: 0.27
-Nodes (5): _palette_is_dark(), WCAG relative luminance of a #RRGGBB string, or None if unparseable., True when a colors.csv row's Background is a dark surface., _relative_luminance(), TestLuminance
+### Community 65 - "test_design_system_mode.py"
+Cohesion: 0.18
+Nodes (9): _palette_is_dark(), WCAG relative luminance of a #RRGGBB string, or None if unparseable., True when a colors.csv row's Background is a dark surface., Pick the highest-ranked palette matching the resolved mode. Only the dark case…, _relative_luminance(), _select_palette_for_mode(), Regression tests for color-mode coherence in design_system.py (issue #428).…, TestLuminance (+1 more)
 
 ### Community 66 - "generate-reality-seed-pdf.cjs"
 Cohesion: 0.33
@@ -475,13 +504,17 @@ Nodes (5): lg, $type, $value, lg, lg
 Cohesion: 0.17
 Nodes (12): devDependencies, autoprefixer, @capacitor/cli, concurrently, cross-env, dotenv-cli, electron, electron-builder (+4 more)
 
-### Community 72 - "_filter_anti_patterns_for_mode"
-Cohesion: 0.43
-Nodes (3): _filter_anti_patterns_for_mode(), Drop "avoid dark mode" advice once dark mode is the resolved answer., TestAntiPatternGating
+### Community 72 - "TailwindConfigGenerator"
+Cohesion: 0.09
+Nodes (13): main(), Add custom font families. Args: fonts: Dict of font_type: [font_names] e.g.,…, Add custom spacing values. Args: spacing: Dict of name: value e.g., {'18':…, Add custom breakpoints. Args: breakpoints: Dict of name: width e.g., {'3xl':…, Add plugin requirements. Args: plugins: List of plugin names e.g.,…, Get plugin recommendations based on configuration. Returns: List of recommended…, Generate Tailwind CSS configuration files., Validate configuration. Returns: Tuple of (valid, message) (+5 more)
 
-### Community 73 - "_select_palette_for_mode"
-Cohesion: 0.43
-Nodes (3): Pick the highest-ranked palette matching the resolved mode. Only the dark case…, _select_palette_for_mode(), TestPaletteSelection
+### Community 73 - "scripts/core.py"
+Cohesion: 0.14
+Nodes (18): _domain_keywords(), _get_bm25(), _load_csv(), _load_product_keywords(), Load CSV and return list of dicts, with mtime-based caching., Fitted BM25 index for this file+columns, with mtime-based caching., Core search function using BM25. Returns (results, bm25_or_none)., Nearest known vocabulary terms for a query that returned 0 hits, so the caller… (+10 more)
+
+### Community 74 - "design-tokens-starter.json"
+Cohesion: 0.15
+Nodes (12): component, $type, $value, dark, semantic, $schema, $type, $value (+4 more)
 
 ### Community 75 - "scripts"
 Cohesion: 0.17
@@ -491,9 +524,9 @@ Nodes (12): scripts, apk:build, apk:devices, apk:install, build, cap:sync, clean
 Cohesion: 0.05
 Nodes (31): Brand, Brand Sync Workflow, Quick Start, References, Routing, Scripts, Subcommands, Templates (+23 more)
 
-### Community 77 - "generate_html"
-Cohesion: 0.29
-Nodes (7): generate_html(), get_deliverable_info(), get_image_base64(), main(), Convert image to base64 for embedding in HTML, Extract deliverable type from filename and get info, Generate HTML presentation from CIP images
+### Community 77 - "render-html.py"
+Cohesion: 0.27
+Nodes (9): generate_html(), get_deliverable_info(), get_image_base64(), main(), Convert image to base64 for embedding in HTML, Extract deliverable type from filename and get info, Generate HTML presentation from CIP images, CIP HTML Presentation Renderer Generates a professional HTML presentation from… (+1 more)
 
 ### Community 78 - "inject-brand-context.cjs"
 Cohesion: 0.31
@@ -507,17 +540,17 @@ Nodes (8): args, fs, minimal, MINIMAL_TOKENS, path, projectRoot, tokensPath, wra
 Cohesion: 0.20
 Nodes (9): Alert Tokens, Badge Tokens, Button Tokens, Card Tokens, Component Tokens, Dialog/Modal Tokens, Input Tokens, Table Tokens (+1 more)
 
-### Community 81 - "3"
-Cohesion: 0.67
-Nodes (3): $type, $value, 3
+### Community 81 - "test_core.py"
+Cohesion: 0.23
+Nodes (7): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, Stdlib-only regression tests for core.py / design_system.py (unittest, not…, TestDomainDetection, core, tempfile, unittest
 
 ### Community 83 - "vite.config.ts"
 Cohesion: 0.40
 Nodes (3): @tailwindcss/vite, vite, @vitejs/plugin-react
 
-### Community 90 - "4"
-Cohesion: 0.67
-Nodes (3): $type, $value, 4
+### Community 90 - "generate_cip_set"
+Cohesion: 0.24
+Nodes (11): build_cip_prompt(), check_logo_required(), generate_cip_set(), generate_with_nano_banana(), load_logo_image(), main(), Generate image using Gemini Nano Banana (native image generation) Supports two…, Generate a complete CIP set for a brand Args: brand_name: Brand name to… (+3 more)
 
 ### Community 91 - "generate-tokens.cjs"
 Cohesion: 0.36
@@ -580,8 +613,8 @@ Cohesion: 0.09
 Nodes (22): @apply Directive, Best Practices, Color Customization, Complete Tailwind Config, Configuration Examples, Content Configuration, Custom Color Palette, Custom Font Sizes (+14 more)
 
 ### Community 106 - "ServerConnectionModal.tsx"
-Cohesion: 0.09
-Nodes (33): @capacitor/app, @capacitor/core, @capacitor/status-bar, ref_react_dom_client, react-router-dom, App(), CaptainDashboard(), getOrderPlatform() (+25 more)
+Cohesion: 0.16
+Nodes (22): @capacitor/core, App(), CaptainDashboard(), getOrderPlatform(), OnlineOrdersView(), ServerConnectionModal(), ServerConnectionModalProps, getApiBaseUrl() (+14 more)
 
 ### Community 107 - "Routing by Task Type"
 Cohesion: 0.10
@@ -615,9 +648,9 @@ Nodes (17): Audit Frequency, Brand Consistency Checklist, Channel Audit, Collate
 Cohesion: 0.11
 Nodes (17): Apparel (Polo/T-Shirt), Base Prompt Structure, Business Card, CIP Mockup Prompt Engineering, Context Modifiers, Corporate Minimal, Deliverable-Specific Modifiers, Letterhead (+9 more)
 
-### Community 115 - "5"
-Cohesion: 0.67
-Nodes (3): $type, $value, 5
+### Community 115 - "main.tsx"
+Cohesion: 0.22
+Nodes (9): @capacitor/app, @capacitor/status-bar, ref_react_dom_client, react-router-dom, src_index, initializeCapacitorAdaptations(), setupWakeLock(), ErrorBoundaryProps (+1 more)
 
 ### Community 116 - "Design System Master File"
 Cohesion: 0.12
@@ -715,9 +748,9 @@ Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integr
 Cohesion: 0.29
 Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integration, CSS Variables Reference, HTML Slide Template
 
-### Community 141 - "test_design_system_mode.py"
-Cohesion: 0.21
-Nodes (9): _query_wants_dark(), True when a styles.csv row describes itself as dark-first., True when the query explicitly asks for a dark theme., Resolve the mode the rest of the output has to agree with., _resolve_color_mode(), _style_is_dark_primary(), Regression tests for color-mode coherence in design_system.py (issue #428).…, TestModeResolution (+1 more)
+### Community 141 - "_resolve_color_mode"
+Cohesion: 0.24
+Nodes (7): _query_wants_dark(), True when a styles.csv row describes itself as dark-first., True when the query explicitly asks for a dark theme., Resolve the mode the rest of the output has to agree with., _resolve_color_mode(), _style_is_dark_primary(), TestModeResolution
 
 ### Community 142 - "BM25"
 Cohesion: 0.28
@@ -733,7 +766,7 @@ Nodes (4): Brand Guidelines Template, Document Structure, Extractable Fields, Us
 
 ### Community 145 - "radius"
 Cohesion: 0.29
-Nodes (8): $type, $value, $type, $value, radius, full, md, md
+Nodes (8): $type, $value, $type, $value, radius, default, full, default
 
 ### Community 146 - "Vyoma - Dashboard"
 Cohesion: 0.40
@@ -744,24 +777,72 @@ Cohesion: 0.25
 Nodes (8): build, appId, directories, files, productName, win, output, target
 
 ### Community 148 - "shadow"
-Cohesion: 0.27
-Nodes (10): $type, $value, sm, shadow, default, sm, default, sm (+2 more)
+Cohesion: 0.47
+Nodes (6): sm, shadow, sm, sm, $type, $value
 
-### Community 149 - "8"
-Cohesion: 0.67
-Nodes (3): $type, $value, 8
+### Community 149 - "button"
+Cohesion: 0.20
+Nodes (10): fg, font-size, hover-bg, button, $type, $value, $type, $value (+2 more)
 
 ### Community 154 - "compilerOptions"
 Cohesion: 0.12
 Nodes (15): compilerOptions, allowImportingTsExtensions, exactOptionalPropertyTypes, isolatedModules, lib, module, moduleResolution, noEmit (+7 more)
 
+### Community 155 - "._base_config"
+Cohesion: 0.22
+Nodes (6): Path, Initialize generator. Args: typescript: If True, generate .ts config, else .js…, Determine default output path., Create base configuration structure., Get default content paths for framework., Any
+
 ### Community 156 - "none"
 Cohesion: 0.67
 Nodes (4): $type, $value, none, none
 
-### Community 161 - "generate_logo"
-Cohesion: 0.33
-Nodes (7): enhance_prompt(), generate_batch(), generate_logo(), main(), Enhance the logo prompt with style and industry modifiers, Generate a logo using Gemini models with image generation Args: aspect_ratio:…, Generate multiple logo variants with different styles
+### Community 157 - "search"
+Cohesion: 0.27
+Nodes (5): Main search function with auto-domain detection, search(), Execute searches across multiple domains., Known query -> expected top-domain sanity checks (not exact-row pinning, since…, TestSearchDomains
+
+### Community 159 - "input"
+Cohesion: 0.29
+Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
+
+### Community 160 - "$type"
+Cohesion: 0.60
+Nodes (5): $type, $value, border, border, border
+
+### Community 161 - "radius"
+Cohesion: 0.60
+Nodes (5): radius, radius, radius, $type, $value
+
+### Community 162 - "padding-y"
+Cohesion: 0.67
+Nodes (4): padding-y, padding-y, $type, $value
+
+### Community 163 - "md"
+Cohesion: 0.67
+Nodes (4): $type, $value, md, md
+
+### Community 164 - "destructive"
+Cohesion: 0.67
+Nodes (3): destructive, $type, $value
+
+### Community 165 - "destructive-foreground"
+Cohesion: 0.67
+Nodes (3): destructive-foreground, $type, $value
+
+### Community 166 - "muted"
+Cohesion: 0.67
+Nodes (3): muted, $type, $value
+
+### Community 167 - "primary-foreground"
+Cohesion: 0.67
+Nodes (3): primary-foreground, $type, $value
+
+### Community 168 - "ring"
+Cohesion: 0.67
+Nodes (3): ring, $type, $value
+
+### Community 169 - "secondary-foreground"
+Cohesion: 0.67
+Nodes (3): secondary-foreground, $type, $value
 
 ### Community 177 - "Vyompos"
 Cohesion: 0.33
@@ -772,23 +853,23 @@ Cohesion: 0.67
 Nodes (4): xl, xl, $type, $value
 
 ## Knowledge Gaps
-- **1255 isolated node(s):** `fs`, `path`, `fs`, `path`, `fs` (+1250 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1640 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1256 isolated node(s):** `fs`, `path`, `fs`, `path`, `fs` (+1251 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1641 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ShadcnInstaller` connect `ShadcnInstaller` to `.test_init_default_project_root`, `.test_add_components_no_config`, `.test_add_components_already_installed`, `.test_add_all_components_dry_run`, `.test_list_installed_empty`, `.test_get_installed_components_empty`, `.test_add_components_no_components`, `design_system.py`, `TestShadcnInstaller`, `.check_shadcn_config`, `.test_add_all_components_success`, `.test_add_components_dry_run`?**
+- **Why does `ShadcnInstaller` connect `ShadcnInstaller` to `pathlib`, `.test_init_default_project_root`, `.test_add_components_no_config`, `.test_add_components_already_installed`, `.test_add_all_components_dry_run`, `.test_list_installed_empty`, `.test_get_installed_components_empty`, `.test_add_components_no_components`, `icon/generate.py`, `TestShadcnInstaller`, `.check_shadcn_config`, `.test_add_all_components_success`, `.test_add_components_dry_run`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `3.1 Core Entity Definitions` connect `Brand` to `CaptainDashboard.tsx`?**
+- **Why does `react` connect `react` to `CaptainDashboard.tsx`, `LegalModal.tsx`, `ErrorBoundary`, `App.tsx`, `ServerConnectionModal.tsx`, `package.json`, `main.tsx`, `cn`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
-- **Why does `RestaurantTable` connect `CaptainDashboard.tsx` to `cn`, `Brand`, `App.tsx`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `primitive` connect `primitive` to `gray`, `spacing`, `design-tokens-starter.json`, `radius`, `shadow`, `fontSize`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
   _`TailwindConfigGenerator` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `fs`, `path`, `fs` to the rest of the system?**
-  _1255 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1256 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Comprehensive Business Case: Vyoma ScanServe` be split into smaller, more focused modules?**
   _Cohesion score 0.0625 - nodes in this community are weakly interconnected._
 - **Should `orderStore.ts` be split into smaller, more focused modules?**

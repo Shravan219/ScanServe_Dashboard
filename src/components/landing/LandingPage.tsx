@@ -34,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { DemoTier } from '@/src/lib/demoData';
 import { LegalModal, LegalDocType } from '@/src/components/legal/LegalModal';
+import { VyomaLogo, VyomaEmblem } from '@/src/components/brand/VyomaLogo';
 
 interface LandingPageProps {
   onLaunchDemo: (tier: DemoTier) => void;
@@ -73,18 +74,8 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-black/65 border-b border-white/8 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Brand Emblem */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-black to-black shadow-[0_0_25px_rgba(197,160,89,0.2)]">
-              <Coffee size={22} className="text-primary" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-2xl font-bold tracking-tight text-white leading-none">
-                Vy<span className="italic text-primary">oma</span>
-              </span>
-              <span className="text-[10px] font-mono tracking-[0.25em] text-white/50 uppercase font-semibold mt-1">
-                ScanServe OS
-              </span>
-            </div>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <VyomaLogo variant="horizontal" size={26} subtitle="ScanServe OS" />
           </div>
 
           {/* Desktop Nav Links */}
@@ -159,7 +150,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(197,160,89,0.15)]"
           >
-            <Sparkles size={14} className="text-primary animate-spin" style={{ animationDuration: '6s' }} />
+            <VyomaEmblem size={16} />
             <span className="text-[11px] font-mono font-bold uppercase tracking-[0.25em]">
               The Obsidian Guild • Michelin-Grade Hospitality POS & KDS
             </span>
@@ -738,7 +729,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </div>
 
             {/* Sandbox Callout */}
-            <div className="mt-14 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-primary/10 p-8 sm:p-10 text-center max-w-4xl mx-auto shadow-[0_0_50px_rgba(197,160,89,0.12)]">
+            <div className="mt-14 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-primary/10 p-8 sm:p-10 text-center max-w-4xl mx-auto shadow-[0_0_50px_rgba(197,160,89,0.12)] flex flex-col items-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-[#0A0A0E] shadow-[0_0_25px_rgba(197,160,89,0.2)] mb-4">
+                <VyomaEmblem size={34} />
+              </div>
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
                 Want to test this live workflow right now?
               </h3>
@@ -1184,8 +1178,8 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       <footer className="border-t border-white/8 bg-black py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col gap-8 text-xs text-white/50 font-mono">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Coffee size={14} className="text-primary" />
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary/20 via-black to-[#0A0A0E] border border-primary/30 flex items-center justify-center shadow-[0_0_15px_rgba(197,160,89,0.15)]">
+              <VyomaEmblem size={18} />
             </div>
             <span className="font-serif text-sm font-bold text-white">Vyoma ScanServe</span>
             <span>&copy; 2026 &bull; The Obsidian Guild</span>

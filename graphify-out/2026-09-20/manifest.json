@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789880788.274679,
-    "seen": 1789880817.4042356,
-    "ast_hash": "c739e629b4c7f3746be71a031b09cf24",
+    "mtime": 1789883549.5132506,
+    "seen": 1789883577.5891328,
+    "ast_hash": "5f805967832edb9b508d4dba3e3ca42e",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -1001,10 +1001,10 @@
     "semantic_hash": "ca7c723df3a1e84cfd233354fa84d5c7"
   },
   "index.html": {
-    "mtime": 1788314806.907029,
-    "seen": 1789780154.2243998,
-    "ast_hash": "efb2a901d8af3aa5ef53a63ac792b099",
-    "semantic_hash": "efb2a901d8af3aa5ef53a63ac792b099"
+    "mtime": 1789883555.842486,
+    "seen": 1789883577.6251178,
+    "ast_hash": "46b301c5522a81a940c3c4332da19e4e",
+    "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
     "mtime": 1789550609.0195215,
