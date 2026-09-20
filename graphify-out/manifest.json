@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789884042.4194996,
-    "seen": 1789884158.9943464,
-    "ast_hash": "1eb494f3364ef253e47700e1a01c557d",
+    "mtime": 1789906237.3038766,
+    "seen": 1789906290.76345,
+    "ast_hash": "23791c90cff8199de193471d159a6791",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -1343,9 +1343,9 @@
     "semantic_hash": ""
   },
   "src/components/landing/LandingPage.tsx": {
-    "mtime": 1789884134.494944,
-    "seen": 1789884158.9963932,
-    "ast_hash": "75bbdd13f485cc86f10d300cab27bfb8",
+    "mtime": 1789906201.208562,
+    "seen": 1789906290.7652864,
+    "ast_hash": "e3c097222964601818f09fc4d88ee53f",
     "semantic_hash": ""
   },
   "design-system/vyoma-scanserve/MASTER.md": {

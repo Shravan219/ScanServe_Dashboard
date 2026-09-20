@@ -165,7 +165,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.08] max-w-5xl"
           >
             Fine Dining Velocity.{' '}
-            <span className="italic font-normal bg-gradient-to-r from-primary via-[#E8D49E] to-primary bg-clip-text text-transparent">
+            <span className="italic font-normal text-primary">
               Flawless Floor & Kitchen Synchrony.
             </span>
           </motion.h1>
@@ -203,7 +203,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                     <Coffee size={14} className="group-hover:scale-110 transition-transform" />
                     <span>Bistro & Cafe Demo</span>
                   </div>
-                  <p className="text-[10px] text-white/50 font-mono mt-0.5">1 KDS • 2 Tablets • Quick Cafe</p>
+                  <p className="text-[10px] text-white/70 font-mono mt-0.5">1 KDS • 2 Tablets • Quick Cafe</p>
                 </div>
                 <ArrowRight size={13} className="text-sky-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
               </button>
@@ -218,7 +218,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                     <Sparkles size={14} className="group-hover:rotate-12 transition-transform text-primary" />
                     <span>Grand Brasserie Demo</span>
                   </div>
-                  <p className="text-[10px] text-primary/80 font-mono mt-0.5">Multi-KDS • Swiggy • VIP CRM</p>
+                  <p className="text-[10px] text-primary/90 font-mono mt-0.5">Multi-KDS • Swiggy • VIP CRM</p>
                 </div>
                 <ArrowRight size={13} className="text-primary group-hover:translate-x-1 transition-all shrink-0 ml-1" />
               </button>
@@ -233,14 +233,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                     <Layers size={14} className="group-hover:scale-110 transition-transform" />
                     <span>Enterprise Demo</span>
                   </div>
-                  <p className="text-[10px] text-white/50 font-mono mt-0.5">Multi-Outlet • Relay Box • ERP</p>
+                  <p className="text-[10px] text-white/70 font-mono mt-0.5">Multi-Outlet • Relay Box • ERP</p>
                 </div>
                 <ArrowRight size={13} className="text-purple-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
               </button>
             </div>
           </motion.div>
 
-          <div className="mt-5 flex items-center gap-2 text-[11px] text-white/50 font-mono">
+          <div className="mt-5 flex items-center gap-2 text-[11px] text-white/75 font-mono">
             <CheckCircle2 size={13} className="text-emerald-400" />
             <span>Instant In-Browser Sandboxes • Switch Between Tiers Anytime Inside Dashboard</span>
           </div>
@@ -268,33 +268,49 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </div>
 
               {/* View Switcher Tabs */}
-              <div className="flex items-center bg-black/60 rounded-xl p-1 border border-white/10 text-[10px] font-bold uppercase tracking-wider">
+              <div 
+                role="tablist" 
+                aria-label="Interactive live telemetry views"
+                className="flex items-center bg-black/60 rounded-xl p-1 border border-white/10 text-[10px] font-bold uppercase tracking-wider"
+              >
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={heroPreviewTab === 'tables'}
+                  aria-controls="hero-preview-tables"
                   onClick={() => setHeroPreviewTab('tables')}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     heroPreviewTab === 'tables'
                       ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
-                      : 'text-white/60 hover:text-white'
+                      : 'text-white/70 hover:text-white'
                   }`}
                 >
                   Floor Grid
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={heroPreviewTab === 'kds'}
+                  aria-controls="hero-preview-kds"
                   onClick={() => setHeroPreviewTab('kds')}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     heroPreviewTab === 'kds'
                       ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
-                      : 'text-white/60 hover:text-white'
+                      : 'text-white/70 hover:text-white'
                   }`}
                 >
                   Live KDS Pass
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={heroPreviewTab === 'whatsapp'}
+                  aria-controls="hero-preview-whatsapp"
                   onClick={() => setHeroPreviewTab('whatsapp')}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     heroPreviewTab === 'whatsapp'
                       ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
-                      : 'text-white/60 hover:text-white'
+                      : 'text-white/70 hover:text-white'
                   }`}
                 >
                   WhatsApp Invoicing
@@ -765,13 +781,20 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             </p>
 
             {/* Billing Toggle */}
-            <div className="mt-8 inline-flex items-center gap-3 bg-[#0A0A0E] p-1.5 rounded-2xl border border-white/10">
+            <div 
+              role="radiogroup" 
+              aria-label="Billing frequency selection"
+              className="mt-8 inline-flex items-center gap-3 bg-[#0A0A0E] p-1.5 rounded-2xl border border-white/10"
+            >
               <button
+                type="button"
+                role="radio"
+                aria-checked={billingCycle === 'annual'}
                 onClick={() => setBillingCycle('annual')}
-                className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   billingCycle === 'annual'
                     ? 'bg-primary text-black shadow-[0_0_15px_rgba(197,160,89,0.3)]'
-                    : 'text-white/60 hover:text-white'
+                    : 'text-white/70 hover:text-white'
                 }`}
               >
                 Annual Billing{' '}
@@ -780,11 +803,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 </span>
               </button>
               <button
+                type="button"
+                role="radio"
+                aria-checked={billingCycle === 'monthly'}
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   billingCycle === 'monthly'
                     ? 'bg-primary text-black shadow-[0_0_15px_rgba(197,160,89,0.3)]'
-                    : 'text-white/60 hover:text-white'
+                    : 'text-white/70 hover:text-white'
                 }`}
               >
                 Monthly Billing
@@ -999,14 +1025,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <h3 className="font-serif text-2xl font-bold text-white mb-6">Detailed Plan Comparison</h3>
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-white/10 text-white/50 uppercase font-mono text-[10px] tracking-wider">
+                <tr className="border-b border-white/10 text-white/70 uppercase font-mono text-[10px] tracking-wider">
                   <th className="pb-4 font-normal">Feature / Module</th>
                   <th className="pb-4 font-normal text-center">Bistro</th>
                   <th className="pb-4 font-normal text-center text-primary">Grand Brasserie</th>
                   <th className="pb-4 font-normal text-center">Enterprise</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-white/80 font-mono">
+              <tbody className="divide-y divide-white/5 text-white/85 font-mono">
                 <tr>
                   <td className="py-3.5 font-sans font-medium">Captain Tablets Supported</td>
                   <td className="text-center py-3.5">Up to 2</td>
@@ -1021,7 +1047,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 </tr>
                 <tr>
                   <td className="py-3.5 font-sans font-medium">Swiggy & Zomato Aggregator Intake</td>
-                  <td className="text-center py-3.5 text-white/30">—</td>
+                  <td className="text-center py-3.5">
+                    <span className="text-white/60 font-semibold" aria-hidden="true">—</span>
+                    <span className="sr-only">Not Included in Bistro</span>
+                  </td>
                   <td className="text-center py-3.5 text-primary font-bold">Included</td>
                   <td className="text-center py-3.5">Included + Custom APIs</td>
                 </tr>
@@ -1033,7 +1062,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 </tr>
                 <tr>
                   <td className="py-3.5 font-sans font-medium">VIP Loyalty & Frequency Tagging</td>
-                  <td className="text-center py-3.5 text-white/30">—</td>
+                  <td className="text-center py-3.5">
+                    <span className="text-white/60 font-semibold" aria-hidden="true">—</span>
+                    <span className="sr-only">Not Included in Bistro</span>
+                  </td>
                   <td className="text-center py-3.5 text-primary font-bold">Included</td>
                   <td className="text-center py-3.5">Included + Advanced ML</td>
                 </tr>
@@ -1112,6 +1144,10 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   className="rounded-2xl border border-white/10 bg-[#0A0A0E] overflow-hidden transition-all"
                 >
                   <button
+                    type="button"
+                    id={`faq-trigger-${idx}`}
+                    aria-expanded={activeFaq === idx}
+                    aria-controls={`faq-panel-${idx}`}
                     onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                     className="w-full px-6 py-5 flex items-center justify-between text-left text-sm font-bold text-white hover:text-primary transition-colors cursor-pointer"
                   >
@@ -1121,10 +1157,16 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                       className={`text-primary transition-transform duration-300 ${
                         activeFaq === idx ? 'rotate-180' : ''
                       }`}
+                      aria-hidden="true"
                     />
                   </button>
                   {activeFaq === idx && (
-                    <div className="px-6 pb-5 pt-1 text-xs text-white/70 leading-relaxed border-t border-white/5">
+                    <div 
+                      id={`faq-panel-${idx}`}
+                      role="region"
+                      aria-labelledby={`faq-trigger-${idx}`}
+                      className="px-6 pb-5 pt-1 text-xs text-white/80 leading-relaxed border-t border-white/5"
+                    >
                       {item.a}
                     </div>
                   )}
@@ -1196,50 +1238,50 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
         {/* Legal & Compliance Links */}
         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px]">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2">
             <button
               type="button"
               onClick={() => handleOpenLegal('terms')}
-              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
             >
               Terms of Service
             </button>
-            <span className="text-white/20">&bull;</span>
+            <span className="text-white/40" aria-hidden="true">&bull;</span>
             <button
               type="button"
               onClick={() => handleOpenLegal('privacy')}
-              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
             >
               Privacy Policy (DPDP Act)
             </button>
-            <span className="text-white/20">&bull;</span>
+            <span className="text-white/40" aria-hidden="true">&bull;</span>
             <button
               type="button"
               onClick={() => handleOpenLegal('dpa')}
-              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
             >
               Data Processing (DPA)
             </button>
-            <span className="text-white/20">&bull;</span>
+            <span className="text-white/40" aria-hidden="true">&bull;</span>
             <button
               type="button"
               onClick={() => handleOpenLegal('cookies')}
-              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
             >
               Cookie &amp; Storage Policy
             </button>
-            <span className="text-white/20">&bull;</span>
+            <span className="text-white/40" aria-hidden="true">&bull;</span>
             <button
               type="button"
               onClick={() => handleOpenLegal('gst')}
-              className="text-white/60 hover:text-primary transition-colors cursor-pointer"
+              className="py-1.5 px-1 text-white/70 hover:text-primary transition-colors cursor-pointer"
             >
               GST Tax Disclaimer
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-white/40 text-[10px]">
-            <ShieldCheck size={13} className="text-primary/70" />
+          <div className="flex items-center gap-2 text-white/70 text-[10px]">
+            <ShieldCheck size={13} className="text-primary" />
             <span>DPDP Act 2023 Compliant &bull; ISO 27001 Aligned</span>
           </div>
         </div>

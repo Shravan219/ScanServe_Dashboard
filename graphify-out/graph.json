@@ -3450,7 +3450,7 @@
       "file_type": "code",
       "norm_label": "ordercard()",
       "source_file": "src/App.tsx",
-      "source_location": "L2938"
+      "source_location": "L2958"
     },
     {
       "id": "src_components_captain_orderbuildersheet_orderbuildersheet",
@@ -4062,7 +4062,7 @@
       "file_type": "code",
       "norm_label": "editmenuitemdialog()",
       "source_file": "src/App.tsx",
-      "source_location": "L2756"
+      "source_location": "L2776"
     },
     {
       "id": "src_app_navitem",
@@ -4074,7 +4074,7 @@
       "file_type": "code",
       "norm_label": "navitem()",
       "source_file": "src/App.tsx",
-      "source_location": "L2906"
+      "source_location": "L2926"
     },
     {
       "id": "agents_skills_ui_styling_scripts_shadcn_add_shadcninstaller_add_all_components",
@@ -37451,7 +37451,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L1316",
+      "source_location": "L1326",
       "weight": 1.0
     },
     {
@@ -37499,7 +37499,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L2882",
+      "source_location": "L2902",
       "weight": 1.0
     },
     {
@@ -37511,7 +37511,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L2913",
+      "source_location": "L2933",
       "weight": 1.0
     },
     {
@@ -37523,7 +37523,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3063",
+      "source_location": "L3083",
       "weight": 1.0
     },
     {
@@ -37535,7 +37535,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3113",
+      "source_location": "L3133",
       "weight": 1.0
     },
     {
@@ -37547,7 +37547,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L3222",
+      "source_location": "L3242",
       "weight": 1.0
     },
     {
@@ -69418,7 +69418,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2756",
+      "source_location": "L2776",
       "weight": 1.0
     },
     {
@@ -69429,7 +69429,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2906",
+      "source_location": "L2926",
       "weight": 1.0
     },
     {
@@ -69440,7 +69440,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L2938",
+      "source_location": "L2958",
       "weight": 1.0
     },
     {
@@ -76691,5 +76691,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b81977e7d39ead659f4704e9b96544b0ac3da29d"
+  "built_at_commit": "4537f95ef96a25247277926f12adaf4e97e75951"
 }

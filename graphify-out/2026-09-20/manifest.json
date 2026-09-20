@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789883549.5132506,
-    "seen": 1789883577.5891328,
-    "ast_hash": "5f805967832edb9b508d4dba3e3ca42e",
+    "mtime": 1789884042.4194996,
+    "seen": 1789884158.9943464,
+    "ast_hash": "1eb494f3364ef253e47700e1a01c557d",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -1001,9 +1001,9 @@
     "semantic_hash": "ca7c723df3a1e84cfd233354fa84d5c7"
   },
   "index.html": {
-    "mtime": 1789883555.842486,
-    "seen": 1789883577.6251178,
-    "ast_hash": "46b301c5522a81a940c3c4332da19e4e",
+    "mtime": 1789883949.8246982,
+    "seen": 1789884159.0125985,
+    "ast_hash": "4e4f85565402272f8c6ba1a34192763d",
     "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -1343,9 +1343,9 @@
     "semantic_hash": ""
   },
   "src/components/landing/LandingPage.tsx": {
-    "mtime": 1789882789.938934,
-    "seen": 1789882813.392323,
-    "ast_hash": "77e92b7a0712d4b1243b0a2691a5f85f",
+    "mtime": 1789884134.494944,
+    "seen": 1789884158.9963932,
+    "ast_hash": "75bbdd13f485cc86f10d300cab27bfb8",
     "semantic_hash": ""
   },
   "design-system/vyoma-scanserve/MASTER.md": {
@@ -1394,6 +1394,24 @@
     "mtime": 1789882424.7172275,
     "seen": 1789882813.404345,
     "ast_hash": "d3e18f0872c89d069ceff7925363c563",
+    "semantic_hash": ""
+  },
+  "src/components/brand/VyomaLogo.tsx": {
+    "mtime": 1789883942.6739295,
+    "seen": 1789884158.9953892,
+    "ast_hash": "9e543a01c0f0c158e20008122f69cf88",
+    "semantic_hash": ""
+  },
+  "public/favicon.svg": {
+    "mtime": 1789883932.2076788,
+    "seen": 1789884159.01684,
+    "ast_hash": "6f19d2ae259361fb0a912d10c659ccd4",
+    "semantic_hash": ""
+  },
+  "public/vyoma_logo.jpg": {
+    "mtime": 1789883914.1297777,
+    "seen": 1789884159.016842,
+    "ast_hash": "35d2df00e640033f42cdfdc004234c0f",
     "semantic_hash": ""
   }
 }

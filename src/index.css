@@ -334,19 +334,19 @@
   background: #C5A059;
 }
 
-/* Accessible Reduced Motion: eliminates disorienting transforms, large slides, and infinite loops while preserving gentle opacity & color state feedback */
+/* Accessible Reduced Motion: eliminates disorienting spatial movement, large slides, and infinite loops while preserving gentle opacity & color transitions */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
-    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+    transform: none !important;
   }
 
-  /* Retain gentle visual feedback for interactive state confirmations without spatial motion */
+  /* Retain gentle, non-disorienting visual feedback for interactive state confirmations */
   button, input, select, textarea, [role="button"], [role="tab"], .transition-all, .transition-colors, .transition-opacity {
-    transition: opacity 120ms ease, background-color 120ms ease, border-color 120ms ease !important;
+    transition: opacity 150ms ease, background-color 150ms ease, border-color 150ms ease !important;
     transform: none !important;
   }
 }

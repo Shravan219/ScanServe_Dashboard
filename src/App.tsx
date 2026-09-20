@@ -1306,37 +1306,52 @@ export default function App() {
               <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 font-bold">Secure Dashboard Entry</p>
             </div>
             
-            <form onSubmit={handleLogin} className="w-full space-y-6 mt-4">
+            <form onSubmit={handleLogin} className="w-full space-y-4 mt-4 text-left">
               <div className="relative group">
+                <label htmlFor="staff-password-input" className="sr-only">
+                  Staff Access Password
+                </label>
                 <Input 
+                  id="staff-password-input"
                   type="password"
                   placeholder="Enter Access Password"
+                  aria-label="Staff Access Password"
+                  aria-invalid={authError}
+                  aria-describedby={authError ? "staff-auth-error" : undefined}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (authError) setAuthError(false);
+                  }}
                   className={cn(
-                    "bg-[#0A0A0A] border-white/5 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all",
-                    authError && "border-red-500/50 focus-visible:border-red-500/50"
+                    "bg-[#0A0A0A] border-white/10 placeholder:text-white/50 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all",
+                    authError && "border-red-500/60 focus-visible:border-red-500/60"
                   )}
                   autoFocus
                 />
+                {authError && (
+                  <p id="staff-auth-error" role="alert" className="text-[11px] text-red-400 font-mono text-center mt-2">
+                    Invalid access key. Check terminal credentials or contact management.
+                  </p>
+                )}
               </div>
               <Button 
                 type="submit"
-                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.4em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group cursor-pointer"
+                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.35em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group cursor-pointer"
               >
-                Authenticate
+                Unlock Staff Dashboard
                 <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
               </Button>
             </form>
             
             <div className="flex flex-col items-center gap-2 mt-4">
-              <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-semibold">
+              <p className="text-[10px] text-white/70 uppercase tracking-[0.2em] font-semibold">
                 Authorized Personnel Only
               </p>
               <button
                 type="button"
                 onClick={() => navigate('/landing')}
-                className="text-[11px] text-primary/80 hover:text-primary font-mono tracking-wider uppercase transition-colors cursor-pointer"
+                className="text-[11px] text-primary/80 hover:text-primary font-mono tracking-wider uppercase transition-colors cursor-pointer py-1"
               >
                 ← Back to Main Page
               </button>
@@ -1458,6 +1473,7 @@ export default function App() {
             onClick={() => setServerModalOpen(true)}
             className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 transition-all text-left group cursor-pointer"
             title="Configure POS Terminal Server"
+            aria-label="Configure POS Terminal Server"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${currentServerUrl ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]' : 'bg-primary/80'}`} />
@@ -1465,12 +1481,12 @@ export default function App() {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 group-hover:text-white truncate">
                   POS Terminal
                 </span>
-                <span className="text-[9px] font-mono text-white/40 truncate">
+                <span className="text-[9px] font-mono text-white/60 truncate">
                   {currentServerUrl ? currentServerUrl.replace(/^https?:\/\//, '') : 'Standalone / Cloud'}
                 </span>
               </div>
             </div>
-            <Server size={14} className="text-white/40 group-hover:text-primary transition-colors shrink-0 ml-1" />
+            <Server size={14} className="text-white/60 group-hover:text-primary transition-colors shrink-0 ml-1" />
           </button>
 
           <button
@@ -1625,16 +1641,20 @@ export default function App() {
               )}
 
               <button
+                type="button"
                 onClick={() => navigate('/landing')}
-                className="px-3 py-1 bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-[#D4AF37] transition-all cursor-pointer shadow-[0_0_12px_rgba(197,160,89,0.25)] active:scale-95 whitespace-nowrap"
+                className="px-3.5 py-1.5 min-h-[36px] bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-primary/90 transition-all cursor-pointer shadow-[0_0_12px_rgba(197,160,89,0.25)] active:scale-95 whitespace-nowrap touch-manipulation flex items-center justify-center"
+                aria-label="Return to Main Landing Page"
               >
                 Main Page
               </button>
 
               <button
+                type="button"
                 onClick={handleExitDemo}
-                className="px-2.5 py-1 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 text-white/70 hover:text-red-300 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                className="px-3 py-1.5 min-h-[36px] bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 text-white/80 hover:text-red-300 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation flex items-center justify-center"
                 title="Exit live demo sandbox"
+                aria-label="Exit live demo sandbox and return to terminal"
               >
                 Exit Demo
               </button>
