@@ -1553,12 +1553,12 @@ export default function App() {
               </div>
 
               {/* Tier Switcher Pills */}
-              <div className="flex items-center gap-1 bg-black/80 p-1 rounded-xl border border-white/10">
+              <div className="flex items-center gap-1 bg-black/80 p-1 rounded-xl border border-white/10 overflow-x-auto max-w-full custom-scrollbar shrink-0">
                 <button
                   type="button"
                   onClick={() => handleSwitchDemoTier('bistro')}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95",
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap touch-manipulation",
                     demoTier === 'bistro'
                       ? "bg-[#38BDF8] text-black shadow-[0_0_12px_rgba(56,189,248,0.4)] font-extrabold"
                       : "text-white/60 hover:text-white hover:bg-white/5"
@@ -1572,21 +1572,21 @@ export default function App() {
                   type="button"
                   onClick={() => handleSwitchDemoTier('brasserie')}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95",
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap touch-manipulation",
                     demoTier === 'brasserie'
                       ? "bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.4)] font-extrabold"
                       : "text-white/60 hover:text-white hover:bg-white/5"
                   )}
                 >
                   <Sparkles size={12} />
-                  <span>Grand Brasserie</span>
+                  <span><span className="hidden sm:inline">Grand </span>Brasserie</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleSwitchDemoTier('enterprise')}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95",
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap touch-manipulation",
                     demoTier === 'enterprise'
                       ? "bg-[#A855F7] text-white shadow-[0_0_12px_rgba(168,85,247,0.4)] font-extrabold"
                       : "text-white/60 hover:text-white hover:bg-white/5"
@@ -1739,11 +1739,19 @@ export default function App() {
           </div>
         </header>
 
-        {/* Mobile Quick Tab Bar - Non-squashing horizontal slider */}
-        <div className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2 gap-2 shrink-0 scroll-smooth touch-pan-x" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+        {/* Mobile Quick Tab Bar - Non-squashing horizontal slider with touch targets */}
+        <div 
+          role="tablist" 
+          aria-label="Quick mobile tab navigation"
+          className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2 gap-2 shrink-0 scroll-smooth touch-pan-x" 
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        >
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'captain'}
             onClick={() => setActiveTab('captain')}
-            className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+            className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
               activeTab === 'captain'
                 ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                 : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1754,8 +1762,11 @@ export default function App() {
           {!isKioskLocked && (
             <>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'counter'}
                 onClick={() => setActiveTab('counter')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'counter'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1764,8 +1775,11 @@ export default function App() {
                 Counter
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'kitchen'}
                 onClick={() => setActiveTab('kitchen')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'kitchen'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1774,8 +1788,11 @@ export default function App() {
                 Kitchen
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'pickup'}
                 onClick={() => setActiveTab('pickup')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'pickup'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1784,8 +1801,11 @@ export default function App() {
                 Pickup
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'payments'}
                 onClick={() => setActiveTab('payments')}
-                className={`shrink-0 min-w-max min-h-[36px] flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 touch-manipulation ${
                   activeTab === 'payments'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1799,8 +1819,11 @@ export default function App() {
                 )}
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'menu'}
                 onClick={() => setActiveTab('menu')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'menu'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1809,8 +1832,11 @@ export default function App() {
                 Menu
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'customers'}
                 onClick={() => setActiveTab('customers')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'customers'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1819,8 +1845,11 @@ export default function App() {
                 Customers
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'online'}
                 onClick={() => setActiveTab('online')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'online'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1829,8 +1858,11 @@ export default function App() {
                 Online
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'invoices'}
                 onClick={() => setActiveTab('invoices')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'invoices'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1839,8 +1871,9 @@ export default function App() {
                 Invoices
               </button>
               <button
+                type="button"
                 onClick={() => navigate('/landing')}
-                className="shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20"
+                className="shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 touch-manipulation"
               >
                 Pricing & Info
               </button>
@@ -1957,16 +1990,16 @@ export default function App() {
         </AnimatePresence>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col min-h-0 flex-1">
-          {/* Desktop Header */}
-          <header className="hidden md:flex h-20 items-center justify-between border-b border-white/10 px-8 backdrop-blur-2xl bg-[#07080C]/80 sticky top-0 z-10 animate-fade-in shrink-0">
-            <TabsList className="bg-transparent p-0 gap-6 lg:gap-8">
-              <TabsTrigger value="captain" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Captain</TabsTrigger>
+          {/* Desktop & Tablet Header */}
+          <header className="hidden md:flex h-20 items-center justify-between border-b border-white/10 px-4 lg:px-8 backdrop-blur-2xl bg-[#07080C]/80 sticky top-0 z-10 animate-fade-in shrink-0 overflow-hidden">
+            <TabsList className="bg-transparent p-0 gap-3 lg:gap-5 xl:gap-7 overflow-x-auto custom-scrollbar flex-1 mr-3 sm:mr-6 scroll-smooth">
+              <TabsTrigger value="captain" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Captain</TabsTrigger>
               {!isKioskLocked && (
                 <>
-                  <TabsTrigger value="counter" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
-                  <TabsTrigger value="kitchen" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
-                  <TabsTrigger value="pickup" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
-                  <TabsTrigger value="payments" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all flex items-center gap-2">
+                  <TabsTrigger value="counter" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Counter</TabsTrigger>
+                  <TabsTrigger value="kitchen" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
+                  <TabsTrigger value="pickup" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Pickup</TabsTrigger>
+                  <TabsTrigger value="payments" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all flex items-center gap-2">
                     Payments
                     {waitingForPaymentCount > 0 && (
                       <span className="flex h-4 px-1.5 items-center justify-center rounded-full bg-amber-500 text-black text-[9px] font-extrabold shadow-[0_0_10px_rgba(245,158,11,0.4)]">
@@ -1974,17 +2007,17 @@ export default function App() {
                       </span>
                     )}
                   </TabsTrigger>
-                  <TabsTrigger value="menu" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
-                  <TabsTrigger value="customers" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customers</TabsTrigger>
-                  <TabsTrigger value="online" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
-                  <TabsTrigger value="invoices" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Invoices</TabsTrigger>
+                  <TabsTrigger value="menu" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Menu</TabsTrigger>
+                  <TabsTrigger value="customers" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Customers</TabsTrigger>
+                  <TabsTrigger value="online" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
+                  <TabsTrigger value="invoices" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Invoices</TabsTrigger>
                 </>
               )}
             </TabsList>
 
-            <div className="flex items-center gap-6">
-              {/* Quick Metrics */}
-              <div className="flex items-center gap-6 rounded-2xl border border-white/10 bg-[#0E0F15] px-4 py-2 shadow-inner">
+            <div className="flex items-center gap-3 lg:gap-5 shrink-0">
+              {/* Quick Metrics - Displayed on high-res screens, graceful hide on compact tablet viewports */}
+              <div className="hidden xl:flex items-center gap-5 rounded-2xl border border-white/10 bg-[#0E0F15] px-3.5 py-2 shadow-inner shrink-0">
                 <div className="flex flex-col items-end">
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Prepared Today</span>
                   <div className="flex items-center gap-1.5">
@@ -2012,7 +2045,7 @@ export default function App() {
                   toast.info(nextMuted ? 'Kitchen sound alerts muted' : 'Kitchen sound alerts enabled');
                 }}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95",
+                  "flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 shrink-0",
                   isSoundMuted
                     ? "border-white/10 bg-white/5 text-white/40 hover:text-white"
                     : "border-primary/30 bg-primary/10 text-primary shadow-[0_0_15px_rgba(197,160,89,0.15)]"
@@ -2024,9 +2057,9 @@ export default function App() {
               </button>
 
               {/* Live Connection Status */}
-              <div className="flex items-center gap-2.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/90">
+              <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 lg:px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/90 shrink-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
-                <span>ONLINE</span>
+                <span className="hidden lg:inline">ONLINE</span>
               </div>
             </div>
           </header>

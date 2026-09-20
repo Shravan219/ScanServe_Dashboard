@@ -151,8 +151,9 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(197,160,89,0.15)]"
           >
             <VyomaEmblem size={16} />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.25em]">
-              The Obsidian Guild • Michelin-Grade Hospitality POS & KDS
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-[0.15em] sm:tracking-[0.25em]">
+              <span className="sm:hidden">Michelin-Grade POS & KDS</span>
+              <span className="hidden sm:inline">The Obsidian Guild • Michelin-Grade Hospitality POS & KDS</span>
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
           </motion.div>
@@ -271,7 +272,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               <div 
                 role="tablist" 
                 aria-label="Interactive live telemetry views"
-                className="flex items-center bg-black/60 rounded-xl p-1 border border-white/10 text-[10px] font-bold uppercase tracking-wider"
+                className="flex items-center bg-black/60 rounded-xl p-1 border border-white/10 text-[10px] font-bold uppercase tracking-wider overflow-x-auto max-w-full custom-scrollbar touch-pan-x"
               >
                 <button
                   type="button"
@@ -1021,9 +1022,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
           </div>
 
           {/* FEATURE COMPARISON MATRIX */}
-          <div className="mt-20 overflow-x-auto rounded-3xl border border-white/8 bg-[#0A0A0E] p-6 sm:p-8">
-            <h3 className="font-serif text-2xl font-bold text-white mb-6">Detailed Plan Comparison</h3>
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="mt-20 overflow-x-auto rounded-3xl border border-white/8 bg-[#0A0A0E] p-6 sm:p-8 touch-pan-x custom-scrollbar">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-serif text-2xl font-bold text-white">Detailed Plan Comparison</h3>
+              <span className="text-[10px] font-mono text-primary/80 uppercase tracking-wider sm:hidden">
+                ← Swipe Table →
+              </span>
+            </div>
+            <table className="w-full min-w-[580px] text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-white/10 text-white/70 uppercase font-mono text-[10px] tracking-wider">
                   <th className="pb-4 font-normal">Feature / Module</th>
