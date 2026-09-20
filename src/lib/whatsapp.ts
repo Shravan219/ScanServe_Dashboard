@@ -1,5 +1,3 @@
-import { jsPDF } from 'jspdf';
-
 export interface OrderReceiptData {
   id: string;
   token?: string | number;
@@ -223,7 +221,8 @@ export function openExternalUrl(url: string): void {
 /**
  * Generates an 80mm thermal/receipt PDF matching the physical thermal roll.
  */
-export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): jsPDF {
+export async function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): Promise<any> {
+  const { jsPDF } = await import('jspdf');
   const lineCount = data.items.length;
   // Dynamic height calculation (in mm)
   const totalHeight = Math.max(130, 85 + (lineCount * 5.5));
@@ -396,9 +395,9 @@ export function generateReceiptPDF(data: OrderReceiptData, restaurantName = 'VYO
 /**
  * Downloads the PDF receipt locally to the device (wrapped with safety guards).
  */
-export function downloadReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): void {
+export async function downloadReceiptPDF(data: OrderReceiptData, restaurantName = 'VYOMA ARTISAN CAFE'): Promise<void> {
   try {
-    const doc = generateReceiptPDF(data, restaurantName);
+    const doc = await generateReceiptPDF(data, restaurantName);
     const tokenPart = data.tokens && data.tokens.length > 0
       ? data.tokens.join('_')
       : (data.token || data.id.slice(-4));
@@ -480,8 +479,10 @@ export function sendWhatsAppReceiptWithPDF(
   openExternalUrl(directWhatsAppUrl);
 
   // 2. Auto-download vector PDF receipt locally after short delay so it doesn't block window opener
-  setTimeout(() => {
-    downloadReceiptPDF(data, restaurantName);
+  setTimeout(async () => {
+    try {
+      await downloadReceiptPDF(data, restaurantName);
+    } catch {}
   }, 300);
 
   return {

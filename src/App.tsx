@@ -7,7 +7,7 @@ import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/src/lib/supabase';
-import { Order, MenuItem, OrderStatus, normalizeOrder, normalizeOrderItems } from '@/src/types';
+import { Order, MenuItem, OrderStatus, normalizeOrder, normalizeOrderItems, getOrderPlatform } from '@/src/types';
 import { 
   LayoutDashboard, 
   ChefHat, 
@@ -50,7 +50,6 @@ import {
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
-import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
 import { LandingPage } from '@/src/components/landing/LandingPage';
 import { VyomaLogo, VyomaEmblem } from '@/src/components/brand/VyomaLogo';
 import { 
@@ -66,12 +65,15 @@ import {
   BRASSERIE_CUSTOMERS,
   ENTERPRISE_CUSTOMERS
 } from '@/src/lib/demoData';
-import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
-import { InvoicesView } from '@/src/components/invoices/InvoicesView';
-import { PaymentsView } from '@/src/components/payments/PaymentsView';
-import { MenuImporterModal } from '@/src/components/menu/MenuImporterModal';
-import { MenuEngineeringModal } from '@/src/components/menu/MenuEngineeringModal';
-import { ServerConnectionModal } from '@/src/components/ServerConnectionModal';
+
+// Code-split heavy dashboard views and administrative modals for instant initial page loads
+const CaptainDashboard = React.lazy(() => import('@/src/components/captain/CaptainDashboard').then(m => ({ default: m.CaptainDashboard })));
+const OnlineOrdersView = React.lazy(() => import('@/src/components/OnlineOrdersView').then(m => ({ default: m.OnlineOrdersView })));
+const InvoicesView = React.lazy(() => import('@/src/components/invoices/InvoicesView').then(m => ({ default: m.InvoicesView })));
+const PaymentsView = React.lazy(() => import('@/src/components/payments/PaymentsView').then(m => ({ default: m.PaymentsView })));
+const MenuImporterModal = React.lazy(() => import('@/src/components/menu/MenuImporterModal').then(m => ({ default: m.MenuImporterModal })));
+const MenuEngineeringModal = React.lazy(() => import('@/src/components/menu/MenuEngineeringModal').then(m => ({ default: m.MenuEngineeringModal })));
+const ServerConnectionModal = React.lazy(() => import('@/src/components/ServerConnectionModal').then(m => ({ default: m.ServerConnectionModal })));
 import { ErrorBoundary } from '@/src/components/ErrorBoundary';
 import { getApiBaseUrl } from '@/src/lib/apiConfig';
 import { Capacitor } from '@capacitor/core';
@@ -810,6 +812,21 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Optimization: When on public landing page, unauthenticated, or in demo sandbox,
+    // do not open network SSE connections, poll /api/orders, or establish real-time sockets.
+    if (isLandingRoute) return;
+
+    if (isDemoMode) {
+      applyTierData(demoTier);
+      setLoading(false);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     fetchData();
 
     // 1. Server-Sent Events (SSE) listener only if web or POS server is configured
@@ -1071,7 +1088,7 @@ export default function App() {
       supabase.removeChannel(menuSubscription);
       supabase.removeChannel(customersSubscription);
     };
-  }, []);
+  }, [isLandingRoute, isDemoMode, demoTier, isAuthenticated, fetchData, applyTierData]);
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     console.log(`Updating order ${orderId} status to ${newStatus}...`);
@@ -2065,6 +2082,14 @@ export default function App() {
           </header>
 
           <div className="flex-1 min-h-0">
+            <React.Suspense fallback={
+              <div className="h-full w-full flex items-center justify-center bg-black/40 backdrop-blur-sm p-8">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-8 w-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                  <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-white/50">Loading Workspace...</span>
+                </div>
+              </div>
+            }>
             {/* COUNTER VIEW */}
             <TabsContent value="counter" className="m-0 h-full flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 md:p-8 outline-none data-[state=inactive]:hidden">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2815,15 +2840,20 @@ export default function App() {
                 />
               </ErrorBoundary>
             </TabsContent>
+            </React.Suspense>
           </div>
         </Tabs>
       </main>
 
       {/* POS Terminal & Server Connection Configuration Modal */}
-      <ServerConnectionModal 
-        open={serverModalOpen} 
-        onOpenChange={setServerModalOpen} 
-      />
+      {serverModalOpen && (
+        <React.Suspense fallback={null}>
+          <ServerConnectionModal 
+            open={serverModalOpen} 
+            onOpenChange={setServerModalOpen} 
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 }
