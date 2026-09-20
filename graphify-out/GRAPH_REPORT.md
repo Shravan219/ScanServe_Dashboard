@@ -1,7 +1,7 @@
 # Graph Report - ScanServe_Dashboard-main  (2026-09-20)
 
 ## Corpus Check
-- 383 files · ~377,439 words
+- 383 files · ~377,956 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 91 file(s) not represented in the graph (top: .csv 57, .xml 11, (none) 6)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c174e0e8`
+- Built from commit: `3f29c60c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789909511.5290828,
-    "seen": 1789909594.0268137,
-    "ast_hash": "8c2ede7bf2c154818c6d02719eccde68",
+    "mtime": 1789924964.0170212,
+    "seen": 1789926162.7582428,
+    "ast_hash": "f006869a86a25646606b2d94aaab055d",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -480,10 +480,10 @@
     "semantic_hash": "842a510f1bbd757118b6e9396f4ef246"
   },
   "src/components/ServerConnectionModal.tsx": {
-    "mtime": 1789550609.0902312,
-    "seen": 1789780154.2242477,
-    "ast_hash": "ae1fa58774d58893680b8ac1e3a856e1",
-    "semantic_hash": "ae1fa58774d58893680b8ac1e3a856e1"
+    "mtime": 1789924971.7372415,
+    "seen": 1789926162.758571,
+    "ast_hash": "c72e9579504dff85e5f4fa5adce747ad",
+    "semantic_hash": ""
   },
   "src/components/admin/SimulateOrderModal.tsx": {
     "mtime": 1788315015.9443667,
@@ -540,9 +540,9 @@
     "semantic_hash": "34fc74877db26dae3513ec25515118f8"
   },
   "src/components/payments/PaymentsView.tsx": {
-    "mtime": 1789908261.565539,
-    "seen": 1789908356.5518382,
-    "ast_hash": "7d7f06edbec894d44e11a85d32689e08",
+    "mtime": 1789924986.3887384,
+    "seen": 1789926162.7599053,
+    "ast_hash": "e36b8a2bf3d3507f1eaabf9a7a1fd284",
     "semantic_hash": ""
   },
   "src/lib/apiConfig.ts": {
@@ -1325,9 +1325,9 @@
     "semantic_hash": ""
   },
   "src/components/tables/TableQrModal.tsx": {
-    "mtime": 1789824194.317448,
-    "seen": 1789824442.659455,
-    "ast_hash": "0c186cbfc78f7db080d4ceaf79e2b052",
+    "mtime": 1789926121.847391,
+    "seen": 1789926162.7599072,
+    "ast_hash": "8aac71efd0ca9a25c30ba00bf317b11f",
     "semantic_hash": ""
   },
   "VyomPOS/README.md": {
@@ -1343,9 +1343,9 @@
     "semantic_hash": ""
   },
   "src/components/landing/LandingPage.tsx": {
-    "mtime": 1789924595.1610937,
-    "seen": 1789924662.490052,
-    "ast_hash": "53b7be467a84a49c1055b08552269390",
+    "mtime": 1789924949.0070412,
+    "seen": 1789926162.7595193,
+    "ast_hash": "44a23ba2c661e44e2d60fb39c0c62369",
     "semantic_hash": ""
   },
   "design-system/vyoma-scanserve/MASTER.md": {

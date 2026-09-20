@@ -27,7 +27,8 @@ import {
   Layers,
   ArrowUpRight,
   Shield,
-  HelpCircle
+  HelpCircle,
+  Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -148,27 +149,29 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
       <main className="relative z-10">
         {/* HERO SECTION */}
         <section className="relative pt-16 pb-24 md:pt-24 md:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center flex flex-col items-center">
-          {/* Michelin Telemetry Badge */}
+          {/* Michelin Telemetry Badge & Station Coordinates */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(197,160,89,0.15)]"
+            className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary mb-8 backdrop-blur-md shadow-[0_0_25px_rgba(197,160,89,0.2)]"
           >
             <VyomaEmblem size={16} />
             <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-[0.15em] sm:tracking-[0.25em]">
               <span className="sm:hidden">Michelin-Grade POS & KDS</span>
               <span className="hidden sm:inline">The Obsidian Guild • Michelin-Grade Hospitality POS & KDS</span>
             </span>
+            <span className="hidden md:inline text-primary/40 font-mono text-[10px]">•</span>
+            <span className="hidden md:inline font-mono text-[10px] text-primary/80 tracking-widest">[28.6139° N, 77.2090° E // MESH-NODE-01]</span>
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
           </motion.div>
 
-          {/* Neoclassical Serif Headline */}
+          {/* Monumental Neoclassical Serif Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.08] max-w-5xl"
+            className="font-serif text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.03] max-w-5xl drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]"
           >
             Fine Dining Velocity.{' '}
             <span className="italic font-normal text-primary">
@@ -181,58 +184,70 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl font-normal leading-relaxed"
+            className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-white/80 max-w-3xl font-normal leading-relaxed text-balance"
           >
             The mission-critical restaurant management operating system. Zero-latency tableside ordering,
             real-time kitchen display routing, automated WhatsApp digital tax invoicing, and seamless
             omnichannel delivery intake engineered for high-tempo luxury hospitality.
           </motion.p>
 
-          {/* Tier-Specific Live Demo Direct Launch Bar */}
+          {/* Tier-Specific Live Demo Direct Launch Bar with Flagship Pedestal */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-10 flex flex-col items-center gap-3 w-full max-w-3xl"
+            className="mt-10 sm:mt-12 flex flex-col items-center gap-3 w-full max-w-4xl"
           >
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary/90 font-bold bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
-              Explore Live Demos by Tier:
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary/90 font-bold bg-primary/10 border border-primary/20 px-3.5 py-1 rounded-full shadow-sm">
+                Explore Live Interactive Sandboxes by Tier:
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full items-center">
+              {/* Bistro Tier Button */}
               <button
                 type="button"
+                aria-label="Launch Bistro & Cafe Demo (1 KDS, 2 Tablets)"
                 onClick={() => onLaunchDemo('bistro')}
-                className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-sky-500/30 bg-sky-500/5 hover:bg-sky-500/15 text-white transition-all cursor-pointer active:scale-95 group shadow-sm text-left"
+                className="flex items-center justify-between px-4 py-4 rounded-2xl border border-sky-500/25 bg-sky-500/5 hover:bg-sky-500/15 text-white transition-all cursor-pointer active:scale-95 group shadow-sm text-left touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-500/50"
               >
                 <div>
                   <div className="flex items-center gap-2 text-sky-400 font-bold text-xs">
                     <Coffee size={14} className="group-hover:scale-110 transition-transform" />
                     <span>Bistro & Cafe Demo</span>
                   </div>
-                  <p className="text-[10px] text-white/70 font-mono mt-0.5">1 KDS • 2 Tablets • Quick Cafe</p>
+                  <p className="text-[10px] text-white/70 font-mono mt-0.5">1 KDS • 2 Tablets • Fast Casual</p>
                 </div>
-                <ArrowRight size={13} className="text-sky-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
+                <ArrowRight size={14} className="text-sky-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
               </button>
 
+              {/* Grand Brasserie Flagship Pedestal Button */}
               <button
                 type="button"
+                aria-label="Launch Grand Brasserie Flagship Demo (Multi-KDS, Swiggy, VIP CRM)"
                 onClick={() => onLaunchDemo('brasserie')}
-                className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-primary bg-gradient-to-r from-primary/15 via-[#1A1810] to-primary/10 hover:from-primary/25 hover:to-primary/20 text-white transition-all cursor-pointer active:scale-95 group shadow-[0_0_25px_rgba(197,160,89,0.2)] ring-1 ring-primary/40 text-left"
+                className="relative flex items-center justify-between px-5 py-4 sm:py-5 rounded-2xl border-2 border-primary bg-gradient-to-b from-[#1C1810] via-primary/15 to-[#0F0E0A] hover:from-[#241F14] hover:to-[#15130D] text-white transition-all cursor-pointer active:scale-95 group shadow-[0_0_35px_rgba(197,160,89,0.3)] ring-1 ring-primary/50 text-left sm:-translate-y-1 sm:scale-[1.03] z-10 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
+                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-primary text-black font-mono font-extrabold text-[9px] uppercase tracking-widest shadow-md">
+                  Flagship Experience
+                </div>
                 <div>
-                  <div className="flex items-center gap-2 text-primary font-bold text-xs">
-                    <Sparkles size={14} className="group-hover:rotate-12 transition-transform text-primary" />
+                  <div className="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm">
+                    <Sparkles size={15} className="group-hover:rotate-12 transition-transform text-primary shrink-0" />
                     <span>Grand Brasserie Demo</span>
                   </div>
-                  <p className="text-[10px] text-primary/90 font-mono mt-0.5">Multi-KDS • Swiggy • VIP CRM</p>
+                  <p className="text-[10px] sm:text-[11px] text-primary/90 font-mono mt-0.5">Multi-KDS • Swiggy • VIP CRM</p>
                 </div>
-                <ArrowRight size={13} className="text-primary group-hover:translate-x-1 transition-all shrink-0 ml-1" />
+                <ArrowRight size={15} className="text-primary group-hover:translate-x-1 transition-all shrink-0 ml-1" />
               </button>
 
+              {/* Enterprise Tier Button */}
               <button
                 type="button"
+                aria-label="Launch Enterprise Demo (Multi-Outlet, Relay Box, ERP)"
                 onClick={() => onLaunchDemo('enterprise')}
-                className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/15 text-white transition-all cursor-pointer active:scale-95 group shadow-sm text-left"
+                className="flex items-center justify-between px-4 py-4 rounded-2xl border border-purple-500/25 bg-purple-500/5 hover:bg-purple-500/15 text-white transition-all cursor-pointer active:scale-95 group shadow-sm text-left touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500/50"
               >
                 <div>
                   <div className="flex items-center gap-2 text-purple-400 font-bold text-xs">
@@ -241,7 +256,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   </div>
                   <p className="text-[10px] text-white/70 font-mono mt-0.5">Multi-Outlet • Relay Box • ERP</p>
                 </div>
-                <ArrowRight size={13} className="text-purple-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
+                <ArrowRight size={14} className="text-purple-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 ml-1" />
               </button>
             </div>
           </motion.div>
@@ -251,33 +266,42 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             <span>Instant In-Browser Sandboxes • Switch Between Tiers Anytime Inside Dashboard</span>
           </div>
 
-          {/* Interactive Live Teaser Widget */}
+          {/* Interactive Live Telemetry Command Center */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-14 w-full max-w-5xl rounded-3xl border border-white/10 bg-[#0A0A0E]/90 p-3 sm:p-5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative group overflow-hidden text-left"
+            className="mt-14 sm:mt-16 w-full max-w-5xl rounded-3xl border border-white/15 bg-[#08080C]/95 p-3.5 sm:p-6 backdrop-blur-2xl shadow-[0_25px_80px_rgba(0,0,0,0.9)] relative group overflow-hidden text-left ring-1 ring-white/5"
           >
-            <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/15 blur-[90px] rounded-full pointer-events-none" />
+            <div className="absolute -top-32 -right-32 w-72 h-72 bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
 
-            {/* Widget Top Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/[0.08] px-2">
-              <div className="flex items-center gap-2.5">
-                <div className="flex gap-1.5">
-                  <div className="h-3 w-3 rounded-full bg-red-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+            {/* Console Top Telemetry Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/[0.08] px-1 sm:px-2">
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1.5" aria-hidden="true">
+                  <div className="h-3 w-3 rounded-full bg-red-500/80 border border-red-400/40" />
+                  <div className="h-3 w-3 rounded-full bg-amber-500/80 border border-amber-400/40" />
+                  <div className="h-3 w-3 rounded-full bg-emerald-500/80 border border-emerald-400/40" />
                 </div>
-                <span className="text-[11px] font-mono text-white/50 ml-2">
-                  live-session // <span className="text-primary font-bold">vyoma-mesh-telemetry</span>
-                </span>
+                <div className="flex items-center flex-wrap gap-2">
+                  <span className="text-[11px] font-mono text-white/50">
+                    mesh-telemetry // <span className="text-primary font-bold">vyoma-node-01</span>
+                  </span>
+                  <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    PASS: ONLINE
+                  </span>
+                  <span className="hidden lg:inline-flex items-center px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono font-semibold">
+                    KDS 1-4: SYNCED
+                  </span>
+                </div>
               </div>
 
               {/* View Switcher Tabs */}
               <div 
                 role="tablist" 
                 aria-label="Interactive live telemetry views"
-                className="flex items-center bg-black/60 rounded-xl p-1 border border-white/10 text-[10px] font-bold uppercase tracking-wider overflow-x-auto max-w-full custom-scrollbar touch-pan-x"
+                className="flex items-center bg-black/70 rounded-xl p-1 border border-white/10 text-[10px] font-bold uppercase tracking-wider overflow-x-auto max-w-full custom-scrollbar touch-pan-x"
               >
                 <button
                   type="button"
@@ -285,13 +309,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   aria-selected={heroPreviewTab === 'tables'}
                   aria-controls="hero-preview-tables"
                   onClick={() => setHeroPreviewTab('tables')}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
                     heroPreviewTab === 'tables'
-                      ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
+                      ? 'bg-primary text-black font-extrabold shadow-[0_0_15px_rgba(197,160,89,0.35)]'
                       : 'text-white/70 hover:text-white'
                   }`}
                 >
-                  Floor Grid
+                  <span>Floor Grid</span>
+                  <span className={`text-[9px] font-mono px-1 rounded ${heroPreviewTab === 'tables' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/60'}`}>4</span>
                 </button>
                 <button
                   type="button"
@@ -299,13 +324,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   aria-selected={heroPreviewTab === 'kds'}
                   aria-controls="hero-preview-kds"
                   onClick={() => setHeroPreviewTab('kds')}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
                     heroPreviewTab === 'kds'
-                      ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
+                      ? 'bg-primary text-black font-extrabold shadow-[0_0_15px_rgba(197,160,89,0.35)]'
                       : 'text-white/70 hover:text-white'
                   }`}
                 >
-                  Live KDS Pass
+                  <span>Live KDS Pass</span>
+                  <span className={`text-[9px] font-mono px-1 rounded ${heroPreviewTab === 'kds' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/60'}`}>3</span>
                 </button>
                 <button
                   type="button"
@@ -313,58 +339,68 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                   aria-selected={heroPreviewTab === 'whatsapp'}
                   aria-controls="hero-preview-whatsapp"
                   onClick={() => setHeroPreviewTab('whatsapp')}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer active:scale-95 touch-manipulation focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
                     heroPreviewTab === 'whatsapp'
-                      ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
+                      ? 'bg-primary text-black font-extrabold shadow-[0_0_15px_rgba(197,160,89,0.35)]'
                       : 'text-white/70 hover:text-white'
                   }`}
                 >
-                  WhatsApp Invoicing
+                  <span>WhatsApp Invoicing</span>
+                  <span className={`text-[9px] font-mono px-1 rounded ${heroPreviewTab === 'whatsapp' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/60'}`}>1.2s</span>
                 </button>
               </div>
             </div>
 
             {/* Teaser Content Views */}
-            <div className="py-5 px-2">
+            <div className="py-5 px-1 sm:px-2">
               <AnimatePresence mode="wait">
                 {heroPreviewTab === 'tables' && (
                   <motion.div
                     key="tables"
+                    id="hero-preview-tables"
+                    role="tabpanel"
+                    aria-label="Floor Grid Telemetry"
                     initial={{ opacity: 0, scale: 0.98, y: 4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, y: -4 }}
                     transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"
                   >
-                    {/* Table 1 */}
-                    <div className="rounded-2xl border border-primary/40 bg-gradient-to-b from-primary/10 to-transparent p-4 flex flex-col justify-between">
+                    {/* Table 1 - Active VIP Dine-In */}
+                    <div className="rounded-2xl border border-primary/40 bg-gradient-to-b from-primary/10 via-[#0F0F14] to-black/80 p-4 flex flex-col justify-between shadow-sm">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-mono text-sm font-bold text-primary">TABLE T-04</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="font-mono text-sm font-bold text-primary">TABLE T-04</span>
+                        </div>
                         <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[9px] font-mono uppercase">
-                          Dine-In
+                          VIP Dine-In
                         </Badge>
                       </div>
                       <div className="space-y-1 my-2">
-                        <p className="text-xs text-white/90 font-medium truncate">Dr. Rajesh Khanna (VIP)</p>
-                        <p className="text-[10px] text-white/50 font-mono">4 Guests • 38 mins seated</p>
+                        <p className="text-xs text-white/95 font-semibold truncate">Dr. Rajesh Khanna</p>
+                        <p className="text-[10px] text-white/60 font-mono">4 Guests • 38m seated</p>
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
-                        <span className="text-[10px] font-mono text-white/40 uppercase">Bill Amount</span>
+                        <span className="text-[10px] font-mono text-white/40 uppercase">Live Bill</span>
                         <span className="font-mono text-sm font-bold text-primary">₹ 4,850.00</span>
                       </div>
                     </div>
 
-                    {/* Table 2 */}
-                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 flex flex-col justify-between">
+                    {/* Table 2 - Settlement Pending */}
+                    <div className="rounded-2xl border border-amber-500/35 bg-gradient-to-b from-amber-500/10 via-[#120F0A] to-black/80 p-4 flex flex-col justify-between shadow-sm">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-mono text-sm font-bold text-amber-300">TABLE T-07</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                          <span className="font-mono text-sm font-bold text-amber-300">TABLE T-07</span>
+                        </div>
                         <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[9px] font-mono uppercase">
                           Bill Requested
                         </Badge>
                       </div>
                       <div className="space-y-1 my-2">
-                        <p className="text-xs text-white/90 font-medium truncate">Ananya Deshmukh</p>
-                        <p className="text-[10px] text-white/50 font-mono">2 Guests • 54 mins seated</p>
+                        <p className="text-xs text-white/95 font-semibold truncate">Ananya Deshmukh</p>
+                        <p className="text-[10px] text-white/60 font-mono">2 Guests • 54m seated</p>
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
                         <span className="text-[10px] font-mono text-white/40 uppercase">Settlement</span>
@@ -372,8 +408,8 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                       </div>
                     </div>
 
-                    {/* Table 3 */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex flex-col justify-between">
+                    {/* Table 3 - Available & Sanitized */}
+                    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/80 p-4 flex flex-col justify-between">
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-mono text-sm font-bold text-white/80">TABLE T-09</span>
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[9px] font-mono uppercase">
@@ -381,27 +417,30 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                         </Badge>
                       </div>
                       <div className="space-y-1 my-2">
-                        <p className="text-xs text-white/60 font-medium">Main Terrace Section</p>
+                        <p className="text-xs text-white/70 font-medium">Main Terrace Section</p>
                         <p className="text-[10px] text-white/40 font-mono">Capacity: 6 Seats</p>
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
-                        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-                          <Check size={11} /> Sanitized & Ready
+                        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1 font-semibold">
+                          <Check size={12} /> Ready for Seating
                         </span>
                       </div>
                     </div>
 
-                    {/* Table 4 */}
-                    <div className="rounded-2xl border border-purple-500/30 bg-purple-500/5 p-4 flex flex-col justify-between">
+                    {/* Table 4 - Reserved Evening VIP */}
+                    <div className="rounded-2xl border border-purple-500/35 bg-gradient-to-b from-purple-500/10 via-[#100A16] to-black/80 p-4 flex flex-col justify-between shadow-sm">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-mono text-sm font-bold text-purple-300">TABLE T-12</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-purple-400" />
+                          <span className="font-mono text-sm font-bold text-purple-300">TABLE T-12</span>
+                        </div>
                         <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-[9px] font-mono uppercase">
                           Reserved 8:30 PM
                         </Badge>
                       </div>
                       <div className="space-y-1 my-2">
-                        <p className="text-xs text-white/90 font-medium truncate">Lord Somnath Party</p>
-                        <p className="text-[10px] text-white/50 font-mono">Private Salon • 8 Guests</p>
+                        <p className="text-xs text-white/95 font-semibold truncate">Lord Somnath Party</p>
+                        <p className="text-[10px] text-white/60 font-mono">Private Salon • 8 Guests</p>
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-white/[0.08] mt-2">
                         <span className="text-[10px] font-mono text-white/40 uppercase">Pre-Auth</span>
@@ -414,62 +453,91 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 {heroPreviewTab === 'kds' && (
                   <motion.div
                     key="kds"
+                    id="hero-preview-kds"
+                    role="tabpanel"
+                    aria-label="Live Kitchen Display System Pass"
                     initial={{ opacity: 0, scale: 0.98, y: 4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, y: -4 }}
                     transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                     className="grid grid-cols-1 sm:grid-cols-3 gap-3.5"
                   >
-                    {/* Ticket 1 */}
-                    <div className="rounded-2xl border border-amber-500/30 bg-[#101116] p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 font-mono text-xs font-bold">
-                          #104 • TABLE T-04
-                        </span>
-                        <span className="flex items-center gap-1 text-[11px] font-mono text-amber-400">
-                          <Clock size={12} /> 04:18
-                        </span>
+                    {/* Ticket 1 - Hot Kitchen */}
+                    <div className="rounded-2xl border border-amber-500/35 bg-[#0D0F14] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 font-mono text-xs font-bold border border-amber-500/30">
+                            #104 • TABLE T-04
+                          </span>
+                          <span className="flex items-center gap-1 text-[11px] font-mono text-amber-400 font-semibold">
+                            <Clock size={12} /> 04:18
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-amber-400/90 uppercase tracking-wider mb-2.5">
+                          <Activity size={12} /> Station 1: Hot Kitchen
+                        </div>
+                        <ul className="text-xs space-y-1.5 text-white/90">
+                          <li className="flex justify-between"><span>1× Wild Mushroom Truffle Risotto</span></li>
+                          <li className="flex justify-between font-mono text-[11px] text-amber-400/90 pl-3">↳ Note: Extra shaved parmesan</li>
+                          <li className="flex justify-between"><span>2× Pan-Seared Chilean Sea Bass</span></li>
+                        </ul>
                       </div>
-                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-wider mb-2">Station: Hot Kitchen</p>
-                      <ul className="text-xs space-y-1.5 text-white/85">
-                        <li className="flex justify-between"><span>1× Wild Mushroom Truffle Risotto</span></li>
-                        <li className="flex justify-between font-mono text-[11px] text-amber-400/90 pl-3">↳ Note: No chives, extra parmesan</li>
-                        <li className="flex justify-between"><span>2× Pan-Seared Chilean Sea Bass</span></li>
-                      </ul>
+                      <div className="pt-3 border-t border-white/[0.08] mt-4 flex items-center justify-between text-[10px] font-mono text-white/50">
+                        <span>Course: Mains</span>
+                        <span className="text-amber-400 font-bold">In Prep (3/3 items)</span>
+                      </div>
                     </div>
 
-                    {/* Ticket 2 */}
-                    <div className="rounded-2xl border border-emerald-500/30 bg-[#101116] p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold">
-                          #105 • TABLE T-01
-                        </span>
-                        <Badge className="bg-emerald-500/30 text-emerald-300 text-[9px] font-mono uppercase">
-                          Ready for Pass
-                        </Badge>
+                    {/* Ticket 2 - Grill & Char (Pass Ready) */}
+                    <div className="rounded-2xl border border-emerald-500/35 bg-[#0A110E] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold border border-emerald-500/30">
+                            #105 • TABLE T-01
+                          </span>
+                          <Badge className="bg-emerald-500/30 text-emerald-300 border-emerald-500/40 text-[9px] font-mono uppercase">
+                            Ready for Pass
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400/90 uppercase tracking-wider mb-2.5">
+                          <Flame size={12} /> Station 2: Grill & Char
+                        </div>
+                        <ul className="text-xs space-y-1.5 text-white/90">
+                          <li className="flex justify-between"><span>1× Charcoal Roasted Lamb Chops</span></li>
+                          <li className="flex justify-between"><span>1× Rosemary Garlic Naan Basket</span></li>
+                        </ul>
                       </div>
-                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-wider mb-2">Station: Grill & Char</p>
-                      <ul className="text-xs space-y-1.5 text-white/85">
-                        <li className="flex justify-between"><span>1× Charcoal Roasted Lamb Chops</span></li>
-                        <li className="flex justify-between"><span>1× Rosemary Garlic Naan Basket</span></li>
-                      </ul>
+                      <div className="pt-3 border-t border-white/[0.08] mt-4 flex items-center justify-between text-[10px] font-mono text-white/50">
+                        <span>Server: Marco B.</span>
+                        <span className="text-emerald-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 size={11} /> Expedite
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Ticket 3 */}
-                    <div className="rounded-2xl border border-blue-500/30 bg-[#101116] p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 font-mono text-xs font-bold">
-                          #106 • SWIGGY ONLINE
-                        </span>
-                        <span className="flex items-center gap-1 text-[11px] font-mono text-blue-300">
-                          <Clock size={12} /> 01:05
-                        </span>
+                    {/* Ticket 3 - Online Delivery Intake */}
+                    <div className="rounded-2xl border border-blue-500/35 bg-[#0C1017] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 font-mono text-xs font-bold border border-blue-500/30">
+                            #106 • SWIGGY ONLINE
+                          </span>
+                          <span className="flex items-center gap-1 text-[11px] font-mono text-blue-300 font-semibold">
+                            <Clock size={12} /> 01:05
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-blue-400/90 uppercase tracking-wider mb-2.5">
+                          <Zap size={12} /> Aggregator Intake
+                        </div>
+                        <ul className="text-xs space-y-1.5 text-white/90">
+                          <li className="flex justify-between"><span>2× Royal Butter Chicken Meal</span></li>
+                          <li className="flex justify-between"><span>2× Dum Gosht Biryani</span></li>
+                        </ul>
                       </div>
-                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-wider mb-2">Delivery Aggregator Intake</p>
-                      <ul className="text-xs space-y-1.5 text-white/85">
-                        <li className="flex justify-between"><span>2× Royal Butter Chicken Meal</span></li>
-                        <li className="flex justify-between"><span>2× Dum Gosht Biryani</span></li>
-                      </ul>
+                      <div className="pt-3 border-t border-white/[0.08] mt-4 flex items-center justify-between text-[10px] font-mono text-white/50">
+                        <span>Rider Arriving (4m)</span>
+                        <span className="text-blue-300 font-bold">Auto-Accepted</span>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -477,34 +545,46 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 {heroPreviewTab === 'whatsapp' && (
                   <motion.div
                     key="whatsapp"
+                    id="hero-preview-whatsapp"
+                    role="tabpanel"
+                    aria-label="Automated WhatsApp Tax Invoicing"
                     initial={{ opacity: 0, scale: 0.98, y: 4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, y: -4 }}
                     transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col sm:flex-row items-center justify-between gap-6 p-4 rounded-2xl bg-gradient-to-r from-[#0C1210] to-[#0A0A0E] border border-emerald-500/20"
+                    className="flex flex-col sm:flex-row items-center justify-between gap-6 p-5 rounded-2xl bg-gradient-to-r from-[#0B1510] via-[#09100C] to-[#0A0A0E] border border-emerald-500/25 shadow-lg"
                   >
-                    <div className="space-y-2 max-w-md">
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-mono font-bold">
+                    <div className="space-y-2.5 max-w-md">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold">
                         <MessageSquare size={12} /> Automated WhatsApp Delivery Engine
                       </div>
-                      <h4 className="font-serif text-lg font-bold text-white">Instant Official Tax PDF to Patron Mobile</h4>
-                      <p className="text-xs text-white/60 leading-relaxed">
-                        Eliminates lost paper slips. Sends complete GSTIN breakdown, digital payment link, and table summary directly to guest WhatsApp within 1.2 seconds of settlement.
+                      <h4 className="font-serif text-xl font-bold text-white">Instant Official Tax PDF to Patron Mobile</h4>
+                      <p className="text-xs text-white/70 leading-relaxed">
+                        Eliminates paper waste and lost slips. Dispatches complete GSTIN itemization, digital payment confirmation, and table bill directly to patron WhatsApp in 1.2 seconds.
                       </p>
                     </div>
 
-                    <div className="bg-[#121A16] border border-emerald-500/30 rounded-2xl p-4 w-full sm:w-72 shadow-xl">
-                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/10">
-                        <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                          <Coffee size={13} className="text-emerald-400" />
+                    <div className="bg-[#121A16] border border-emerald-500/40 rounded-2xl p-4 w-full sm:w-80 shadow-2xl">
+                      <div className="flex items-center gap-2.5 mb-2.5 pb-2.5 border-b border-white/10">
+                        <div className="h-7 w-7 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                          <Coffee size={14} className="text-emerald-400" />
                         </div>
-                        <span className="text-xs font-bold text-white">Vyoma Concierge Bot</span>
-                        <CheckCircle2 size={12} className="text-emerald-400 ml-auto" />
+                        <div>
+                          <span className="text-xs font-bold text-white block">Vyoma Concierge Bot</span>
+                          <span className="text-[9px] text-emerald-400/90 font-mono">Official Verified Business</span>
+                        </div>
+                        <CheckCircle2 size={13} className="text-emerald-400 ml-auto" />
                       </div>
-                      <div className="bg-black/50 rounded-xl p-3 text-[11px] font-mono space-y-1 text-white/80">
-                        <p className="font-bold text-primary">INVOICE #VYM-2026-904</p>
-                        <p>Table T-04 • Total: ₹4,850.00</p>
-                        <p className="text-[9px] text-emerald-400">📎 Tax_Invoice_VYM904.pdf (142 KB)</p>
+                      <div className="bg-black/60 rounded-xl p-3 text-[11px] font-mono space-y-1.5 text-white/85 border border-white/5">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-primary">INVOICE #VYM-2026-904</span>
+                          <span className="text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Paid via UPI</span>
+                        </div>
+                        <p className="text-white/70">Table T-04 • Total: ₹4,850.00</p>
+                        <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px] text-emerald-300">
+                          <span className="flex items-center gap-1">📎 Tax_Invoice_VYM904.pdf</span>
+                          <span>142 KB</span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -512,22 +592,26 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               </AnimatePresence>
             </div>
 
-            {/* Bottom Demo Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/[0.08] px-2 text-xs">
-              <div className="flex items-center gap-3 text-white/60 font-mono text-[11px]">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  Realtime WebSocket Connected
+            {/* Bottom Telemetry Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5 border-t border-white/[0.08] px-1 sm:px-2 text-xs">
+              <div className="flex items-center flex-wrap gap-2.5 sm:gap-3 text-white/60 font-mono text-[11px]">
+                <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Mesh SSE Realtime
                 </span>
-                <span>•</span>
+                <span className="text-white/30">•</span>
                 <span>Latency: <strong className="text-primary font-bold">34ms</strong></span>
+                <span className="hidden sm:inline text-white/30">•</span>
+                <span className="hidden sm:inline">Active Nodes: <strong className="text-white/90">4 Pass + 1 Bar</strong></span>
               </div>
 
               <button
+                type="button"
+                aria-label="Enter full interactive playground with Grand Brasserie demo"
                 onClick={() => onLaunchDemo('brasserie')}
-                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#E8D49E] active:scale-95 touch-manipulation transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 rounded-md px-1"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#E8D49E] active:scale-95 touch-manipulation transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 rounded-md py-1 px-1.5"
               >
-                Click to enter full interactive playground
+                <span>Enter Full Interactive Playground</span>
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </button>
             </div>

@@ -1,7 +1,7 @@
 # Graph Report - ScanServe_Dashboard-main  (2026-09-20)
 
 ## Corpus Check
-- 383 files · ~377,262 words
+- 383 files · ~377,439 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 91 file(s) not represented in the graph (top: .csv 57, .xml 11, (none) 6)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `947da09f`
+- Built from commit: `c174e0e8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1518,7 +1518,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `Use it in your assistant` connect `Config` to `Crawler`, `beyondseo/README.md`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Why does `Crawler` connect `Crawler` to `backlinks.py`, `How BeyondSEO works`, `normalize_url`, `projects.py`, `engine.py`, `Config`, `cli.py`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Why does `Config` connect `Config` to `Command reference`, `backlinks.py`, `discovery.py`, `projects.py`, `engine.py`, `cli.py`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
