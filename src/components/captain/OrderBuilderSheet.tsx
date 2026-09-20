@@ -459,7 +459,7 @@ export function OrderBuilderSheet({
                 <div className="pt-3 border-t border-white/10 flex flex-col gap-3">
                   <div className="flex items-center justify-between px-1">
                     <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Grand Total</span>
-                    <span className="text-xl font-serif font-bold text-primary font-mono">₹{totalAmount}</span>
+                    <span className="text-xl font-mono font-bold tabular-nums text-primary">₹{totalAmount}</span>
                   </div>
 
                   <button
@@ -782,7 +782,7 @@ export function OrderBuilderSheet({
                 <div className="md:hidden shrink-0 p-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] bg-[#12141C] border border-primary/40 rounded-2xl shadow-[0_0_25px_rgba(197,160,89,0.2)] flex items-center justify-between z-10 backdrop-blur-md">
                   <div>
                     <span className="text-[9px] font-bold uppercase tracking-widest text-primary block">Selected Items ({totalItemCount})</span>
-                    <span className="text-sm font-serif font-bold text-white font-mono">Total: ₹{totalAmount.toFixed(2)}</span>
+                    <span className="text-sm font-mono font-bold tabular-nums text-white">Total: ₹{totalAmount.toFixed(2)}</span>
                   </div>
                   <button
                     type="button"

@@ -324,24 +324,24 @@ export function CaptainDashboard({
           <div className="flex items-center justify-around w-full sm:w-auto gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-[#141620] px-4 sm:px-5 py-2.5">
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-white/70">Total</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-white font-mono">{totalTables}</span>
+              <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-white">{totalTables}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Available</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-emerald-400 font-mono">{availableCount}</span>
+              <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-emerald-400">{availableCount}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-amber-400">Occupied</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-amber-400 font-mono">{occupiedCount}</span>
+              <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-amber-400">{occupiedCount}</span>
             </div>
             {readyCount > 0 && (
               <>
                 <div className="h-5 w-px bg-white/10" />
                 <div className="flex flex-col items-center">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-amber-300">Ready</span>
-                  <span className="text-xs sm:text-sm font-serif font-bold text-amber-300 animate-pulse font-mono">{readyCount}</span>
+                  <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-amber-300 animate-pulse">{readyCount}</span>
                 </div>
               </>
             )}

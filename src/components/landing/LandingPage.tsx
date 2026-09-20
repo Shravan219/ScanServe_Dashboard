@@ -176,7 +176,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-6 text-base sm:text-lg md:text-xl text-white/70 max-w-3xl font-normal leading-relaxed"
+            className="mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl font-normal leading-relaxed"
           >
             The mission-critical restaurant management operating system. Zero-latency tableside ordering,
             real-time kitchen display routing, automated WhatsApp digital tax invoicing, and seamless
@@ -586,14 +586,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
 
         {/* CORE CAPABILITIES BENTO GRID */}
         <section id="features" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-primary">
               Core Capabilities
             </span>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-white mt-3 tracking-tight">
               Engineered for High-Pressure Floor & Kitchen Dynamics
             </h2>
-            <p className="text-sm sm:text-base text-white/60 mt-4 leading-relaxed">
+            <p className="text-sm sm:text-base text-white/75 mt-4 leading-relaxed">
               Every interface is calibrated for 14-hour restaurant shifts—zero glare in dark dining rooms,
               large 48px tactile hit targets for gloved chefs, and bulletproof offline survivability.
             </p>
@@ -606,7 +606,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <Smartphone size={24} />
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2">Captain Handheld Ordering</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/75 leading-relaxed">
                 Empower floor captains with quick category carousels, custom dietary notes ("extra spicy, no dairy"),
                 split billing, and instant seat allocation on Android tablets and iPads.
               </p>
@@ -621,7 +621,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <ChefHat size={24} />
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2">Multi-Station Kitchen KDS</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/75 leading-relaxed">
                 Direct tickets to specific kitchen stations (Prep, Grill, Pass, Bar). Ticket aging glows with elapsed timers
                 and sounds audible chimes the second a dish is fired or plated.
               </p>
@@ -636,7 +636,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <Globe size={24} />
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2">Omnichannel Delivery Hub</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/75 leading-relaxed">
                 Consolidate incoming orders from Swiggy, Zomato, Magicpin, and Dyno API into a single unified queue.
                 Eliminate the counter mess of 6 separate tablet aggregators.
               </p>
@@ -651,7 +651,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <MessageSquare size={24} />
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2">Automated WhatsApp Invoicing</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/75 leading-relaxed">
                 Send professional digital tax invoices with restaurant branding and dynamic payment links directly to
                 patrons via WhatsApp Web API. No wasted thermal paper rolls.
               </p>
@@ -666,7 +666,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <Users size={24} />
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2">VIP Recognition & Smart Loyalty</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/75 leading-relaxed">
                 Auto-detects repeat guests by phone number. Automatically marks guests with 3+ visits as VIP patrons
                 and applies configured hospitality discounts with zero manual math.
               </p>
@@ -681,7 +681,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                 <Server size={24} />
               </div>
               <h3 className="font-serif text-xl font-bold text-white mb-2">Hybrid On-Premise Resilience</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/75 leading-relaxed">
                 Local in-memory ring buffer pairs with cloud Supabase replication. If the venue internet cuts out during
                 peak rush, floor ordering and KDS printing continue uninterrupted.
               </p>
@@ -695,14 +695,14 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
         {/* 4-STEP OPERATIONS FLOW */}
         <section id="architecture" className="py-20 border-t border-white/8 bg-gradient-to-b from-[#0A0A0E] to-black">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="text-center max-w-2xl mx-auto mb-16">
               <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-primary">
                 Hospitality Architecture
               </span>
               <h2 className="font-serif text-3xl sm:text-5xl font-bold text-white mt-3 tracking-tight">
                 From Seating to Settlement in Minutes
               </h2>
-              <p className="text-sm text-white/60 mt-3">
+              <p className="text-sm text-white/75 mt-3 leading-relaxed">
                 Experience the synchronized state flow that powers Michelin-grade service velocity.
               </p>
             </div>
@@ -712,7 +712,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-primary/40">01</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">Floor Seating & Intake</h4>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-white/75 leading-relaxed">
                   Captain marks table occupied, attaches dietary preferences, and fires orders with a single tap.
                 </p>
               </div>
@@ -721,7 +721,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-amber-400/40">02</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">KDS Station Routing</h4>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-white/75 leading-relaxed">
                   Dishes split to Grill, Prep, or Bar stations with countdown timers and color-coded ticket aging.
                 </p>
               </div>
@@ -730,7 +730,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-emerald-400/40">03</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">Expedite & Audio Chime</h4>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-white/75 leading-relaxed">
                   Plated dishes are marked ready. Captain handheld chimes and flashes the ready table token.
                 </p>
               </div>
@@ -739,7 +739,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
               <div className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-left">
                 <span className="font-mono text-3xl font-bold text-primary/40">04</span>
                 <h4 className="font-serif text-lg font-bold text-white mt-3 mb-2">WhatsApp Settlement</h4>
-                <p className="text-xs text-white/60 leading-relaxed">
+                <p className="text-xs text-white/75 leading-relaxed">
                   Instant thermal print + WhatsApp PDF dispatch. Customer database updates VIP visit tally.
                 </p>
               </div>
@@ -1171,7 +1171,7 @@ export function LandingPage({ onLaunchDemo, onStaffLogin }: LandingPageProps) {
                       id={`faq-panel-${idx}`}
                       role="region"
                       aria-labelledby={`faq-trigger-${idx}`}
-                      className="px-6 pb-5 pt-1 text-xs text-white/80 leading-relaxed border-t border-white/5"
+                      className="px-6 pb-5 pt-2 text-sm text-white/85 leading-relaxed border-t border-white/5 max-w-prose"
                     >
                       {item.a}
                     </div>

@@ -2022,7 +2022,7 @@ export default function App() {
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Prepared Today</span>
                   <div className="flex items-center gap-1.5">
                     <TrendingUp size={12} className="text-primary/70" />
-                    <span className="text-lg font-serif text-primary font-mono font-bold">{stats.preparedToday}</span>
+                    <span className="text-lg font-mono font-bold tabular-nums text-primary">{stats.preparedToday}</span>
                   </div>
                 </div>
                 <div className="h-6 w-px bg-white/10" />
@@ -2030,7 +2030,7 @@ export default function App() {
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Avg Prep Time</span>
                   <div className="flex items-center gap-1.5">
                     <Timer size={12} className="text-primary/70" />
-                    <span className="text-lg font-serif text-primary font-mono font-bold">{stats.avgTime}</span>
+                    <span className="text-lg font-mono font-bold tabular-nums text-primary">{stats.avgTime}</span>
                   </div>
                 </div>
               </div>
@@ -2432,14 +2432,14 @@ export default function App() {
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">Total Diners</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-white font-mono">{computedCustomers.length}</span>
+                    <span className="text-2xl font-mono font-bold tabular-nums text-white">{computedCustomers.length}</span>
                     <Users size={16} className="text-primary/60" />
                   </div>
                 </div>
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">VIP Patrons</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-primary font-mono">
+                    <span className="text-2xl font-mono font-bold tabular-nums text-primary">
                       {computedCustomers.filter(c => c.loyal_vip || c.orderCount >= minOrdersForDiscount).length}
                     </span>
                     <Sparkles size={16} className="text-primary" />
@@ -2448,7 +2448,7 @@ export default function App() {
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">Total CRM Revenue</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-emerald-400 font-mono">
+                    <span className="text-2xl font-mono font-bold tabular-nums text-emerald-400">
                       ₹{computedCustomers.reduce((acc, c) => acc + c.totalSpent, 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                     <TrendingUp size={16} className="text-emerald-400/70" />
@@ -2457,7 +2457,7 @@ export default function App() {
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">Avg Ticket / Guest</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-sky-400 font-mono">
+                    <span className="text-2xl font-mono font-bold tabular-nums text-sky-400">
                       ₹{computedCustomers.length > 0 
                         ? (computedCustomers.reduce((acc, c) => acc + c.totalSpent, 0) / Math.max(1, computedCustomers.reduce((acc, c) => acc + c.orderCount, 0))).toFixed(0)
                         : '0'}

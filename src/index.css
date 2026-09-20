@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -6,10 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Cormorant Garamond", Georgia, serif;
-  --font-serif: "Cormorant Garamond", Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Karla", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: "Cormorant Garamond", "Times New Roman", Times, Georgia, serif;
+  --font-serif: "Cormorant Garamond", "Times New Roman", Times, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --color-background: #000000;
   --color-foreground: #FFFFFF;
@@ -143,19 +142,21 @@
     border-color: var(--color-border);
   }
   
-  html {
-    color-scheme: dark;
-    -webkit-text-size-adjust: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
   :root {
+    --p-scale: 1;
     --sat: env(safe-area-inset-top, 0px);
     --sar: env(safe-area-inset-right, 0px);
     --sab: env(safe-area-inset-bottom, 0px);
     --sal: env(safe-area-inset-left, 0px);
+  }
+
+  html {
+    color-scheme: dark;
+    font-size: calc(16px * var(--p-scale, 1));
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   ::selection {
@@ -170,7 +171,8 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1, "kern" 1;
+    letter-spacing: 0.005em; /* Dark-substrate perceptual compensation: prevents light glyph bleed on obsidian black */
     background-image: 
       radial-gradient(at 50% 0%, rgba(197, 160, 89, 0.04) 0, transparent 65%),
       radial-gradient(at 100% 100%, rgba(197, 160, 89, 0.02) 0, transparent 50%);
@@ -233,20 +235,20 @@
  
 /* Systematic Micro-Scale Typography Classes (Operate & Telemetry) */
 .text-pico {
-  font-size: 0.5rem;
-  line-height: 0.75rem;
+  font-size: calc(0.5rem * var(--p-scale, 1));
+  line-height: calc(0.75rem * var(--p-scale, 1));
 }
 .text-nano {
-  font-size: 0.5625rem;
-  line-height: 0.8125rem;
+  font-size: calc(0.5625rem * var(--p-scale, 1));
+  line-height: calc(0.8125rem * var(--p-scale, 1));
 }
 .text-micro {
-  font-size: 0.625rem;
-  line-height: 0.875rem;
+  font-size: calc(0.625rem * var(--p-scale, 1));
+  line-height: calc(0.875rem * var(--p-scale, 1));
 }
 .text-caption {
-  font-size: 0.6875rem;
-  line-height: 1rem;
+  font-size: calc(0.6875rem * var(--p-scale, 1));
+  line-height: calc(1rem * var(--p-scale, 1));
 }
 
 /* Glassmorphism & High-End Visual Utilities */
@@ -404,5 +406,4 @@ input, textarea {
 
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 

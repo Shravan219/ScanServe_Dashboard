@@ -218,7 +218,7 @@ export function LegalModal({ isOpen, onClose, initialDoc = 'terms' }: LegalModal
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                     {sec.title}
                   </h3>
-                  <div className="text-xs sm:text-sm text-white/75 leading-relaxed font-sans whitespace-pre-line pl-3.5 border-l border-white/10">
+                  <div className="text-xs sm:text-sm text-white/80 leading-relaxed font-sans whitespace-pre-line pl-3.5 border-l border-white/10 max-w-3xl">
                     {sec.content}
                   </div>
                 </div>

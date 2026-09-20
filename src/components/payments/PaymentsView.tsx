@@ -500,7 +500,7 @@ export function PaymentsView({
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-amber-400 font-mono">
+            <span className="text-3xl sm:text-4xl font-mono font-bold tabular-nums text-amber-400">
               ₹{totalPendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
           </div>
@@ -518,7 +518,7 @@ export function PaymentsView({
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-white font-mono">
+            <span className="text-3xl sm:text-4xl font-mono font-bold tabular-nums text-white">
               {totalDineInWaiting}
             </span>
             <span className="text-xs text-white/70 font-medium font-sans">occupied tables</span>
@@ -537,7 +537,7 @@ export function PaymentsView({
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-emerald-400 font-mono">
+            <span className="text-3xl sm:text-4xl font-mono font-bold tabular-nums text-emerald-400">
               {settledTodayCount}
             </span>
             <span className="text-xs text-emerald-400/80 font-medium font-sans">orders completed</span>
@@ -556,7 +556,7 @@ export function PaymentsView({
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-white font-mono">
+            <span className="text-3xl sm:text-4xl font-mono font-bold tabular-nums text-white">
               ₹{settledTodayAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
           </div>
@@ -830,7 +830,7 @@ export function PaymentsView({
                         <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 block mb-0.5">
                           {isSettled ? 'Amount Settled' : 'Total Bill Due'}
                         </span>
-                        <div className="text-3xl sm:text-4xl font-serif font-bold text-primary tracking-tight font-mono">
+                        <div className="text-3xl sm:text-4xl font-mono font-bold tabular-nums text-primary tracking-tight">
                           ₹{Number(invoice.grand_total).toFixed(2)}
                         </div>
                         <div className="text-[10px] text-white/60 flex items-center justify-end gap-2 mt-0.5">
