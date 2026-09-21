@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-16T10:24:00.000Z",
+  "title": "Design System: Vyoma ScanServe",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Imperial Gold",
+        "canonical": "#C5A059",
+        "tonalRamp": ["#261E0E", "#4C3D1C", "#735B2A", "#997A38", "#C5A059", "#D5B87E", "#E6D1A6", "#F6ECCE"]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Obsidian Void",
+        "canonical": "#000000",
+        "tonalRamp": ["#000000", "#0A0A0E", "#14161F", "#272A38", "#45495E", "#71768E", "#A4A8BD", "#FFFFFF"]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Pure White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#FFFFFF", "#F3F4F6", "#E5E7EB", "#D1D5DB", "#9CA3AF", "#6B7280", "#374151", "#111827"]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Night Charcoal",
+        "canonical": "#0A0A0E",
+        "tonalRamp": ["#050507", "#0A0A0E", "#12131A", "#1C1E29", "#2B2E3E", "#42465C", "#606684", "#888FB3"]
+      },
+      "popover": {
+        "role": "neutral",
+        "displayName": "Deep Night",
+        "canonical": "#0D0E14",
+        "tonalRamp": ["#07080B", "#0D0E14", "#181924", "#242636", "#36394F", "#4F5372", "#6F749B", "#959BCA"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Slate Onyx",
+        "canonical": "#14161F",
+        "tonalRamp": ["#0B0C11", "#14161F", "#212433", "#31354A", "#454A66", "#5F658A", "#7F87B5", "#A4ACDE"]
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "Gold Mist",
+        "canonical": "rgba(197, 160, 89, 0.12)",
+        "tonalRamp": ["#261E0E", "#4C3D1C", "#735B2A", "#997A38", "#C5A059", "#D5B87E", "#E6D1A6", "#F6ECCE"]
+      },
+      "destructive": {
+        "role": "destructive",
+        "displayName": "Crimson Fire",
+        "canonical": "#EF4444",
+        "tonalRamp": ["#450A0A", "#7F1D1D", "#991B1B", "#DC2626", "#EF4444", "#F87171", "#FCA5A5", "#FEE2E2"]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Whisper White Line",
+        "canonical": "rgba(255, 255, 255, 0.08)",
+        "tonalRamp": ["rgba(255,255,255,0.02)", "rgba(255,255,255,0.05)", "rgba(255,255,255,0.08)", "rgba(255,255,255,0.12)", "rgba(255,255,255,0.18)", "rgba(255,255,255,0.3)", "rgba(255,255,255,0.5)", "rgba(255,255,255,0.8)"]
+      },
+      "status-ready": {
+        "role": "accent",
+        "displayName": "Emerald Vitality",
+        "canonical": "#10B981",
+        "tonalRamp": ["#022C22", "#064E3B", "#047857", "#059669", "#10B981", "#34D399", "#6EE7B7", "#D1FAE5"]
+      },
+      "status-progress": {
+        "role": "accent",
+        "displayName": "Amber Warmth",
+        "canonical": "#F59E0B",
+        "tonalRamp": ["#451A03", "#78350F", "#B45309", "#D97706", "#F59E0B", "#FBBF24", "#FCD34D", "#FEF3C7"]
+      },
+      "status-dinein": {
+        "role": "accent",
+        "displayName": "Sky Cerulean",
+        "canonical": "#0EA5E9",
+        "tonalRamp": ["#082F49", "#075985", "#0369A1", "#0284C7", "#0EA5E9", "#38BDF8", "#7DD3FC", "#E0F2FE"]
+      },
+      "status-takeaway": {
+        "role": "accent",
+        "displayName": "Royal Violet",
+        "canonical": "#8B5CF6",
+        "tonalRamp": ["#2E1065", "#4C1D95", "#6D28D9", "#7C3AED", "#8B5CF6", "#A78BFA", "#C4B5FD", "#EDE9FE"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Serif", "purpose": "Hero brand titles and receipt typography in Cormorant Garamond." },
+      "headline": { "displayName": "Modal & Section Headline", "purpose": "Dialog titles and primary sheet headers." },
+      "title": { "displayName": "Component Title", "purpose": "Card headers and table indicators in Karla." },
+      "body": { "displayName": "Body Interface", "purpose": "Dish titles, list descriptions, and customer text." },
+      "label": { "displayName": "Telemetry Monospace", "purpose": "Prices, currency symbols, token codes, and timers in JetBrains Mono." },
+      "caption": { "displayName": "Compact Caption", "purpose": "Sub-headers and secondary metadata descriptions in Karla." },
+      "micro": { "displayName": "Micro Telemetry", "purpose": "Micro-labels and status badges in JetBrains Mono." },
+      "nano": { "displayName": "Nano Badge", "purpose": "Uppercase tracked badge pills and table counters." },
+      "pico": { "displayName": "Pico Thermal", "purpose": "Thermal receipt line items and micro tax breakdown." }
+    },
+    "shadows": [
+      { "name": "gold-glow", "value": "0 0 20px rgba(197, 160, 89, 0.18)", "purpose": "Luminous aura on active orders, buttons, and tokens." },
+      { "name": "gold-border-glow", "value": "0 0 0 1px rgba(197, 160, 89, 0.35), 0 0 18px rgba(197, 160, 89, 0.15)", "purpose": "Accent card border illumination." },
+      { "name": "luxury-card", "value": "0 4px 24px -1px rgba(0, 0, 0, 0.6)", "purpose": "Ambient depth for elevated floating containers." },
+      { "name": "luxury-card-hover", "value": "0 8px 32px -4px rgba(0, 0, 0, 0.7), 0 0 24px rgba(197, 160, 89, 0.08)", "purpose": "Card hover state lift." }
+    ],
+    "motion": [
+      { "name": "ease-out-quint", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Snappy luxury deceleration on modals, cards, and drawers." },
+      { "name": "pulse-subtle", "value": "pulse-subtle 2.5s ease-in-out infinite", "purpose": "Breathing live state indicator on pending tickets." },
+      { "name": "fade-in", "value": "fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Smooth entry for dialogs and sheets." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid Imperial Gold high-priority CTA button with uppercase tracking and tactile scale.",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg><span>SERVE FOOD & BILL</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #C5A059; color: #000000; font-family: 'Karla', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; border: none; border-radius: 12px; padding: 0 20px; min-height: 44px; cursor: pointer; box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; touch-action: manipulation; } .ds-btn-primary:hover { background: #d5b87e; box-shadow: 0 0 24px rgba(197, 160, 89, 0.35); } .ds-btn-primary:active { transform: scale(0.96); }"
+    },
+    {
+      "name": "Outline Receipt Trigger",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Translucent glass button with whisper-thin border for secondary actions like thermal printing.",
+      "html": "<button class=\"ds-btn-outline\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"6 9 6 2 18 2 18 9\"></polyline><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"></path><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"></rect></svg><span>RECEIPT</span></button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.8); font-family: 'Karla', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 0 16px; min-height: 44px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; touch-action: manipulation; } .ds-btn-outline:hover { color: #C5A059; border-color: rgba(197, 160, 89, 0.4); background: rgba(197, 160, 89, 0.05); } .ds-btn-outline:active { transform: scale(0.96); }"
+    },
+    {
+      "name": "Live KDS Order Card",
+      "kind": "card",
+      "refersTo": "card-glass",
+      "description": "Modular glass card displaying live order status, token ID, item list, and total amount.",
+      "html": "<div class=\"ds-card-glass\"><div class=\"ds-card-header\"><span class=\"ds-token-tag\">TOKEN #104</span><span class=\"ds-channel-pill\">DINE-IN</span></div><div class=\"ds-card-body\"><div class=\"ds-item-row\"><span class=\"ds-item-qty\">2</span><span class=\"ds-item-name\">Truffle Wild Mushroom Risotto</span><span class=\"ds-item-price\">₹960.00</span></div></div><div class=\"ds-card-footer\"><span class=\"ds-total-label\">TOTAL AMOUNT</span><span class=\"ds-total-val\">₹960.00</span></div></div>",
+      "css": ".ds-card-glass { background: rgba(13, 14, 20, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; color: #FFFFFF; font-family: 'Karla', sans-serif; box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.6); } .ds-card-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 10px; } .ds-token-tag { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #C5A059; } .ds-channel-pill { background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 9999px; } .ds-card-body { display: flex; flex-direction: column; gap: 8px; background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 10px; } .ds-item-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; } .ds-item-qty { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background: rgba(197, 160, 89, 0.15); color: #C5A059; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; } .ds-item-name { flex: 1; margin: 0 10px; color: rgba(255, 255, 255, 0.9); } .ds-item-price { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C5A059; } .ds-card-footer { display: flex; align-items: baseline; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 10px; } .ds-total-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.6); font-weight: 700; } .ds-total-val { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: #C5A059; }"
+    },
+    {
+      "name": "Status Pill Badge",
+      "kind": "chip",
+      "description": "Full capsule status badge for table, order, and channel telemetry.",
+      "html": "<span class=\"ds-badge-pill ds-badge-ready\"><span class=\"ds-badge-dot\"></span>READY TO SERVE</span>",
+      "css": ".ds-badge-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-family: 'Karla', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; } .ds-badge-ready { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); } .ds-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; box-shadow: 0 0 8px #34D399; }"
+    },
+    {
+      "name": "Search & Form Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Dark glass input container with gold caret, translucent border, and gold ring focus aura.",
+      "html": "<input type=\"text\" class=\"ds-input-glass\" placeholder=\"Search tables, tokens, or dishes...\" />",
+      "css": ".ds-input-glass { width: 100%; min-height: 44px; background: rgba(20, 22, 31, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0 14px; font-family: 'Karla', sans-serif; font-size: 14px; color: #FFFFFF; caret-color: #C5A059; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; } .ds-input-glass::placeholder { color: rgba(255, 255, 255, 0.4); } .ds-input-glass:focus { border-color: rgba(197, 160, 89, 0.7); box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.25); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Obsidian Guild",
+    "overview": "Vyoma ScanServe synthesizes the quiet grandeur of a private dark luxury atelier with the uncompromising speed of a Michelin-caliber culinary command center. Built for high-velocity restaurant operations—from captain table ordering on Android tablets to kitchen display terminals (KDS) and cashier settlement—the interface treats darkness not merely as a theme, but as an infinite obsidian canvas where information illuminates with surgical intent.\n\nEvery pixel balances aristocratic refinement against operational ergonomics. Deep obsidian substrates (#000000) and translucent glass cards eliminate eye fatigue during grueling 14-hour double shifts, while warm Imperial Gold (#C5A059) accents serve as authoritative beacons for decisive action. Neoclassical Cormorant Garamond typography bestows dignity upon order titles and customer receipts, while JetBrains Mono renders prices, token IDs, and order timers with unwavering telemetry precision.\n\nConfirmed Anti-Reference: Vyoma firmly rejects sterile, blinding white SaaS dashboards, rainbow-colored plastic POS buttons, cookie-cutter Bootstrap/Chakra widgets, and cartoonish casual-dining aesthetics. It is built to feel like an expensive precision instrument created specifically for elite hospitality.",
+    "keyCharacteristics": [
+      "Obsidian Immersion: Deep pitch-black base canvas (#000000) paired with smoky glass cards (#0A0A0E) and whisper-quiet 8% white borders.",
+      "Imperial Gold Discipline: Reserved strictly for primary focal points, active state highlights, and high-priority actions.",
+      "Dual Typographic Soul: Neoclassical serif elegance (Cormorant Garamond) paired with high-legibility geometric sans (Karla) and telemetry monospace (JetBrains Mono).",
+      "Tactile Ergonomics: Full WCAG 2.5.5 / 2.5.8 compliance with minimum 44×44px hit bounds, zero-delay touch manipulation, and physical press states.",
+      "Atmospheric Depth: Layered backdrop blurs (14px–20px) and soft gold ambient glows rather than muddy opaque drop shadows."
+    ],
+    "rules": [
+      {
+        "name": "The Rarity of Gold Rule",
+        "body": "Imperial Gold (#C5A059) must never occupy more than 10% of any given screen or card. Its visual authority derives entirely from its rarity; when everything glows, nothing is urgent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Pitch Canvas Rule",
+        "body": "Background surfaces must never drift into washed grays or muddy mid-tones. Deep obsidian (#000000) remains the non-negotiable anchor for the entire ecosystem.",
+        "section": "colors"
+      },
+      {
+        "name": "The Telemetry Clarity Rule",
+        "body": "Every currency figure, token sequence (#104), table code (T-04), timer (04:12), and item count multiplier must be rendered in JetBrains Mono with tabular numbers (tnum) for instant glanceability.",
+        "section": "typography"
+      },
+      {
+        "name": "The Restrained Nobility Rule",
+        "body": "Cormorant Garamond is strictly reserved for primary section headers, modal banners, and receipt branding. It must never be used for micro-labels, dense tabular grids, or form inputs.",
+        "section": "typography"
+      },
+      {
+        "name": "The Miss-Proof Touch Rule",
+        "body": "In active service environments, hands may be wet, rushed, or gloved. No interactive element may be rendered with a hit area smaller than 44×44px on touchscreens.",
+        "section": "layout"
+      },
+      {
+        "name": "The Luminous Glass Rule",
+        "body": "Surfaces achieve depth via translucency, backdrop blurring, and whisper-thin white borders (8% opacity), never via muddy gray dropshadows. Shadows exist only as luminous ambient halos responding to user state.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Capsule Status Rule",
+        "body": "Status indicators and dining channel markers must always take the form of full pills (rounded-full) with semi-transparent tinted fills, instantly distinguishing functional metadata from rectangular structural cards.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do maintain a strict 44×44px touch target on all interactive controls when viewed on tablets or mobile devices.",
+      "Do use JetBrains Mono with tabular numbers for all prices, quantities, table codes, and elapsed timers.",
+      "Do reserve Cormorant Garamond for prominent headlines, dialog titles, and brand statements.",
+      "Do keep background canvases completely black (#000000) for maximum contrast and OLED battery efficiency.",
+      "Do use .touch-target to preserve dense visual layouts while honoring accessibility tap standards.",
+      "Do provide immediate tactile feedback (active:scale-95, touch-action: manipulation) on all buttons."
+    ],
+    "donts": [
+      "Don't use Imperial Gold (#C5A059) for background washes, body copy, or more than 10% of any viewport.",
+      "Don't use standard opaque gray drop shadows; use backdrop blur and 8% white borders for elevation.",
+      "Don't introduce bright pastel or neon colors outside of established functional status colors (Emerald, Amber, Sky, Violet, Crimson).",
+      "Don't display raw, unformatted phone numbers without copy affordances or privacy protection options.",
+      "Don't use serif typography for micro-labels, dense spreadsheets, or form input fields.",
+      "Don't allow double-tap zoom delays on touch terminals; always apply touch-action: manipulation."
+    ]
+  }
+}
