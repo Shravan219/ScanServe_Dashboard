@@ -139,13 +139,15 @@ export function ServerConnectionModal({ open, onOpenChange }: ServerConnectionMo
 
           {/* Server URL Input */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-white/80 flex items-center justify-between">
+            <label htmlFor="backend-server-address-input" className="text-xs font-bold uppercase tracking-wider text-white/80 flex items-center justify-between">
               <span>Backend Server Address</span>
               <span className="text-[10px] text-white/40 font-normal">e.g. http://192.168.1.100:3000</span>
             </label>
             <div className="flex gap-2">
               <Input
+                id="backend-server-address-input"
                 type="text"
+                aria-label="Backend server network address"
                 placeholder="http://192.168.1.X:3000"
                 value={urlInput}
                 onChange={(e) => {

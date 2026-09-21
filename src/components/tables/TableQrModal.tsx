@@ -309,9 +309,11 @@ export function TableQrModal({ tables = DEFAULT_TABLES, activeTableId, triggerBu
                   </h4>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase font-bold tracking-wider text-white/60">Restaurant Header</label>
+                    <label htmlFor="qr-restaurant-header" className="text-[10px] uppercase font-bold tracking-wider text-white/60">Restaurant Header</label>
                     <input
+                      id="qr-restaurant-header"
                       type="text"
+                      aria-label="Restaurant Header for QR Tent Card"
                       value={restaurantName}
                       onChange={(e) => setRestaurantName(e.target.value)}
                       className="w-full bg-[#08090D] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-primary/50"
@@ -320,18 +322,22 @@ export function TableQrModal({ tables = DEFAULT_TABLES, activeTableId, triggerBu
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase font-bold tracking-wider text-white/60">Wi-Fi Name</label>
+                      <label htmlFor="qr-wifi-ssid" className="text-[10px] uppercase font-bold tracking-wider text-white/60">Wi-Fi Name</label>
                       <input
+                        id="qr-wifi-ssid"
                         type="text"
+                        aria-label="Wi-Fi SSID Name"
                         value={wifiSsid}
                         onChange={(e) => setWifiSsid(e.target.value)}
                         className="w-full bg-[#08090D] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-primary/50"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase font-bold tracking-wider text-white/60">Wi-Fi Password</label>
+                      <label htmlFor="qr-wifi-password" className="text-[10px] uppercase font-bold tracking-wider text-white/60">Wi-Fi Password</label>
                       <input
+                        id="qr-wifi-password"
                         type="text"
+                        aria-label="Wi-Fi Network Password"
                         value={wifiPassword}
                         onChange={(e) => setWifiPassword(e.target.value)}
                         className="w-full bg-[#08090D] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-primary/50"
@@ -395,7 +401,7 @@ export function TableQrModal({ tables = DEFAULT_TABLES, activeTableId, triggerBu
                     </div>
                     <div className="bg-white p-2 rounded-xl">
                       {qrUrl ? (
-                        <img src={qrUrl} alt={t.table_number} className="w-28 h-28 object-contain" />
+                        <img src={qrUrl} alt={`QR code for Table ${t.table_number}`} className="w-28 h-28 object-contain" />
                       ) : (
                         <div className="w-28 h-28 flex items-center justify-center text-black/50 text-[10px]">Loading...</div>
                       )}

@@ -334,7 +334,7 @@ export function TableStatusGrid({
                     {table.total_amount != null && table.total_amount > 0 && (
                       <div className="flex items-center justify-between text-xs mt-0.5">
                         <span className="text-white/60 font-semibold text-[10px] uppercase tracking-wider">Running Tab:</span>
-                        <span className="font-serif font-bold text-primary text-sm font-mono">₹{table.total_amount.toFixed(2)}</span>
+                        <span className="font-mono font-bold tabular-nums text-primary text-sm">₹{table.total_amount.toFixed(2)}</span>
                       </div>
                     )}
                   </div>

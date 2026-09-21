@@ -17,7 +17,8 @@ import {
   X,
   Users,
   Sparkles,
-  BellRing
+  BellRing,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -62,6 +63,7 @@ export function CaptainDashboard({
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [passwordActionType, setPasswordActionType] = useState<'lock' | 'unlock'>('lock');
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
   // Seed default 20 tables into Supabase database (Only when explicitly triggered by user)
   const seedSupabaseTables = async () => {
@@ -232,25 +234,38 @@ export function CaptainDashboard({
   // Password Verification Handler
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isVerifying) return;
+    if (!passwordInput.trim()) {
+      setPasswordError('Please enter admin password.');
+      return;
+    }
+
+    setIsVerifying(true);
     setPasswordError(null);
 
-    const res = await verifyAdminPassword(passwordInput);
-    if (res.success) {
-      if (passwordActionType === 'lock') {
-        setIsKioskLocked(true);
-        toast.success('Kiosk Lock Mode Activated', {
-          description: 'Restricted access: Captain Desk view active.'
-        });
+    try {
+      const res = await verifyAdminPassword(passwordInput.trim());
+      if (res.success) {
+        if (passwordActionType === 'lock') {
+          setIsKioskLocked(true);
+          toast.success('Kiosk Lock Mode Activated', {
+            description: 'Restricted access: Captain Desk view active.'
+          });
+        } else {
+          setIsKioskLocked(false);
+          toast.success('Kiosk Lock Mode Deactivated', {
+            description: 'Full admin dashboard restored.'
+          });
+        }
+        setIsPasswordModalOpen(false);
+        setPasswordInput('');
       } else {
-        setIsKioskLocked(false);
-        toast.success('Kiosk Lock Mode Deactivated', {
-          description: 'Full admin dashboard restored.'
-        });
+        setPasswordError(res.message || 'Invalid Admin Password. Verified against Supabase DB.');
       }
-      setIsPasswordModalOpen(false);
-      setPasswordInput('');
-    } else {
-      setPasswordError(res.message || 'Invalid Admin Password. Verified against Supabase DB.');
+    } catch {
+      setPasswordError('Verification failed. Check network connection.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -309,24 +324,24 @@ export function CaptainDashboard({
           <div className="flex items-center justify-around w-full sm:w-auto gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-[#141620] px-4 sm:px-5 py-2.5">
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-white/70">Total</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-white font-mono">{totalTables}</span>
+              <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-white">{totalTables}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Available</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-emerald-400 font-mono">{availableCount}</span>
+              <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-emerald-400">{availableCount}</span>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-bold uppercase tracking-widest text-amber-400">Occupied</span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-amber-400 font-mono">{occupiedCount}</span>
+              <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-amber-400">{occupiedCount}</span>
             </div>
             {readyCount > 0 && (
               <>
                 <div className="h-5 w-px bg-white/10" />
                 <div className="flex flex-col items-center">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-amber-300">Ready</span>
-                  <span className="text-xs sm:text-sm font-serif font-bold text-amber-300 animate-pulse font-mono">{readyCount}</span>
+                  <span className="text-xs sm:text-sm font-mono font-bold tabular-nums text-amber-300 animate-pulse">{readyCount}</span>
                 </div>
               </>
             )}
@@ -456,11 +471,13 @@ export function CaptainDashboard({
                   <input
                     id="admin-unlock-password"
                     type="password"
+                    maxLength={64}
+                    disabled={isVerifying}
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="Enter password..."
                     autoFocus
-                    className="w-full rounded-2xl bg-[#141620] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder-white/40 focus:outline-none focus:border-primary/50 transition-all"
+                    className="w-full rounded-2xl bg-[#141620] border border-white/10 px-4 py-3 text-sm font-medium text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -474,17 +491,26 @@ export function CaptainDashboard({
                 <div className="flex items-center justify-end gap-3 pt-3">
                   <button
                     type="button"
+                    disabled={isVerifying}
                     onClick={() => setIsPasswordModalOpen(false)}
-                    className="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                    className="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
 
                   <button
                     type="submit"
-                    className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black hover:bg-primary/90 transition-all cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.2)]"
+                    disabled={isVerifying}
+                    className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black hover:bg-primary/90 transition-all cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
-                    {passwordActionType === 'lock' ? 'Confirm Lock' : 'Unlock Dashboard'}
+                    {isVerifying ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Verifying...</span>
+                      </>
+                    ) : (
+                      passwordActionType === 'lock' ? 'Confirm Lock' : 'Unlock Dashboard'
+                    )}
                   </button>
                 </div>
               </form>

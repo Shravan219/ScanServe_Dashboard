@@ -21,8 +21,11 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('vite/preload-helper') || id.includes('commonjsHelpers')) {
+              return 'react-vendor';
+            }
             if (id.includes('node_modules')) {
-              if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('purify')) {
+              if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('purify') || id.includes('canvg')) {
                 return 'pdf-vendor';
               }
               if (id.includes('@supabase')) {

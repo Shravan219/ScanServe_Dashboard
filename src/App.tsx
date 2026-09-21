@@ -7,7 +7,7 @@ import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/src/lib/supabase';
-import { Order, MenuItem, OrderStatus, normalizeOrder, normalizeOrderItems } from '@/src/types';
+import { Order, MenuItem, OrderStatus, normalizeOrder, normalizeOrderItems, getOrderPlatform } from '@/src/types';
 import { 
   LayoutDashboard, 
   ChefHat, 
@@ -43,17 +43,37 @@ import {
   VolumeX,
   Sparkles,
   Filter,
-  Server
+  Server,
+  Building2,
+  Radio,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/src/components/Receipt';
-import { CaptainDashboard } from '@/src/components/captain/CaptainDashboard';
-import { OnlineOrdersView, getOrderPlatform } from '@/src/components/OnlineOrdersView';
-import { InvoicesView } from '@/src/components/invoices/InvoicesView';
-import { PaymentsView } from '@/src/components/payments/PaymentsView';
-import { MenuImporterModal } from '@/src/components/menu/MenuImporterModal';
-import { MenuEngineeringModal } from '@/src/components/menu/MenuEngineeringModal';
-import { ServerConnectionModal } from '@/src/components/ServerConnectionModal';
+import { LandingPage } from '@/src/components/landing/LandingPage';
+import { VyomaLogo, VyomaEmblem } from '@/src/components/brand/VyomaLogo';
+import { 
+  DemoTier, 
+  TIER_METADATA, 
+  ENTERPRISE_OUTLETS, 
+  BISTRO_ORDERS, 
+  BRASSERIE_ORDERS, 
+  ENTERPRISE_ORDERS, 
+  BISTRO_MENU_ITEMS, 
+  BRASSERIE_MENU_ITEMS,
+  BISTRO_CUSTOMERS,
+  BRASSERIE_CUSTOMERS,
+  ENTERPRISE_CUSTOMERS
+} from '@/src/lib/demoData';
+
+// Code-split heavy dashboard views and administrative modals for instant initial page loads
+const CaptainDashboard = React.lazy(() => import('@/src/components/captain/CaptainDashboard').then(m => ({ default: m.CaptainDashboard })));
+const OnlineOrdersView = React.lazy(() => import('@/src/components/OnlineOrdersView').then(m => ({ default: m.OnlineOrdersView })));
+const InvoicesView = React.lazy(() => import('@/src/components/invoices/InvoicesView').then(m => ({ default: m.InvoicesView })));
+const PaymentsView = React.lazy(() => import('@/src/components/payments/PaymentsView').then(m => ({ default: m.PaymentsView })));
+const MenuImporterModal = React.lazy(() => import('@/src/components/menu/MenuImporterModal').then(m => ({ default: m.MenuImporterModal })));
+const MenuEngineeringModal = React.lazy(() => import('@/src/components/menu/MenuEngineeringModal').then(m => ({ default: m.MenuEngineeringModal })));
+const ServerConnectionModal = React.lazy(() => import('@/src/components/ServerConnectionModal').then(m => ({ default: m.ServerConnectionModal })));
 import { ErrorBoundary } from '@/src/components/ErrorBoundary';
 import { getApiBaseUrl } from '@/src/lib/apiConfig';
 import { Capacitor } from '@capacitor/core';
@@ -379,12 +399,23 @@ export default function App() {
     }
   }, [isKioskLocked, location.pathname, navigate]);
 
+  const isLandingRoute = useMemo(() => {
+    if (Capacitor.isNativePlatform()) return false;
+    const path = location.pathname;
+    const clean = path.replace(/^\//, '').toLowerCase();
+    const dashboardTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices'];
+    // Default to landing page on root, empty, home, or any non-dashboard route
+    if (path === '/' || path === '' || path === '/landing' || path === '/home') return true;
+    return !dashboardTabs.includes(clean);
+  }, [location.pathname]);
+
   const activeTab = useMemo(() => {
     if (isKioskLocked) return 'captain';
     const path = location.pathname.split('/')[1];
-    const validTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices'];
-    return validTabs.includes(path) ? path : 'captain';
-  }, [location.pathname, isKioskLocked]);
+    if (path === 'landing' || isLandingRoute) return 'landing';
+    const validTabs = ['captain', 'counter', 'kitchen', 'pickup', 'payments', 'menu', 'customers', 'online', 'invoices', 'landing'];
+    return validTabs.includes(path) ? path : (Capacitor.isNativePlatform() ? 'captain' : 'landing');
+  }, [location.pathname, isKioskLocked, isLandingRoute]);
 
   const waitingForPaymentCount = useMemo(() => {
     return (allOrders && allOrders.length > 0 ? allOrders : orders).filter(
@@ -410,6 +441,7 @@ export default function App() {
   });
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('vyoma_frequent_discount_enabled', frequentDiscountEnabled.toString());
@@ -484,36 +516,174 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (location.pathname === '/' || location.pathname === '' || location.pathname === '/service') {
-      navigate('/captain', { replace: true });
+    if (Capacitor.isNativePlatform()) {
+      if (location.pathname === '/' || location.pathname === '' || location.pathname === '/service') {
+        navigate('/captain', { replace: true });
+      }
+    } else {
+      if (location.pathname === '/service') {
+        navigate('/captain', { replace: true });
+      }
     }
   }, [location.pathname, navigate]);
 
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    return localStorage.getItem('vyoma_demo_mode') === 'true';
+  });
+  const [demoTier, setDemoTier] = useState<DemoTier>(() => {
+    const saved = localStorage.getItem('vyoma_demo_tier');
+    return (saved === 'bistro' || saved === 'brasserie' || saved === 'enterprise') ? saved : 'brasserie';
+  });
+  const [selectedOutlet, setSelectedOutlet] = useState<string>('downtown');
+
+  const currentOutletData = useMemo(() => {
+    return ENTERPRISE_OUTLETS.find(o => o.id === selectedOutlet) || ENTERPRISE_OUTLETS[0];
+  }, [selectedOutlet]);
+
+  const applyTierData = React.useCallback((tier: DemoTier) => {
+    if (tier === 'bistro') {
+      setMenuItems(BISTRO_MENU_ITEMS);
+      const active = BISTRO_ORDERS.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      setOrders(active);
+      setAllOrders(BISTRO_ORDERS);
+      setDbCustomers(BISTRO_CUSTOMERS);
+      setStats({ preparedToday: 42, avgTime: '6m' });
+    } else if (tier === 'brasserie') {
+      setMenuItems(BRASSERIE_MENU_ITEMS);
+      const active = BRASSERIE_ORDERS.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      setOrders(active);
+      setAllOrders(BRASSERIE_ORDERS);
+      setDbCustomers(BRASSERIE_CUSTOMERS);
+      setStats({ preparedToday: 78, avgTime: '18m' });
+    } else {
+      setMenuItems(BRASSERIE_MENU_ITEMS);
+      const active = ENTERPRISE_ORDERS.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      setOrders(active);
+      setAllOrders(ENTERPRISE_ORDERS);
+      setDbCustomers(ENTERPRISE_CUSTOMERS);
+      setStats({ preparedToday: 245, avgTime: '12m' });
+    }
+  }, []);
+
+  const handleSimulateErpExport = () => {
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 800)),
+      {
+        loading: `Connecting to ${currentOutletData.relayIp} for SAP/Tally sync...`,
+        success: `Exported 142 vouchers for ${currentOutletData.name} to SAP ERP & Tally Prime format!`,
+        error: 'Export failed'
+      }
+    );
+  };
+
+  const handleLaunchDemo = (tier: DemoTier = 'brasserie') => {
+    localStorage.setItem('vyoma_staff_authenticated', 'true');
+    localStorage.setItem('vyoma_demo_mode', 'true');
+    localStorage.setItem('vyoma_demo_tier', tier);
+    setIsDemoMode(true);
+    setDemoTier(tier);
+    setIsAuthenticated(true);
+    applyTierData(tier);
+    navigate('/captain');
+
+    soundService.playTierSwitchChime();
+    soundService.triggerVibration([50, 30, 70]);
+
+    if (tier === 'brasserie') {
+      toast.success("The Obsidian Guild • Grand Brasserie Mesh Initialized", {
+        description: "20 Fine Dining Tables Online • Multi-Station KDS Pass Synced • Swiggy/Zomato Feeds Live • VIP Concierge Loyalty Active",
+        duration: 7000
+      });
+    } else if (tier === 'bistro') {
+      toast.success("Bistro & Cafe Mode Initialized", {
+        description: "6 Fast-Casual Tables Online • Single-Station Queue • 2 Handheld Tablets Synced • Quick Cafe Pacing",
+        duration: 7000
+      });
+    } else {
+      toast.success("Enterprise Multi-Outlet Synchronized", {
+        description: `${currentOutletData.name} • 3 Properties Online • Dedicated On-Premise Relay (0.4ms) • ERP Export Enabled`,
+        duration: 7000
+      });
+    }
+  };
+
+  const handleSwitchDemoTier = (newTier: DemoTier) => {
+    if (newTier === demoTier) return;
+    localStorage.setItem('vyoma_demo_tier', newTier);
+    setDemoTier(newTier);
+    applyTierData(newTier);
+
+    soundService.playTierSwitchChime();
+    soundService.triggerVibration([50, 30, 70]);
+
+    if (newTier === 'brasserie') {
+      toast.success("Switched to Grand Brasserie Flagship", {
+        description: "20 Fine Dining Tables Online • Multi-Station KDS Pass Synced • VIP CRM Active",
+        duration: 6000
+      });
+    } else if (newTier === 'bistro') {
+      toast.success("Switched to Bistro & Cafe Demo", {
+        description: "6 Cafe Tables Online • Single Kitchen Queue • Streamlined Cafe Layout",
+        duration: 6000
+      });
+    } else {
+      toast.success("Switched to Enterprise Group Demo", {
+        description: `${currentOutletData.name} • Property Switcher & Relay Box Active • ERP Bridge Enabled`,
+        duration: 6000
+      });
+    }
+  };
+
+  const handleExitDemo = () => {
+    localStorage.removeItem('vyoma_demo_mode');
+    localStorage.removeItem('vyoma_demo_tier');
+    setIsDemoMode(false);
+    navigate('/landing');
+    toast.info('Exited Live Demo Sandbox');
+  };
+
+  const handleStaffLoginNav = () => {
+    navigate('/captain');
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password) {
+    if (isAuthenticating) return;
+    if (!password.trim()) {
       setAuthError(true);
       toast.error('Please enter access password');
       return;
     }
 
-    const res = await verifyStaffPassword(password);
-    if (res.success) {
-      setIsAuthenticated(true);
-      setAuthError(false);
-      localStorage.setItem('vyoma_staff_authenticated', 'true');
-      toast.success('Access Granted');
-    } else {
+    setIsAuthenticating(true);
+    try {
+      const res = await verifyStaffPassword(password.trim());
+      if (res.success) {
+        setIsAuthenticated(true);
+        setAuthError(false);
+        localStorage.setItem('vyoma_staff_authenticated', 'true');
+        toast.success('Access Granted');
+      } else {
+        setAuthError(true);
+        toast.error(res.message || 'Invalid Access Password');
+      }
+    } catch (err) {
       setAuthError(true);
-      toast.error(res.message || 'Invalid Access Password');
+      toast.error('Authentication check failed. Please try again.');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('vyoma_staff_authenticated');
+    localStorage.removeItem('vyoma_demo_mode');
+    localStorage.removeItem('vyoma_demo_tier');
+    setIsDemoMode(false);
     setIsAuthenticated(false);
     setPassword('');
-    toast.info('Terminal Locked');
+    navigate('/landing');
+    toast.info('Terminal Locked - Returned to Main Page');
   };
 
   const playPopSound = () => {
@@ -521,6 +691,14 @@ export default function App() {
   };
 
   const fetchData = React.useCallback(async () => {
+    const isDemo = localStorage.getItem('vyoma_demo_mode') === 'true';
+    if (isDemo) {
+      const currentTier = (localStorage.getItem('vyoma_demo_tier') || 'brasserie') as DemoTier;
+      applyTierData(currentTier);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     // Safety timer: ensure full-screen loading spinner dismisses in at most 1000ms
     const safetyTimer = setTimeout(() => {
@@ -667,6 +845,21 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Optimization: When on public landing page, unauthenticated, or in demo sandbox,
+    // do not open network SSE connections, poll /api/orders, or establish real-time sockets.
+    if (isLandingRoute) return;
+
+    if (isDemoMode) {
+      applyTierData(demoTier);
+      setLoading(false);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     fetchData();
 
     // 1. Server-Sent Events (SSE) listener only if web or POS server is configured
@@ -928,7 +1121,7 @@ export default function App() {
       supabase.removeChannel(menuSubscription);
       supabase.removeChannel(customersSubscription);
     };
-  }, []);
+  }, [isLandingRoute, isDemoMode, demoTier, isAuthenticated, fetchData, applyTierData]);
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     console.log(`Updating order ${orderId} status to ${newStatus}...`);
@@ -1144,6 +1337,15 @@ export default function App() {
     return list;
   }, [menuItems, menuSearch, menuCategoryFilter]);
 
+  if (isLandingRoute) {
+    return (
+      <>
+        <LandingPage onLaunchDemo={handleLaunchDemo} onStaffLogin={handleStaffLoginNav} />
+        <Toaster position="top-center" theme="dark" richColors />
+      </>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black text-white p-6">
@@ -1153,40 +1355,79 @@ export default function App() {
           className="w-full max-w-md"
         >
           <div className="flex flex-col items-center gap-8 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-primary/20 bg-[#0A0A0A] shadow-[0_0_30px_rgba(197,160,89,0.1)]">
-              <Lock size={32} strokeWidth={1.5} className="text-primary" />
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/20 via-black to-[#0A0A0E] shadow-[0_0_35px_rgba(197,160,89,0.25)]">
+                <VyomaEmblem size={44} />
+              </div>
+              <VyomaLogo variant="horizontal" size={28} subtitle="Terminal Security" />
             </div>
             <div>
               <h1 className="text-4xl font-serif tracking-tight mb-2">Staff <span className="italic opacity-60 text-primary">Access</span></h1>
               <p className="text-[10px] uppercase tracking-[0.25em] text-white/60 font-bold">Secure Dashboard Entry</p>
             </div>
             
-            <form onSubmit={handleLogin} className="w-full space-y-6 mt-4">
+            <form onSubmit={handleLogin} className="w-full space-y-4 mt-4 text-left">
               <div className="relative group">
+                <label htmlFor="staff-password-input" className="sr-only">
+                  Staff Access Password
+                </label>
                 <Input 
+                  id="staff-password-input"
                   type="password"
+                  maxLength={64}
+                  disabled={isAuthenticating}
                   placeholder="Enter Access Password"
+                  aria-label="Staff Access Password"
+                  aria-invalid={authError}
+                  aria-describedby={authError ? "staff-auth-error" : undefined}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (authError) setAuthError(false);
+                  }}
                   className={cn(
-                    "bg-[#0A0A0A] border-white/5 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all",
-                    authError && "border-red-500/50 focus-visible:border-red-500/50"
+                    "bg-[#0A0A0A] border-white/10 placeholder:text-white/50 rounded-full h-16 text-center text-[12px] font-bold uppercase tracking-[0.3em] focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                    authError && "border-red-500/60 focus-visible:border-red-500/60"
                   )}
                   autoFocus
                 />
+                {authError && (
+                  <p id="staff-auth-error" role="alert" className="text-[11px] text-red-400 font-mono text-center mt-2">
+                    Invalid access key. Check terminal credentials or contact management.
+                  </p>
+                )}
               </div>
               <Button 
                 type="submit"
-                className="w-full bg-primary text-black hover:bg-primary/90 rounded-full h-16 text-[11px] uppercase tracking-[0.4em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group"
+                disabled={isAuthenticating}
+                className="w-full bg-primary text-black hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-full h-16 text-[11px] uppercase tracking-[0.35em] font-bold shadow-[0_0_20px_rgba(197,160,89,0.2)] group cursor-pointer transition-all"
               >
-                Authenticate
-                <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
+                {isAuthenticating ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <RefreshCcw className="h-4 w-4 animate-spin" />
+                    Verifying Credentials...
+                  </span>
+                ) : (
+                  <>
+                    Unlock Staff Dashboard
+                    <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
               </Button>
             </form>
             
-            <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-semibold mt-8">
-              Authorized Personnel Only
-            </p>
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <p className="text-[10px] text-white/70 uppercase tracking-[0.2em] font-semibold">
+                Authorized Personnel Only
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/landing')}
+                className="text-[11px] text-primary/80 hover:text-primary font-mono tracking-wider uppercase transition-colors cursor-pointer py-1"
+              >
+                ← Back to Main Page
+              </button>
+            </div>
           </div>
         </motion.div>
         <Toaster position="top-center" theme="dark" richColors />
@@ -1198,8 +1439,11 @@ export default function App() {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black text-white">
         <div className="flex flex-col items-center gap-6">
-          <RefreshCcw className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="font-serif text-2xl tracking-tight text-primary">Vy<span className="italic opacity-60">oma</span></p>
+          <div className="relative flex items-center justify-center">
+            <VyomaEmblem size={52} className="animate-pulse" />
+            <RefreshCcw className="h-20 w-20 animate-spin text-primary/20 absolute -inset-2 pointer-events-none" />
+          </div>
+          <VyomaLogo variant="horizontal" subtitle="Operations Synchronizing..." size={26} />
         </div>
       </div>
     );
@@ -1210,17 +1454,14 @@ export default function App() {
       {/* Sidebar Navigation */}
       <aside className="hidden md:flex md:w-56 lg:w-60 flex-col justify-between border-r border-white/5 bg-[#0A0A0A] p-4 py-6 z-20 shrink-0">
         <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-3 px-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-[0_0_20px_rgba(197,160,89,0.1)] shrink-0">
-              <Coffee size={20} className="text-primary" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-lg font-bold tracking-tight text-white leading-none">
-                Vy<span className="italic text-primary opacity-80">oma</span>
-              </span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/50 mt-1">POS & KDS</span>
-            </div>
-          </div>
+          <button 
+            type="button"
+            onClick={() => navigate('/landing')}
+            className="text-left group cursor-pointer hover:opacity-90 transition-opacity px-2"
+            title="Return to Main Page"
+          >
+            <VyomaLogo variant="horizontal" size={24} subtitle="POS & KDS" />
+          </button>
 
           <nav className="flex flex-col gap-1.5 w-full">
             {!isKioskLocked && (
@@ -1283,6 +1524,17 @@ export default function App() {
               active={activeTab === 'captain'} 
               onClick={() => setActiveTab('captain')}
             />
+
+            {!isKioskLocked && (
+              <div className="pt-2 border-t border-white/5 my-1">
+                <NavItem 
+                  icon={<Sparkles size={16} strokeWidth={1.5} className="text-primary" />} 
+                  label="Main Page" 
+                  active={activeTab === 'landing'} 
+                  onClick={() => navigate('/landing')}
+                />
+              </div>
+            )}
           </nav>
         </div>
 
@@ -1293,6 +1545,7 @@ export default function App() {
             onClick={() => setServerModalOpen(true)}
             className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 transition-all text-left group cursor-pointer"
             title="Configure POS Terminal Server"
+            aria-label="Configure POS Terminal Server"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${currentServerUrl ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]' : 'bg-primary/80'}`} />
@@ -1300,12 +1553,12 @@ export default function App() {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 group-hover:text-white truncate">
                   POS Terminal
                 </span>
-                <span className="text-[9px] font-mono text-white/40 truncate">
+                <span className="text-[9px] font-mono text-white/60 truncate">
                   {currentServerUrl ? currentServerUrl.replace(/^https?:\/\//, '') : 'Standalone / Cloud'}
                 </span>
               </div>
             </div>
-            <Server size={14} className="text-white/40 group-hover:text-primary transition-colors shrink-0 ml-1" />
+            <Server size={14} className="text-white/60 group-hover:text-primary transition-colors shrink-0 ml-1" />
           </button>
 
           <button
@@ -1334,6 +1587,152 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden flex flex-col relative">
+        {/* Live Demo Sandbox Ribbon */}
+        {isDemoMode && (
+          <div className="bg-[#0A0A0A]/95 border-b border-white/10 text-white px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3 z-30 shrink-0 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.7)]">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Tier Badge & Live Indicator */}
+              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                <span className="font-mono text-[10px] font-extrabold uppercase tracking-wider text-primary">
+                  {TIER_METADATA[demoTier].badge}
+                </span>
+              </div>
+
+              {/* Tier Switcher Pills */}
+              <div className="flex items-center gap-1 bg-black/80 p-1 rounded-xl border border-white/10 overflow-x-auto max-w-full custom-scrollbar shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleSwitchDemoTier('bistro')}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap touch-manipulation",
+                    demoTier === 'bistro'
+                      ? "bg-[#38BDF8] text-black shadow-[0_0_12px_rgba(56,189,248,0.4)] font-extrabold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <Coffee size={12} />
+                  <span>Bistro</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSwitchDemoTier('brasserie')}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap touch-manipulation",
+                    demoTier === 'brasserie'
+                      ? "bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.4)] font-extrabold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <Sparkles size={12} />
+                  <span><span className="hidden sm:inline">Grand </span>Brasserie</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSwitchDemoTier('enterprise')}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap touch-manipulation",
+                    demoTier === 'enterprise'
+                      ? "bg-[#A855F7] text-white shadow-[0_0_12px_rgba(168,85,247,0.4)] font-extrabold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <Building2 size={12} />
+                  <span>Enterprise</span>
+                </button>
+              </div>
+
+              {/* Tier Details Pill */}
+              <div className="hidden xl:flex items-center gap-2 text-white/70 text-[11px] font-sans">
+                {demoTier === 'bistro' && (
+                  <span className="flex items-center gap-1.5 text-[#38BDF8]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
+                    Fast-Casual Cafe &bull; 1 Single-Queue KDS &bull; Aggregators Preview
+                  </span>
+                )}
+                {demoTier === 'brasserie' && (
+                  <span className="flex items-center gap-1.5 text-primary">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Michelin Fine Dining &bull; Multi-Station KDS Routing &bull; Swiggy/Zomato Webhooks &bull; VIP CRM
+                  </span>
+                )}
+                {demoTier === 'enterprise' && (
+                  <span className="flex items-center gap-1.5 text-[#C084FC]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#C084FC]" />
+                    Multi-Property Franchise Mesh &bull; Relay Server {currentOutletData.relayIp} ({currentOutletData.relayPing})
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Right controls: Outlet Switcher (if enterprise), ERP action, or View Plans */}
+            <div className="flex items-center gap-2.5 ml-auto">
+              {demoTier === 'enterprise' && (
+                <div className="flex items-center gap-2">
+                  {/* Outlet selector dropdown */}
+                  <div className="flex items-center gap-1.5 bg-black/70 border border-[#A855F7]/40 rounded-xl px-2.5 py-1 text-[10px] font-bold">
+                    <Radio size={11} className="text-emerald-400 animate-pulse shrink-0" />
+                    <span className="text-white/50 uppercase tracking-wider text-[9px] shrink-0">Outlet:</span>
+                    <select
+                      value={selectedOutlet}
+                      onChange={(e) => {
+                        const outletId = e.target.value;
+                        setSelectedOutlet(outletId);
+                        const found = ENTERPRISE_OUTLETS.find(o => o.id === outletId);
+                        if (found) {
+                          toast.success(`Switched terminal to ${found.name}`, {
+                            description: `Dedicated Relay ${found.relayIp} • Latency ${found.relayPing}`
+                          });
+                        }
+                      }}
+                      className="bg-transparent text-[#E9D5FF] font-sans font-bold text-xs focus:outline-none cursor-pointer border-none py-0.5"
+                    >
+                      {ENTERPRISE_OUTLETS.map(out => (
+                        <option key={out.id} value={out.id} className="bg-[#0E0F15] text-white">
+                          {out.name} ({out.relayPing})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSimulateErpExport}
+                    className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-white/5 hover:bg-[#A855F7]/20 border border-[#A855F7]/40 text-[#E9D5FF] rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                    title="Export consolidated ledger to Tally / SAP ERP"
+                  >
+                    <FileSpreadsheet size={12} className="text-[#C084FC]" />
+                    <span>SAP/Tally</span>
+                  </button>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => navigate('/landing')}
+                className="px-3.5 py-1.5 min-h-[36px] bg-primary text-black rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-primary/90 transition-all cursor-pointer shadow-[0_0_12px_rgba(197,160,89,0.25)] active:scale-95 whitespace-nowrap touch-manipulation flex items-center justify-center"
+                aria-label="Return to Main Landing Page"
+              >
+                Main Page
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExitDemo}
+                className="px-3 py-1.5 min-h-[36px] bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 text-white/80 hover:text-red-300 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation flex items-center justify-center"
+                title="Exit live demo sandbox"
+                aria-label="Exit live demo sandbox and return to terminal"
+              >
+                Exit Demo
+              </button>
+            </div>
+          </div>
+        )}
         {/* Offline Connection Alert Bar */}
         {!isOnline && (
           <div className="bg-red-500 text-white px-4 py-2 text-xs font-bold flex items-center justify-between z-50 shrink-0 shadow-lg animate-pulse">
@@ -1352,9 +1751,14 @@ export default function App() {
 
         {/* Mobile Top Header */}
         <header className="flex md:hidden items-center justify-between border-b border-white/10 bg-[#0A0A0A] px-4 py-2.5 z-20 shrink-0 pt-[max(env(safe-area-inset-top,0px),10px)] min-h-[56px]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
-              <Coffee size={16} className="text-primary" />
+          <button
+            type="button"
+            onClick={() => navigate('/landing')}
+            className="flex items-center gap-2.5 text-left cursor-pointer hover:opacity-90 transition-opacity"
+            title="Return to Main Page"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/30 bg-[#0A0A0E] shadow-[0_0_15px_rgba(197,160,89,0.2)] shrink-0">
+              <VyomaEmblem size={20} />
             </div>
             <span className="font-serif text-base font-bold tracking-tight text-white leading-none">
               Vy<span className="italic text-primary opacity-80">oma</span>
@@ -1362,7 +1766,7 @@ export default function App() {
             <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[8px] font-bold uppercase tracking-wider">
               {activeTab}
             </span>
-          </div>
+          </button>
 
           <div className="flex items-center gap-2">
             <button
@@ -1385,11 +1789,19 @@ export default function App() {
           </div>
         </header>
 
-        {/* Mobile Quick Tab Bar - Non-squashing horizontal slider */}
-        <div className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2 gap-2 shrink-0 scroll-smooth touch-pan-x" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+        {/* Mobile Quick Tab Bar - Non-squashing horizontal slider with touch targets */}
+        <div 
+          role="tablist" 
+          aria-label="Quick mobile tab navigation"
+          className="flex md:hidden overflow-x-auto border-b border-white/5 bg-[#0F1014] px-3 py-2 gap-2 shrink-0 scroll-smooth touch-pan-x" 
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        >
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'captain'}
             onClick={() => setActiveTab('captain')}
-            className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+            className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
               activeTab === 'captain'
                 ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                 : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1400,8 +1812,11 @@ export default function App() {
           {!isKioskLocked && (
             <>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'counter'}
                 onClick={() => setActiveTab('counter')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'counter'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1410,8 +1825,11 @@ export default function App() {
                 Counter
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'kitchen'}
                 onClick={() => setActiveTab('kitchen')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'kitchen'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1420,8 +1838,11 @@ export default function App() {
                 Kitchen
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'pickup'}
                 onClick={() => setActiveTab('pickup')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'pickup'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1430,8 +1851,11 @@ export default function App() {
                 Pickup
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'payments'}
                 onClick={() => setActiveTab('payments')}
-                className={`shrink-0 min-w-max min-h-[36px] flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 touch-manipulation ${
                   activeTab === 'payments'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1445,8 +1869,11 @@ export default function App() {
                 )}
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'menu'}
                 onClick={() => setActiveTab('menu')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'menu'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1455,8 +1882,11 @@ export default function App() {
                 Menu
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'customers'}
                 onClick={() => setActiveTab('customers')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'customers'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1465,8 +1895,11 @@ export default function App() {
                 Customers
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'online'}
                 onClick={() => setActiveTab('online')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'online'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
@@ -1475,14 +1908,24 @@ export default function App() {
                 Online
               </button>
               <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'invoices'}
                 onClick={() => setActiveTab('invoices')}
-                className={`shrink-0 min-w-max min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 ${
+                className={`shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 touch-manipulation ${
                   activeTab === 'invoices'
                     ? 'bg-primary text-black shadow-[0_0_12px_rgba(197,160,89,0.3)]'
                     : 'bg-white/5 border border-white/10 text-white/80 hover:text-white'
                 }`}
               >
                 Invoices
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/landing')}
+                className="shrink-0 min-w-max min-h-[40px] px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center active:scale-95 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 touch-manipulation"
+              >
+                Pricing & Info
               </button>
             </>
           )}
@@ -1581,6 +2024,15 @@ export default function App() {
                   >
                     <FileText size={16} /> Invoices & Billing
                   </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate('/landing');
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-primary/10 border border-primary/30 text-primary mt-1 cursor-pointer"
+                  >
+                    <Sparkles size={16} /> Main Page
+                  </button>
                 </>
               )}
             </motion.div>
@@ -1588,16 +2040,16 @@ export default function App() {
         </AnimatePresence>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col min-h-0 flex-1">
-          {/* Desktop Header */}
-          <header className="hidden md:flex h-20 items-center justify-between border-b border-white/10 px-8 backdrop-blur-2xl bg-[#07080C]/80 sticky top-0 z-10 animate-fade-in shrink-0">
-            <TabsList className="bg-transparent p-0 gap-6 lg:gap-8">
-              <TabsTrigger value="captain" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Captain</TabsTrigger>
+          {/* Desktop & Tablet Header */}
+          <header className="hidden md:flex h-20 items-center justify-between border-b border-white/10 px-4 lg:px-8 backdrop-blur-2xl bg-[#07080C]/80 sticky top-0 z-10 animate-fade-in shrink-0 overflow-hidden">
+            <TabsList className="bg-transparent p-0 gap-3 lg:gap-5 xl:gap-7 overflow-x-auto custom-scrollbar flex-1 mr-3 sm:mr-6 scroll-smooth">
+              <TabsTrigger value="captain" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Captain</TabsTrigger>
               {!isKioskLocked && (
                 <>
-                  <TabsTrigger value="counter" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Counter</TabsTrigger>
-                  <TabsTrigger value="kitchen" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
-                  <TabsTrigger value="pickup" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Pickup</TabsTrigger>
-                  <TabsTrigger value="payments" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all flex items-center gap-2">
+                  <TabsTrigger value="counter" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Counter</TabsTrigger>
+                  <TabsTrigger value="kitchen" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Kitchen</TabsTrigger>
+                  <TabsTrigger value="pickup" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Pickup</TabsTrigger>
+                  <TabsTrigger value="payments" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all flex items-center gap-2">
                     Payments
                     {waitingForPaymentCount > 0 && (
                       <span className="flex h-4 px-1.5 items-center justify-center rounded-full bg-amber-500 text-black text-[9px] font-extrabold shadow-[0_0_10px_rgba(245,158,11,0.4)]">
@@ -1605,22 +2057,22 @@ export default function App() {
                       </span>
                     )}
                   </TabsTrigger>
-                  <TabsTrigger value="menu" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Menu</TabsTrigger>
-                  <TabsTrigger value="customers" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Customers</TabsTrigger>
-                  <TabsTrigger value="online" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
-                  <TabsTrigger value="invoices" className="text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.25em] transition-all">Invoices</TabsTrigger>
+                  <TabsTrigger value="menu" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Menu</TabsTrigger>
+                  <TabsTrigger value="customers" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Customers</TabsTrigger>
+                  <TabsTrigger value="online" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Online Orders</TabsTrigger>
+                  <TabsTrigger value="invoices" className="shrink-0 text-white/60 hover:text-white/90 data-active:bg-transparent data-active:text-primary data-active:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-primary border-b-2 border-transparent rounded-none h-20 px-0 text-[10px] font-bold uppercase tracking-[0.18em] lg:tracking-[0.25em] transition-all">Invoices</TabsTrigger>
                 </>
               )}
             </TabsList>
 
-            <div className="flex items-center gap-6">
-              {/* Quick Metrics */}
-              <div className="flex items-center gap-6 rounded-2xl border border-white/10 bg-[#0E0F15] px-4 py-2 shadow-inner">
+            <div className="flex items-center gap-3 lg:gap-5 shrink-0">
+              {/* Quick Metrics - Displayed on high-res screens, graceful hide on compact tablet viewports */}
+              <div className="hidden xl:flex items-center gap-5 rounded-2xl border border-white/10 bg-[#0E0F15] px-3.5 py-2 shadow-inner shrink-0">
                 <div className="flex flex-col items-end">
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Prepared Today</span>
                   <div className="flex items-center gap-1.5">
                     <TrendingUp size={12} className="text-primary/70" />
-                    <span className="text-lg font-serif text-primary font-mono font-bold">{stats.preparedToday}</span>
+                    <span className="text-lg font-mono font-bold tabular-nums text-primary">{stats.preparedToday}</span>
                   </div>
                 </div>
                 <div className="h-6 w-px bg-white/10" />
@@ -1628,7 +2080,7 @@ export default function App() {
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">Avg Prep Time</span>
                   <div className="flex items-center gap-1.5">
                     <Timer size={12} className="text-primary/70" />
-                    <span className="text-lg font-serif text-primary font-mono font-bold">{stats.avgTime}</span>
+                    <span className="text-lg font-mono font-bold tabular-nums text-primary">{stats.avgTime}</span>
                   </div>
                 </div>
               </div>
@@ -1643,7 +2095,7 @@ export default function App() {
                   toast.info(nextMuted ? 'Kitchen sound alerts muted' : 'Kitchen sound alerts enabled');
                 }}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95",
+                  "flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 shrink-0",
                   isSoundMuted
                     ? "border-white/10 bg-white/5 text-white/40 hover:text-white"
                     : "border-primary/30 bg-primary/10 text-primary shadow-[0_0_15px_rgba(197,160,89,0.15)]"
@@ -1655,14 +2107,22 @@ export default function App() {
               </button>
 
               {/* Live Connection Status */}
-              <div className="flex items-center gap-2.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/90">
+              <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 lg:px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/90 shrink-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
-                <span>ONLINE</span>
+                <span className="hidden lg:inline">ONLINE</span>
               </div>
             </div>
           </header>
 
           <div className="flex-1 min-h-0">
+            <React.Suspense fallback={
+              <div className="h-full w-full flex items-center justify-center bg-black/40 backdrop-blur-sm p-8">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-8 w-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                  <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-white/50">Loading Workspace...</span>
+                </div>
+              </div>
+            }>
             {/* COUNTER VIEW */}
             <TabsContent value="counter" className="m-0 h-full flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 md:p-8 outline-none data-[state=inactive]:hidden">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1684,6 +2144,7 @@ export default function App() {
                 <div className="relative w-full sm:w-80">
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                   <Input 
+                    aria-label="Search orders by token number, customer name, or table"
                     placeholder="Search Token ID, Name..." 
                     className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
                     value={searchToken}
@@ -1741,7 +2202,28 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
+                  {isDemoMode && (
+                    <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0D0E15] px-3.5 py-2 shadow-inner">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-white/50">Routing:</span>
+                      {demoTier === 'bistro' && (
+                        <span className="text-[10px] font-mono font-bold text-[#38BDF8]">
+                          Single Queue KDS
+                        </span>
+                      )}
+                      {demoTier === 'brasserie' && (
+                        <span className="text-[10px] font-mono font-bold text-primary">
+                          Pass &bull; Grill &bull; Saute &bull; Pastry
+                        </span>
+                      )}
+                      {demoTier === 'enterprise' && (
+                        <span className="text-[10px] font-mono font-bold text-[#C084FC]">
+                          {currentOutletData.name} Relay ({currentOutletData.relayPing})
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0D0E15] px-4 py-2 shadow-inner">
                     <Utensils size={14} className="text-primary/80" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">
@@ -1877,6 +2359,7 @@ export default function App() {
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                       <Input 
+                        aria-label="Search dishes and categories"
                         placeholder="Search Dishes, Categories..." 
                         className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
                         value={menuSearch}
@@ -1996,6 +2479,7 @@ export default function App() {
                 <div className="relative w-full md:w-80">
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/70 pointer-events-none" />
                   <Input 
+                    aria-label="Search customer directory by name or phone number"
                     placeholder="Search by name, phone..." 
                     className="pl-11 bg-[#0D0E15] border-white/10 rounded-2xl h-11 text-xs font-semibold tracking-wider focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all text-white placeholder:text-white/40 shadow-inner"
                     value={customerSearch}
@@ -2009,14 +2493,14 @@ export default function App() {
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">Total Diners</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-white font-mono">{computedCustomers.length}</span>
+                    <span className="text-2xl font-mono font-bold tabular-nums text-white">{computedCustomers.length}</span>
                     <Users size={16} className="text-primary/60" />
                   </div>
                 </div>
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">VIP Patrons</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-primary font-mono">
+                    <span className="text-2xl font-mono font-bold tabular-nums text-primary">
                       {computedCustomers.filter(c => c.loyal_vip || c.orderCount >= minOrdersForDiscount).length}
                     </span>
                     <Sparkles size={16} className="text-primary" />
@@ -2025,7 +2509,7 @@ export default function App() {
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">Total CRM Revenue</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-emerald-400 font-mono">
+                    <span className="text-2xl font-mono font-bold tabular-nums text-emerald-400">
                       ₹{computedCustomers.reduce((acc, c) => acc + c.totalSpent, 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                     <TrendingUp size={16} className="text-emerald-400/70" />
@@ -2034,7 +2518,7 @@ export default function App() {
                 <div className="luxury-stat-tile p-4 rounded-2xl flex flex-col justify-between">
                   <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 font-bold">Avg Ticket / Guest</span>
                   <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-2xl font-serif font-bold text-sky-400 font-mono">
+                    <span className="text-2xl font-mono font-bold tabular-nums text-sky-400">
                       ₹{computedCustomers.length > 0 
                         ? (computedCustomers.reduce((acc, c) => acc + c.totalSpent, 0) / Math.max(1, computedCustomers.reduce((acc, c) => acc + c.orderCount, 0))).toFixed(0)
                         : '0'}
@@ -2277,6 +2761,31 @@ export default function App() {
             </TabsContent>
 
             <TabsContent value="online" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-y-auto custom-scrollbar">
+              {isDemoMode && demoTier === 'bistro' && (
+                <div className="mx-4 sm:mx-8 mt-6 p-5 rounded-2xl bg-gradient-to-r from-[#38BDF8]/15 via-[#0A0A0A] to-primary/15 border border-[#38BDF8]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+                  <div className="flex items-start gap-3.5">
+                    <div className="h-10 w-10 rounded-xl bg-[#38BDF8]/20 border border-[#38BDF8]/40 flex items-center justify-center text-[#38BDF8] shrink-0 mt-0.5 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                      <Globe size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">Specialty Bistro Tier Notice</span>
+                        <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-mono text-white/70">Preview Mode</span>
+                      </div>
+                      <p className="text-xs text-white/70 mt-1 max-w-2xl leading-relaxed">
+                        In the <strong>Bistro &amp; Cafe</strong> tier, direct food aggregator bi-directional webhooks are disabled in favor of streamlined counter and QR orders. Live Swiggy &amp; Zomato synchronization is fully unlocked in the <strong>Grand Brasserie</strong> and <strong>Enterprise</strong> tiers.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => handleSwitchDemoTier('brasserie')}
+                    className="shrink-0 bg-primary text-black hover:bg-primary/90 text-[10px] font-extrabold uppercase tracking-widest rounded-xl px-5 py-2.5 cursor-pointer shadow-[0_0_20px_rgba(197,160,89,0.25)] active:scale-95"
+                  >
+                    <Sparkles size={13} className="mr-1.5" />
+                    Switch to Grand Brasserie Demo
+                  </Button>
+                </div>
+              )}
               <ErrorBoundary>
                 <OnlineOrdersView
                   orders={orders}
@@ -2320,6 +2829,29 @@ export default function App() {
             </TabsContent>
 
             <TabsContent value="invoices" className="m-0 h-full flex flex-col p-0 outline-none data-[state=inactive]:hidden overflow-hidden">
+              {isDemoMode && demoTier === 'enterprise' && (
+                <div className="mx-4 sm:mx-8 mt-4 mb-2 p-4 rounded-xl bg-[#A855F7]/10 border border-[#A855F7]/30 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#C084FC] shrink-0">
+                      <Building2 size={16} />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-mono text-white/90">
+                        <strong className="text-[#C084FC]">ENTERPRISE ERP CONNECTOR:</strong> Consolidated general ledger active for <strong>{currentOutletData.name}</strong>.
+                      </span>
+                      <p className="text-[10px] text-white/50">Multi-outlet tax compliance and automated Tally XML / SAP ECC batch reconciliation.</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleSimulateErpExport}
+                    size="sm"
+                    className="bg-[#A855F7] hover:bg-[#9333EA] text-white font-extrabold text-[10px] uppercase tracking-wider rounded-lg px-3 py-1.5 cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95"
+                  >
+                    <FileSpreadsheet size={13} className="mr-1.5" />
+                    Export to SAP / Tally XML
+                  </Button>
+                </div>
+              )}
               <ErrorBoundary>
                 <InvoicesView
                   menuItems={menuItems}
@@ -2344,15 +2876,20 @@ export default function App() {
                 />
               </ErrorBoundary>
             </TabsContent>
+            </React.Suspense>
           </div>
         </Tabs>
       </main>
 
       {/* POS Terminal & Server Connection Configuration Modal */}
-      <ServerConnectionModal 
-        open={serverModalOpen} 
-        onOpenChange={setServerModalOpen} 
-      />
+      {serverModalOpen && (
+        <React.Suspense fallback={null}>
+          <ServerConnectionModal 
+            open={serverModalOpen} 
+            onOpenChange={setServerModalOpen} 
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 }

@@ -158,3 +158,33 @@ export function normalizeOrder(rawOrder: any): Order {
   };
 }
 
+export function getOrderPlatform(order: Order): 'swiggy' | 'zomato' | 'other_online' | 'dine_in' {
+  if (order.aggregator_platform === 'swiggy') return 'swiggy';
+  if (order.aggregator_platform === 'zomato') return 'zomato';
+
+  const tokenUpper = (order.token || '').toUpperCase();
+  if (tokenUpper.startsWith('SWI') || tokenUpper.startsWith('SW') || tokenUpper.includes('SWI') || tokenUpper.includes('SWIGGY')) return 'swiggy';
+  if (tokenUpper.startsWith('ZOM') || tokenUpper.startsWith('ZM') || tokenUpper.includes('ZOM') || tokenUpper.includes('ZOMATO')) return 'zomato';
+
+  const tableStr = (order.table_id || '').toString().toLowerCase();
+  if (tableStr.includes('swiggy') || tableStr.includes('sw_')) return 'swiggy';
+  if (tableStr.includes('zomato') || tableStr.includes('zom_')) return 'zomato';
+
+  const name = (order.customer_name || '').toLowerCase();
+  const notes = (order.notes || '').toLowerCase();
+  const instructions = (order.custom_instructions || '').toLowerCase();
+  const fullText = `${name} ${notes} ${instructions} ${tableStr}`;
+
+  if (fullText.includes('swiggy')) return 'swiggy';
+  if (fullText.includes('zomato')) return 'zomato';
+
+  if (order.order_type === 'aggregator' || order.order_type === 'delivery') {
+    return 'other_online';
+  }
+
+  if (fullText.includes('online') || fullText.includes('ubereats') || fullText.includes('magicpin')) {
+    return 'other_online';
+  }
+
+  return 'dine_in';
+}

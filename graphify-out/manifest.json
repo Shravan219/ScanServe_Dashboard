@@ -456,9 +456,9 @@
     "semantic_hash": "3c10e3153feb65aa9be17933c185cd32"
   },
   "src/App.tsx": {
-    "mtime": 1789824288.005396,
-    "seen": 1789824442.6572077,
-    "ast_hash": "3f86ca8007214d5a4a9fda98b4b110da",
+    "mtime": 1789927086.3449888,
+    "seen": 1789927141.5012949,
+    "ast_hash": "0f7742c99a70872617a6f3caa815a2b2",
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.tsx": {
@@ -468,10 +468,10 @@
     "semantic_hash": "c8d08a5ec6115fc752ebd450c1a6995a"
   },
   "src/components/OnlineOrdersView.tsx": {
-    "mtime": 1789608932.0004027,
-    "seen": 1789780154.2242448,
-    "ast_hash": "93736d039073a7111be3f4e1b1c33212",
-    "semantic_hash": "93736d039073a7111be3f4e1b1c33212"
+    "mtime": 1789909557.3497515,
+    "seen": 1789909594.027023,
+    "ast_hash": "fff08d3f97a8b02e7f73a2410691996f",
+    "semantic_hash": ""
   },
   "src/components/Receipt.tsx": {
     "mtime": 1789556200.076087,
@@ -480,10 +480,10 @@
     "semantic_hash": "842a510f1bbd757118b6e9396f4ef246"
   },
   "src/components/ServerConnectionModal.tsx": {
-    "mtime": 1789550609.0902312,
-    "seen": 1789780154.2242477,
-    "ast_hash": "ae1fa58774d58893680b8ac1e3a856e1",
-    "semantic_hash": "ae1fa58774d58893680b8ac1e3a856e1"
+    "mtime": 1789924971.7372415,
+    "seen": 1789926162.758571,
+    "ast_hash": "c72e9579504dff85e5f4fa5adce747ad",
+    "semantic_hash": ""
   },
   "src/components/admin/SimulateOrderModal.tsx": {
     "mtime": 1788315015.9443667,
@@ -492,16 +492,16 @@
     "semantic_hash": "2c2a03cf6eeedcac609d43b26eaafa43"
   },
   "src/components/captain/CaptainDashboard.tsx": {
-    "mtime": 1789609705.7221973,
-    "seen": 1789780154.224251,
-    "ast_hash": "3e3785f979b5ed274357883def7ff746",
-    "semantic_hash": "3e3785f979b5ed274357883def7ff746"
+    "mtime": 1789908239.737376,
+    "seen": 1789908356.5507877,
+    "ast_hash": "c9cf00e0ad03eaedba0410a4b32be2d6",
+    "semantic_hash": ""
   },
   "src/components/captain/OrderBuilderSheet.tsx": {
-    "mtime": 1789578453.321592,
-    "seen": 1789780154.224253,
-    "ast_hash": "9d42ef745deea29de4187dbb44ac6308",
-    "semantic_hash": "9d42ef745deea29de4187dbb44ac6308"
+    "mtime": 1789927068.744913,
+    "seen": 1789927141.5021567,
+    "ast_hash": "411f07b1fa07f849c9329825c62b5c62",
+    "semantic_hash": ""
   },
   "src/components/captain/ReadyOrdersBanner.tsx": {
     "mtime": 1789609712.0252147,
@@ -510,16 +510,16 @@
     "semantic_hash": "43412616de6ee8432c2ed48c8f3a2fc2"
   },
   "src/components/captain/TableStatusGrid.tsx": {
-    "mtime": 1789824306.0886562,
-    "seen": 1789824442.6586401,
-    "ast_hash": "f77b1d71ab9b15313272df35764b9ec8",
+    "mtime": 1789908218.15896,
+    "seen": 1789908356.5509427,
+    "ast_hash": "3c22ab1017d2ae10ea780009247f1b56",
     "semantic_hash": ""
   },
   "src/components/invoices/InvoiceCreator.tsx": {
-    "mtime": 1789580650.7898457,
-    "seen": 1789780154.2242572,
-    "ast_hash": "8cb5b8f1b26d37199207403e04bb60f5",
-    "semantic_hash": "8cb5b8f1b26d37199207403e04bb60f5"
+    "mtime": 1789907541.8501694,
+    "seen": 1789907567.593,
+    "ast_hash": "41eabbc347cf1e42ca6e14c5e7fd664c",
+    "semantic_hash": ""
   },
   "src/components/invoices/InvoiceHistory.tsx": {
     "mtime": 1789578332.074046,
@@ -540,9 +540,9 @@
     "semantic_hash": "34fc74877db26dae3513ec25515118f8"
   },
   "src/components/payments/PaymentsView.tsx": {
-    "mtime": 1789824315.7675028,
-    "seen": 1789824442.659452,
-    "ast_hash": "d25d2c5a0129c124644cd1ae88063b3d",
+    "mtime": 1789927098.723778,
+    "seen": 1789927141.5033364,
+    "ast_hash": "13a89418617fd8cfe9b5363867e34967",
     "semantic_hash": ""
   },
   "src/lib/apiConfig.ts": {
@@ -582,10 +582,10 @@
     "semantic_hash": "e46653a5a43a653493b27882fea46a9b"
   },
   "src/lib/sound.ts": {
-    "mtime": 1788257591.912157,
-    "seen": 1789780154.2242754,
-    "ast_hash": "bc12b578797b4f279461165bed440113",
-    "semantic_hash": "bc12b578797b4f279461165bed440113"
+    "mtime": 1789927019.434731,
+    "seen": 1789927141.5042799,
+    "ast_hash": "695a270369947cfc993affdaee899fdd",
+    "semantic_hash": ""
   },
   "src/lib/supabase.ts": {
     "mtime": 1789550609.1057322,
@@ -594,9 +594,9 @@
     "semantic_hash": "50a416341598a03fea0fd05e2f3144d2"
   },
   "src/lib/whatsapp.ts": {
-    "mtime": 1789824246.155166,
-    "seen": 1789824442.6609461,
-    "ast_hash": "bb40d58fd76e4dd3305620251d490de8",
+    "mtime": 1789908915.507341,
+    "seen": 1789909594.032408,
+    "ast_hash": "291dbdcb0346689c9d1666cac2e01e82",
     "semantic_hash": ""
   },
   "src/main.tsx": {
@@ -606,10 +606,10 @@
     "semantic_hash": "9f0480c8bb150eb57ddf06040c73d963"
   },
   "src/types.ts": {
-    "mtime": 1788257591.7692132,
-    "seen": 1789780154.2242818,
-    "ast_hash": "334ce28281b0f4dc60596b8fc3a26bdd",
-    "semantic_hash": "334ce28281b0f4dc60596b8fc3a26bdd"
+    "mtime": 1789909312.8533132,
+    "seen": 1789909594.0325723,
+    "ast_hash": "6277d07730477e0db2aeacbd1ac11349",
+    "semantic_hash": ""
   },
   "supabase_schema.sql": {
     "mtime": 1788257591.5084498,
@@ -629,10 +629,10 @@
     "semantic_hash": "d4b18e0310d2ea4512712ba232fd30d3"
   },
   "vite.config.ts": {
-    "mtime": 1789555317.796394,
-    "seen": 1789780154.224287,
-    "ast_hash": "f42cce90bd0d5c20e8e25e9cb2a15dd1",
-    "semantic_hash": "f42cce90bd0d5c20e8e25e9cb2a15dd1"
+    "mtime": 1789909219.929998,
+    "seen": 1789909594.0329893,
+    "ast_hash": "c09f3a260056c8e62be299883d683875",
+    "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
     "mtime": 1789701776.8703413,
@@ -1001,10 +1001,10 @@
     "semantic_hash": "ca7c723df3a1e84cfd233354fa84d5c7"
   },
   "index.html": {
-    "mtime": 1788314806.907029,
-    "seen": 1789780154.2243998,
-    "ast_hash": "efb2a901d8af3aa5ef53a63ac792b099",
-    "semantic_hash": "efb2a901d8af3aa5ef53a63ac792b099"
+    "mtime": 1789929702.0891116,
+    "seen": 1789929734.1576557,
+    "ast_hash": "e201a17fdacdafe4e45e1fb5e26d98d5",
+    "semantic_hash": ""
   },
   "android/app/src/main/res/drawable-land-hdpi/splash.png": {
     "mtime": 1789550609.0195215,
@@ -1325,9 +1325,9 @@
     "semantic_hash": ""
   },
   "src/components/tables/TableQrModal.tsx": {
-    "mtime": 1789824194.317448,
-    "seen": 1789824442.659455,
-    "ast_hash": "0c186cbfc78f7db080d4ceaf79e2b052",
+    "mtime": 1789926121.847391,
+    "seen": 1789926162.7599072,
+    "ast_hash": "8aac71efd0ca9a25c30ba00bf317b11f",
     "semantic_hash": ""
   },
   "VyomPOS/README.md": {
@@ -1340,6 +1340,1224 @@
     "mtime": 1789787023.2355955,
     "seen": 1789824442.6764734,
     "ast_hash": "b8639de872c3e71c296b48d18b76a88f",
+    "semantic_hash": ""
+  },
+  "src/components/landing/LandingPage.tsx": {
+    "mtime": 1789929209.6755788,
+    "seen": 1789929443.4446125,
+    "ast_hash": "7049eaba1bee77166a1b7acf24a12a81",
+    "semantic_hash": ""
+  },
+  "design-system/vyoma-scanserve/MASTER.md": {
+    "mtime": 1789878975.2948027,
+    "seen": 1789879215.3664343,
+    "ast_hash": "a43be7f94b0d3b879707ed7b81a66e3b",
+    "semantic_hash": ""
+  },
+  "design-system/vyoma-scanserve/pages/landing.md": {
+    "mtime": 1789878975.3109589,
+    "seen": 1789879215.3664372,
+    "ast_hash": "f4ca4940d51852eb68f56767a749549d",
+    "semantic_hash": ""
+  },
+  "src/lib/demoData.ts": {
+    "mtime": 1789880696.438669,
+    "seen": 1789880817.4082,
+    "ast_hash": "90e3ac848e1e15e06009091cc78de10d",
+    "semantic_hash": ""
+  },
+  "src/components/legal/LegalModal.tsx": {
+    "mtime": 1789908324.1386664,
+    "seen": 1789908356.5514648,
+    "ast_hash": "376d7a644e00af5d26ef4b1c2ea3b47b",
+    "semantic_hash": ""
+  },
+  "src/components/legal/legalContent.ts": {
+    "mtime": 1789882745.4599652,
+    "seen": 1789882813.392328,
+    "ast_hash": "09ad4c457e14991c52294f8cfcc2aa8c",
+    "semantic_hash": ""
+  },
+  "LEGAL_COMPLIANCE_SUITE.md": {
+    "mtime": 1789882762.25474,
+    "seen": 1789882813.4031541,
+    "ast_hash": "28003078998a9afae9d8bcae2c19c20b",
+    "semantic_hash": ""
+  },
+  "business-case-vyoma-scanserve-2026-09-20.md": {
+    "mtime": 1789882503.126235,
+    "seen": 1789882813.4039326,
+    "ast_hash": "797ee2bca6210185d2b2b6ee939a4cb7",
+    "semantic_hash": ""
+  },
+  "market-opportunity-analysis-2026-09-20.md": {
+    "mtime": 1789882424.7172275,
+    "seen": 1789882813.404345,
+    "ast_hash": "d3e18f0872c89d069ceff7925363c563",
+    "semantic_hash": ""
+  },
+  "src/components/brand/VyomaLogo.tsx": {
+    "mtime": 1789883942.6739295,
+    "seen": 1789884158.9953892,
+    "ast_hash": "9e543a01c0f0c158e20008122f69cf88",
+    "semantic_hash": ""
+  },
+  "public/favicon.svg": {
+    "mtime": 1789883932.2076788,
+    "seen": 1789884159.01684,
+    "ast_hash": "6f19d2ae259361fb0a912d10c659ccd4",
+    "semantic_hash": ""
+  },
+  "public/vyoma_logo.jpg": {
+    "mtime": 1789883914.1297777,
+    "seen": 1789884159.016842,
+    "ast_hash": "35d2df00e640033f42cdfdc004234c0f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/beyondseo-install.json": {
+    "mtime": 1789908487.1786153,
+    "seen": 1789908608.2965004,
+    "ast_hash": "89d6509093e695eaef56ed95fda2ba33",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/source-catalog-provenance.json": {
+    "mtime": 1789908287.5536916,
+    "seen": 1789908608.2965066,
+    "ast_hash": "f0e7212a639e29636b6182b6b1af581f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/ftps-connection.json": {
+    "mtime": 1789908287.5548708,
+    "seen": 1789908608.2965093,
+    "ast_hash": "d8e9a0fb5e318b08ebd267134caa171d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/posting-profile.json": {
+    "mtime": 1789908287.555881,
+    "seen": 1789908608.2965107,
+    "ast_hash": "5487f96e483e65761bd94004bb5ebd90",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/report-content.json": {
+    "mtime": 1789908287.555881,
+    "seen": 1789908608.2965124,
+    "ast_hash": "9785476b54e64f4571e79ee761e96edf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/selectors.json": {
+    "mtime": 1789908287.555881,
+    "seen": 1789908608.296514,
+    "ast_hash": "35486c94a6e782b128fa138efec9ae6b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/sftp-connection.json": {
+    "mtime": 1789908287.5568821,
+    "seen": 1789908608.2965157,
+    "ast_hash": "231c7ebacfb09bec199a650f2f3e02ec",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/posting-sites.json": {
+    "mtime": 1789908287.5737126,
+    "seen": 1789908608.296517,
+    "ast_hash": "ad973a1952d4b79e57e82abe1deef5f5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/selectors-example.json": {
+    "mtime": 1789908287.604895,
+    "seen": 1789908608.296518,
+    "ast_hash": "28f527cb9bcf3b4817a0fd1df4b6b3e1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/pyproject.toml": {
+    "mtime": 1789908287.6068954,
+    "seen": 1789908608.2965195,
+    "ast_hash": "c382d31b0418c201739251eba52cc408",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/backlink_classifier.py": {
+    "mtime": 1789908287.6096637,
+    "seen": 1789908608.2965205,
+    "ast_hash": "809f48c5febee03cf628d2de24fac380",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/backlink_sources.py": {
+    "mtime": 1789908287.6106691,
+    "seen": 1789908608.2965217,
+    "ast_hash": "8ba95ef9e63c798f34916fa92fd75a50",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/build_skill.py": {
+    "mtime": 1789908287.6106691,
+    "seen": 1789908608.296523,
+    "ast_hash": "26ea07cc500597e38097a09b03bd8a89",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/check_docs.py": {
+    "mtime": 1789908287.6116798,
+    "seen": 1789908608.296524,
+    "ast_hash": "32ec7a97808e8e296ea6b9d33603ffbb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/check_environment.py": {
+    "mtime": 1789908287.6121838,
+    "seen": 1789908608.2965252,
+    "ast_hash": "7c342d652d7b3b42f2d1ba7dee530049",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/check_release.py": {
+    "mtime": 1789908287.6121838,
+    "seen": 1789908608.2965267,
+    "ast_hash": "1928fcc1d16f2c19690183ac623c3867",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/crawl.py": {
+    "mtime": 1789908287.6121838,
+    "seen": 1789908608.2965279,
+    "ast_hash": "9bb7883b8466e114cd76640d06d5d19a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/import_backlink_pdf.py": {
+    "mtime": 1789908287.6121838,
+    "seen": 1789908608.2965288,
+    "ast_hash": "14501a8bfd32b5a088cbad7545318869",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/install_skill.py": {
+    "mtime": 1789908287.6136885,
+    "seen": 1789908608.29653,
+    "ast_hash": "1e06714f1b0373556db1da1645c44dd6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/report_builder.py": {
+    "mtime": 1789908287.6144757,
+    "seen": 1789908608.2965312,
+    "ast_hash": "3381986c1f41eb35b5db5ee97e6025f0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/run.py": {
+    "mtime": 1789908287.6150115,
+    "seen": 1789908608.2965324,
+    "ast_hash": "f5b1d13fbffa9a36cad6d0708a468fff",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/setup.py": {
+    "mtime": 1789908287.6150115,
+    "seen": 1789908608.2965338,
+    "ast_hash": "b320d309d4df854fae42e12b1a13f41d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/url_classifier.py": {
+    "mtime": 1789908287.6160743,
+    "seen": 1789908608.296535,
+    "ast_hash": "dc88cd7ef8a3cc4e0a8d3d5b25d782b4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/scripts/validate_skill.py": {
+    "mtime": 1789908287.6160743,
+    "seen": 1789908608.296536,
+    "ast_hash": "ded0b5ff6b9a04286d5372237fe06174",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/__init__.py": {
+    "mtime": 1789908287.6176245,
+    "seen": 1789908608.2965372,
+    "ast_hash": "672e853e887b03dc6faad4053dc23737",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/__main__.py": {
+    "mtime": 1789908287.6181471,
+    "seen": 1789908608.296538,
+    "ast_hash": "5109ab95441454c3d40c9321c4c146b7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/backlinks.py": {
+    "mtime": 1789908287.618665,
+    "seen": 1789908608.296539,
+    "ast_hash": "cec20e44cadb912fcfb0d9f126ebaddf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/cli.py": {
+    "mtime": 1789908287.619181,
+    "seen": 1789908608.2965405,
+    "ast_hash": "89a723051c76f1594aeec65a04116e6c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/content.py": {
+    "mtime": 1789908287.6197035,
+    "seen": 1789908608.2965415,
+    "ast_hash": "da8a0a46d0a92ec22b187be650b1ece1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/deep_research.py": {
+    "mtime": 1789908287.6207457,
+    "seen": 1789908608.2965426,
+    "ast_hash": "cc8cb0da34e72a242f2ebd2db565eff3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/diagnostics.py": {
+    "mtime": 1789908287.6212642,
+    "seen": 1789908608.296544,
+    "ast_hash": "4fe3c051496355043436d04a730931d2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/discovery.py": {
+    "mtime": 1789908287.6212642,
+    "seen": 1789908608.296545,
+    "ast_hash": "1bee148e6f3c671b2523b293db57a869",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/doctor.py": {
+    "mtime": 1789908287.6223378,
+    "seen": 1789908608.296546,
+    "ast_hash": "af3e4bd83b2d2a70a426a849fde496e8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/engine.py": {
+    "mtime": 1789908287.6228669,
+    "seen": 1789908608.2965474,
+    "ast_hash": "c5b0609952248ee2c8cfbb5c127da7ea",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/evidence.py": {
+    "mtime": 1789908287.6228669,
+    "seen": 1789908608.2965484,
+    "ast_hash": "0d0d01c3a795fef52ba4bb6ef0e79e07",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/extract.py": {
+    "mtime": 1789908287.6235797,
+    "seen": 1789908608.2965493,
+    "ast_hash": "c7838d110a3a323f278cb817e87b4223",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/findings.py": {
+    "mtime": 1789908287.6241055,
+    "seen": 1789908608.2965508,
+    "ast_hash": "722b6b19ead9f79575c2389dad5b4f08",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/monitor.py": {
+    "mtime": 1789908287.6246245,
+    "seen": 1789908608.2965517,
+    "ast_hash": "7218e4d3503d920bb628235cb52c70a4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/network.py": {
+    "mtime": 1789908287.6251464,
+    "seen": 1789908608.296553,
+    "ast_hash": "aa5873cbd4abf9b38d7ab148fe74ac59",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/onsite.py": {
+    "mtime": 1789908287.625664,
+    "seen": 1789908608.296554,
+    "ast_hash": "8fc7be32235e5a872310958402790b00",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/projects.py": {
+    "mtime": 1789908287.6261833,
+    "seen": 1789908608.296555,
+    "ast_hash": "3aa0f8679c6845d2f3baf52b87b0f93f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/publishing.py": {
+    "mtime": 1789908287.6267028,
+    "seen": 1789908608.296556,
+    "ast_hash": "a0a6d02ff10e2b0f92805b10cc7dad59",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/render.py": {
+    "mtime": 1789908287.6267028,
+    "seen": 1789908608.296557,
+    "ast_hash": "d969ad67b47395a8a2c3b3c30cefa4d3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/reports.py": {
+    "mtime": 1789908287.6292827,
+    "seen": 1789908608.2965581,
+    "ast_hash": "ac8b487549034811c88b3d69e0c9acc6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/reputation.py": {
+    "mtime": 1789908287.6298983,
+    "seen": 1789908608.296559,
+    "ast_hash": "3042529c91958f9a85e9a69c56501932",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/research.py": {
+    "mtime": 1789908287.6304228,
+    "seen": 1789908608.2965603,
+    "ast_hash": "0cf42972f20b15471ded7a8d104066cf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/research_cli.py": {
+    "mtime": 1789908287.6309495,
+    "seen": 1789908608.2965615,
+    "ast_hash": "b1a90e25ed0e538857db04e9eaf5bad8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/review.py": {
+    "mtime": 1789908287.6314683,
+    "seen": 1789908608.2965622,
+    "ast_hash": "690dc0aaaeafb0e606957c2c93562e4d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/CHANGELOG.md": {
+    "mtime": 1789908287.540278,
+    "seen": 1789908608.3205502,
+    "ast_hash": "baeaf33b2c48595d511d2e5c173af634",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/CONTRIBUTING.md": {
+    "mtime": 1789908287.540278,
+    "seen": 1789908608.3205526,
+    "ast_hash": "7ad78cbdc4987dfa7fc9beef9b96f3d8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/README.md": {
+    "mtime": 1789908287.541843,
+    "seen": 1789908608.3205545,
+    "ast_hash": "9e7c332f15421d682b9a3c206764612f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/SECURITY.md": {
+    "mtime": 1789908287.541843,
+    "seen": 1789908608.3205564,
+    "ast_hash": "5d74a453aa74762fe4437935ebb70412",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/SKILL.md": {
+    "mtime": 1789908287.542347,
+    "seen": 1789908608.3205578,
+    "ast_hash": "ee5214faa31cb48bf5ab73b8ce957c02",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/THIRD_PARTY_NOTICES.md": {
+    "mtime": 1789908287.5428708,
+    "seen": 1789908608.3205595,
+    "ast_hash": "5e02bba3e38222705680ff263e5f9420",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/assets/README.md": {
+    "mtime": 1789908287.5428708,
+    "seen": 1789908608.3205614,
+    "ast_hash": "b1009135170706be63ee908a99d4f02f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/README.md": {
+    "mtime": 1789908287.5460622,
+    "seen": 1789908608.3205628,
+    "ast_hash": "ca7aa0efc56d1dcd0efd4f88dfa5d8be",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/agent-installation.md": {
+    "mtime": 1789908287.5470626,
+    "seen": 1789908608.3205643,
+    "ast_hash": "2a8ec46348c9e21a6d55d85f3fa586fe",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/architecture.md": {
+    "mtime": 1789908287.5470626,
+    "seen": 1789908608.3205655,
+    "ast_hash": "2d9152ab4b6e8529ba7d33ca93706ed3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/backlink-posting-guide.md": {
+    "mtime": 1789908287.5475671,
+    "seen": 1789908608.3205671,
+    "ast_hash": "e1e7d026da9b9f6e2e87611b6622fb18",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/backlink-source-catalog.md": {
+    "mtime": 1789908287.5480716,
+    "seen": 1789908608.3205686,
+    "ast_hash": "1da9d71148b212152737bf40b38c3b5f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/branded-reports.md": {
+    "mtime": 1789908287.5480716,
+    "seen": 1789908608.3205702,
+    "ast_hash": "ed026606ebf6216b5b51527dae84fbf0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/browser-search.md": {
+    "mtime": 1789908287.5480716,
+    "seen": 1789908608.3205717,
+    "ast_hash": "d8cbd8107e146ce7bf5251bbf6ad2378",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/browser.md": {
+    "mtime": 1789908287.5490787,
+    "seen": 1789908608.3205729,
+    "ast_hash": "5d42caa12df76947be6144efa14607b2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/deep-research.md": {
+    "mtime": 1789908287.5490787,
+    "seen": 1789908608.3205745,
+    "ast_hash": "71b296430906f2f8fb5a3dbbc92e8b51",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/development.md": {
+    "mtime": 1789908287.5490787,
+    "seen": 1789908608.3205762,
+    "ast_hash": "3ea4df744c5f0f3180919e49edd0d690",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/discovery-and-competitors.md": {
+    "mtime": 1789908287.5500882,
+    "seen": 1789908608.320578,
+    "ast_hash": "008d28220eed89478c3f39386a67d768",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/discovery-diagnostics.md": {
+    "mtime": 1789908287.5500882,
+    "seen": 1789908608.32058,
+    "ast_hash": "363d4244432a9d7515e71e93a479ac71",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/lovable.md": {
+    "mtime": 1789908287.5500882,
+    "seen": 1789908608.320582,
+    "ast_hash": "29b8701d0748a9c66e9676876f4c98ed",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/operations.md": {
+    "mtime": 1789908287.5510845,
+    "seen": 1789908608.3205833,
+    "ast_hash": "595fb14f48e287a7fd8b92326890b7e0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/permissions.md": {
+    "mtime": 1789908287.551685,
+    "seen": 1789908608.3205848,
+    "ast_hash": "8a9f6810b53466e5a398f3dffbe6e05d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/questions.md": {
+    "mtime": 1789908287.551685,
+    "seen": 1789908608.320586,
+    "ast_hash": "4ba2985e7edfe42b47bb507862385bf3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/reputation-prospects.md": {
+    "mtime": 1789908287.551685,
+    "seen": 1789908608.3205876,
+    "ast_hash": "724ff9267a5680423a4f0aba66494a56",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/scoring-explained.md": {
+    "mtime": 1789908287.5526924,
+    "seen": 1789908608.3205888,
+    "ast_hash": "aa024394dbcadaf53b47ca27f1fe5418",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/seo-house.md": {
+    "mtime": 1789908287.5526924,
+    "seen": 1789908608.3205903,
+    "ast_hash": "02261f4f46c1a82797f5f26406f77fb5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/setup.md": {
+    "mtime": 1789908287.5526924,
+    "seen": 1789908608.320592,
+    "ast_hash": "f795906abbb152053dcaaa103322d09a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/docs/website-work.md": {
+    "mtime": 1789908287.5536916,
+    "seen": 1789908608.3205934,
+    "ast_hash": "6e2088bc432df6e7acc90c4b73f0b81b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/README.md": {
+    "mtime": 1789908287.5536916,
+    "seen": 1789908608.3205948,
+    "ast_hash": "016bd7bc5b176c64481a9a7384fb5703",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/audit-walkthrough.md": {
+    "mtime": 1789908287.5548708,
+    "seen": 1789908608.3205962,
+    "ast_hash": "8930f8cf22ff34f5fd24587f70a32c99",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/site/dynamic.html": {
+    "mtime": 1789908287.5573864,
+    "seen": 1789908608.3205981,
+    "ast_hash": "6c9a4fa509ebed5b5a3c1e0eb726a41f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/site/index.html": {
+    "mtime": 1789908287.55789,
+    "seen": 1789908608.3205993,
+    "ast_hash": "8b8ec1be30c5b87e0d1570e00846738b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/examples/site/robots.txt": {
+    "mtime": 1789908287.55789,
+    "seen": 1789908608.3206007,
+    "ast_hash": "736eec4109909f443e82bd7a6ecc36ef",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/PLAYBOOK_DEPTH.md": {
+    "mtime": 1789908287.55789,
+    "seen": 1789908608.3206022,
+    "ast_hash": "d3abc195fa502091f6f1fb08e4b09b7f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/aeo-content-writing-persona.md": {
+    "mtime": 1789908287.5588956,
+    "seen": 1789908608.3206038,
+    "ast_hash": "990d0d5afea4507a507edde31007d1c1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/ai-friendly-seo-master-workflow.md": {
+    "mtime": 1789908287.5588956,
+    "seen": 1789908608.3206055,
+    "ast_hash": "63133a1a3f5d107c3727252c72799ab7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/ai-overview-opportunity-audit.md": {
+    "mtime": 1789908287.5596774,
+    "seen": 1789908608.320607,
+    "ast_hash": "01e6c1b956d583914c042a91982d57dd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/ai-search-readiness.md": {
+    "mtime": 1789908287.5596774,
+    "seen": 1789908608.3206086,
+    "ast_hash": "723ade1b487db98b2df4de58915fcb9f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/answer-engine-optimization.md": {
+    "mtime": 1789908287.5606825,
+    "seen": 1789908608.3206098,
+    "ast_hash": "b5ea1c35a5d805be2b907a54dbb56edc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/citations-and-source-worthiness.md": {
+    "mtime": 1789908287.5606825,
+    "seen": 1789908608.3206112,
+    "ast_hash": "096a3c1b6361a729dc2e09a302f358fc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/conversation-seo-framework.md": {
+    "mtime": 1789908287.5606825,
+    "seen": 1789908608.320613,
+    "ast_hash": "480cee35cceea8d1aa23c9580c77aa43",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/entity-seo.md": {
+    "mtime": 1789908287.5606825,
+    "seen": 1789908608.320614,
+    "ast_hash": "428648f839add18a744fe8eed90fd7f3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/generative-engine-optimization.md": {
+    "mtime": 1789908287.5621889,
+    "seen": 1789908608.3206158,
+    "ast_hash": "c069a724935ab639c6e6b1f09eb8e34c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/geo-ai-citation-optimization.md": {
+    "mtime": 1789908287.5621889,
+    "seen": 1789908608.3206172,
+    "ast_hash": "11e0649901798b37a8bbebe7b821860c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/aeo-geo/topical-authority.md": {
+    "mtime": 1789908287.5621889,
+    "seen": 1789908608.320619,
+    "ast_hash": "cce4f43b06b8caeac2090d484177779c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit-modes.md": {
+    "mtime": 1789908287.563194,
+    "seen": 1789908608.3206203,
+    "ast_hash": "b1a858a9be0ff138382985f38e5a4b81",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/content-quality-audit.md": {
+    "mtime": 1789908287.563921,
+    "seen": 1789908608.3206215,
+    "ast_hash": "b2e0edb8e3fea59d4f4d6d9fb78509b5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/conversion-seo-audit.md": {
+    "mtime": 1789908287.563921,
+    "seen": 1789908608.3206232,
+    "ast_hash": "bd7779fccf3ec98cb4a0252057ada003",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/crawlability-indexing.md": {
+    "mtime": 1789908287.5649357,
+    "seen": 1789908608.3206246,
+    "ast_hash": "3f6403586a6d2b607d6c904aab86e34b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/eeat-ylym-audit.md": {
+    "mtime": 1789908287.5655115,
+    "seen": 1789908608.320626,
+    "ast_hash": "bdf28ae82c4c7a6b341deb104d442092",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/full-site-audit.md": {
+    "mtime": 1789908287.5655115,
+    "seen": 1789908608.3206272,
+    "ast_hash": "6858e1588d2bc2d3d13b743851b2b74b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/internal-linking-audit.md": {
+    "mtime": 1789908287.5660686,
+    "seen": 1789908608.3206286,
+    "ast_hash": "9d991b6081702b683683238958e4013a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/issue-prioritization.md": {
+    "mtime": 1789908287.5660686,
+    "seen": 1789908608.3206303,
+    "ast_hash": "7caa5cb5f2048863e31a791d9992d08b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/on-page-seo-audit.md": {
+    "mtime": 1789908287.566595,
+    "seen": 1789908608.3206317,
+    "ast_hash": "8c5802025db047d052187ddd8981422a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/page-speed-core-web-vitals.md": {
+    "mtime": 1789908287.5672998,
+    "seen": 1789908608.3206332,
+    "ast_hash": "a15f334493c50c8937c0ab987de056b3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/schema-audit.md": {
+    "mtime": 1789908287.5678284,
+    "seen": 1789908608.3206348,
+    "ast_hash": "0d4de2c380f56ec2a6bef364a46bae12",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/audit/technical-seo-audit.md": {
+    "mtime": 1789908287.5683565,
+    "seen": 1789908608.3206358,
+    "ast_hash": "3edde7e83246d09976e4d9efe052b737",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/anchor-text-strategy.md": {
+    "mtime": 1789908287.5688941,
+    "seen": 1789908608.3206372,
+    "ast_hash": "7b40ad4beedb245e083d10e1ac3355fa",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/backlink-audit.md": {
+    "mtime": 1789908287.5694306,
+    "seen": 1789908608.3206615,
+    "ast_hash": "9647a6af99c367baac239b11e7bddd66",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/backlink-outreach-prompts.md": {
+    "mtime": 1789908287.5699565,
+    "seen": 1789908608.320663,
+    "ast_hash": "a4bf7c824dc300fb7489240e1c936634",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/backlink-quality-scoring.md": {
+    "mtime": 1789908287.5704844,
+    "seen": 1789908608.3206644,
+    "ast_hash": "2920255700cb1daf31354ccd38932b39",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/digital-pr-system.md": {
+    "mtime": 1789908287.5710385,
+    "seen": 1789908608.3206654,
+    "ast_hash": "427a1b86f9a9754f955ba575d4d33782",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/free-backlink-posting.md": {
+    "mtime": 1789908287.5710385,
+    "seen": 1789908608.3206668,
+    "ast_hash": "6cc65f971f26269b709d2187e13cf70a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/free-paid-backlink-source-library.md": {
+    "mtime": 1789908287.5715718,
+    "seen": 1789908608.3206682,
+    "ast_hash": "b8c0654436e8bc8f0dc0b960096b48bd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/guest-posting-system.md": {
+    "mtime": 1789908287.5721037,
+    "seen": 1789908608.3206692,
+    "ast_hash": "b2cfb617dcc919cb1e183e3225a08198",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/link-gap-analysis.md": {
+    "mtime": 1789908287.5721037,
+    "seen": 1789908608.3206704,
+    "ast_hash": "ed5ba1166a8c478875697df16b086945",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/niche-edit-evaluation.md": {
+    "mtime": 1789908287.5726423,
+    "seen": 1789908608.3206718,
+    "ast_hash": "deca08c31771ad0a2367df7fe3da22ac",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/paid-backlink-evaluation.md": {
+    "mtime": 1789908287.5726423,
+    "seen": 1789908608.320673,
+    "ast_hash": "29bd38b2476e8a09722e14c6196c4d2c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/reputation-growth-plan.md": {
+    "mtime": 1789908287.5744119,
+    "seen": 1789908608.320675,
+    "ast_hash": "22713debe93195f56fbbaaf8a9856891",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/backlink-system/toxic-link-risk.md": {
+    "mtime": 1789908287.5750725,
+    "seen": 1789908608.3206763,
+    "ast_hash": "fd706a35a9161f198ac935c1f009061b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/capability-detection.md": {
+    "mtime": 1789908287.5750725,
+    "seen": 1789908608.3206775,
+    "ast_hash": "4b44ad864143d0f904871a35494f52ef",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/authority-gap-analysis.md": {
+    "mtime": 1789908287.5755935,
+    "seen": 1789908608.3206792,
+    "ast_hash": "199efac4449cebd31f62e4cfa650e8a6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/competitor-crawl.md": {
+    "mtime": 1789908287.5761178,
+    "seen": 1789908608.3206801,
+    "ast_hash": "b8d4589de081739ffcbdfc5d730fe809",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/competitor-discovery.md": {
+    "mtime": 1789908287.5766432,
+    "seen": 1789908608.3206816,
+    "ast_hash": "3d314294a47871db21c4a34bdeeb4a70",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/competitor-matrix.md": {
+    "mtime": 1789908287.5766432,
+    "seen": 1789908608.3206828,
+    "ast_hash": "86a55ce143eee54cbec4df1bf8354fd5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/content-gap-analysis.md": {
+    "mtime": 1789908287.5771563,
+    "seen": 1789908608.3206837,
+    "ast_hash": "a14ebe38d8361781e25a893bf9bed290",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/serp-gap-analysis.md": {
+    "mtime": 1789908287.5776684,
+    "seen": 1789908608.3206854,
+    "ast_hash": "e33a83959b66eb2fc385ab5c28029c20",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/competitor-research/service-page-gap-analysis.md": {
+    "mtime": 1789908287.5776684,
+    "seen": 1789908608.3206863,
+    "ast_hash": "f02573372953c589e157fef82469d3e7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/data-quality-rules.md": {
+    "mtime": 1789908287.5787244,
+    "seen": 1789908608.3206873,
+    "ast_hash": "ce42cec357a28c8fd0f8cd59e3fb8479",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/decision-tree.md": {
+    "mtime": 1789908287.5787244,
+    "seen": 1789908608.3206887,
+    "ast_hash": "6b2b5e9806c7bb6083e31621f1367a9f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/final-output-standards.md": {
+    "mtime": 1789908287.5792558,
+    "seen": 1789908608.32069,
+    "ast_hash": "20e047652c081dbd4a201bfa6e0a09b6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/friendly-advisor.md": {
+    "mtime": 1789908287.5792558,
+    "seen": 1789908608.3206913,
+    "ast_hash": "0c75e7e94890eb46a6846819f1ad672c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/no-fluff-rules.md": {
+    "mtime": 1789908287.5803218,
+    "seen": 1789908608.3206925,
+    "ast_hash": "4d89053bc85ef03dab017fa341f409ce",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/seo-aeo-definition.md": {
+    "mtime": 1789908287.5803218,
+    "seen": 1789908608.3206937,
+    "ast_hash": "2219380730344eb3418fba4351aba2b6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/seo-house-workflow.md": {
+    "mtime": 1789908287.5809605,
+    "seen": 1789908608.3206947,
+    "ast_hash": "0022221288c7631581bdf2a0a16d277f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/core/seo-principles.md": {
+    "mtime": 1789908287.5809605,
+    "seen": 1789908608.3206964,
+    "ast_hash": "4f6ff39138fe9116bd09af206622b6d0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/entity-seo/entity-seo-knowledge-graph.md": {
+    "mtime": 1789908287.5820239,
+    "seen": 1789908608.3206973,
+    "ast_hash": "00a95243ae546dd5e5bafeaeb97a535e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/examples/backlink-sheet-style-framework.md": {
+    "mtime": 1789908287.5826273,
+    "seen": 1789908608.3206987,
+    "ast_hash": "aeab37e2782f94b2d77c2f9c4c2b0184",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/examples/education-report-framework.md": {
+    "mtime": 1789908287.583173,
+    "seen": 1789908608.3207,
+    "ast_hash": "807ddfaa30de1403e1f6ecb5e4b8559c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/examples/local-clinic-report-framework.md": {
+    "mtime": 1789908287.5838225,
+    "seen": 1789908608.3207011,
+    "ast_hash": "7115ccc49cd3250c13fc2063ebf83382",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/examples/sample-final-audit-output.md": {
+    "mtime": 1789908287.5843508,
+    "seen": 1789908608.3207026,
+    "ast_hash": "729ee61715ad7bf46575c0bb175199dc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/industry-playbooks/README.md": {
+    "mtime": 1789908287.5843508,
+    "seen": 1789908608.3207037,
+    "ast_hash": "f0c85a3c1ea2ffc6b9a7ec3eed3cb378",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/integrations/beyondseo-reputation-checks.md": {
+    "mtime": 1789908287.5853565,
+    "seen": 1789908608.3207047,
+    "ast_hash": "1f2b230cdd05fcc0f3e5f191f4038163",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/integrations/fallback-without-apis.md": {
+    "mtime": 1789908287.58614,
+    "seen": 1789908608.3207061,
+    "ast_hash": "cbf089be9ab8ca8b3b0fa42fce6a5153",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/integrations/google-analytics.md": {
+    "mtime": 1789908287.58614,
+    "seen": 1789908608.320707,
+    "ast_hash": "9322acb0845fb6a8abc295f54e7b8b95",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/integrations/google-search-console.md": {
+    "mtime": 1789908287.5871458,
+    "seen": 1789908608.3207083,
+    "ast_hash": "b52f584ae8721d4ed96c5b3655080aca",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/integrations/native-agent-scraping.md": {
+    "mtime": 1789908287.5871458,
+    "seen": 1789908608.3207097,
+    "ast_hash": "decc5b943bb93c36fbe8fc6e0d1e3c47",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/integrations/pagespeed-insights.md": {
+    "mtime": 1789908287.58765,
+    "seen": 1789908608.320711,
+    "ast_hash": "3505fb1405db7d63352d0ddc128b6dc6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/keyword-clustering.md": {
+    "mtime": 1789908287.58765,
+    "seen": 1789908608.3207119,
+    "ast_hash": "60d626a7ca1ca1cec0891611590048b3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/keyword-discovery.md": {
+    "mtime": 1789908287.5886555,
+    "seen": 1789908608.3207133,
+    "ast_hash": "d1c88018796f87883ed7f94635b8f07a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/keyword-to-page-map.md": {
+    "mtime": 1789908287.5890293,
+    "seen": 1789908608.3207142,
+    "ast_hash": "60bc37ba300417ac9429e16f90ae886f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/local-keyword-research.md": {
+    "mtime": 1789908287.5890293,
+    "seen": 1789908608.3207154,
+    "ast_hash": "0eb1991e94743d56715e0811fdab3b94",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/long-tail-keyword-plan.md": {
+    "mtime": 1789908287.5900354,
+    "seen": 1789908608.3207166,
+    "ast_hash": "d45679d176e16ff8d49c6fac3c5dc55d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/money-keyword-selection.md": {
+    "mtime": 1789908287.5900354,
+    "seen": 1789908608.3207178,
+    "ast_hash": "8f1c2f5db2c8b976d641624d57feb977",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/search-intent-analysis.md": {
+    "mtime": 1789908287.5900354,
+    "seen": 1789908608.3207188,
+    "ast_hash": "f28b6e077ac7e4987d6545dc4fb61c9a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/keyword-research/top-5-keyword-defense.md": {
+    "mtime": 1789908287.5910354,
+    "seen": 1789908608.32072,
+    "ast_hash": "72b65e74fe91b6a5c759cb532ac3133e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/google-business-profile.md": {
+    "mtime": 1789908287.5910354,
+    "seen": 1789908608.3207211,
+    "ast_hash": "1e468a80abbd45782e5e97661a316ec8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/local-authority-links.md": {
+    "mtime": 1789908287.5920365,
+    "seen": 1789908608.320722,
+    "ast_hash": "11ca55cabc0a24d740093ce10f168752",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/local-landing-pages.md": {
+    "mtime": 1789908287.5920365,
+    "seen": 1789908608.3207233,
+    "ast_hash": "5799391bdbeca1d1d0fd424985470d57",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/map-pack-audit.md": {
+    "mtime": 1789908287.5930357,
+    "seen": 1789908608.3207242,
+    "ast_hash": "a651f414b6f7f045cda8a009a0018a63",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/nap-citation-audit.md": {
+    "mtime": 1789908287.5930357,
+    "seen": 1789908608.3207254,
+    "ast_hash": "cab280538b5055be23c57fdcff2691bb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/review-strategy.md": {
+    "mtime": 1789908287.5930357,
+    "seen": 1789908608.3207266,
+    "ast_hash": "fa0fe5d729adc8fe0107daf51a595abf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/local-seo/service-area-seo.md": {
+    "mtime": 1789908287.594036,
+    "seen": 1789908608.3207276,
+    "ast_hash": "25dec4b8fb9e20829a5da2ad55041a13",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/onboarding.md": {
+    "mtime": 1789908287.594036,
+    "seen": 1789908608.3207285,
+    "ast_hash": "0b257ee44f86ad17f8ef5d04db18aad0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/reporting/README.md": {
+    "mtime": 1789908287.5951939,
+    "seen": 1789908608.32073,
+    "ast_hash": "594dba03e6a009abc41333f4d7ec2101",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/reputation-seo/reputation-proof-stack.md": {
+    "mtime": 1789908287.5951939,
+    "seen": 1789908608.3207312,
+    "ast_hash": "443c23d780a7e1730a42c62ae1d69782",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/reputation-seo/third-party-authority-article-system.md": {
+    "mtime": 1789908287.5962012,
+    "seen": 1789908608.3207324,
+    "ast_hash": "771be1a21723499bdc1e7e71daa601cc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/30-day-plan.md": {
+    "mtime": 1789908287.5962012,
+    "seen": 1789908608.3207335,
+    "ast_hash": "56287df03f49ea8a8ba9b7f05d8530a2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/500-query-growth-model.md": {
+    "mtime": 1789908287.597202,
+    "seen": 1789908608.3207347,
+    "ast_hash": "c6ddc188053f887f3b902024da060f86",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/5000-visitor-growth-model.md": {
+    "mtime": 1789908287.597712,
+    "seen": 1789908608.3207357,
+    "ast_hash": "303ceefef740934f583be5c8ba4c2aff",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/60-day-plan.md": {
+    "mtime": 1789908287.597712,
+    "seen": 1789908608.3207371,
+    "ast_hash": "c5687431d3565d5db195c2c440ef89fc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/90-day-plan.md": {
+    "mtime": 1789908287.5987215,
+    "seen": 1789908608.320738,
+    "ast_hash": "1f3a2e20a66395f25481b84124c566ea",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/blog-support-cluster-strategy.md": {
+    "mtime": 1789908287.5987215,
+    "seen": 1789908608.320739,
+    "ast_hash": "ebbf795e90116602234b89541e7fa9a0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/content-hub-strategy.md": {
+    "mtime": 1789908287.5987215,
+    "seen": 1789908608.32074,
+    "ast_hash": "661f3a161d3e15a3394c31b3a3742794",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/seo-roadmap-generator.md": {
+    "mtime": 1789908287.5997293,
+    "seen": 1789908608.3207414,
+    "ast_hash": "70ad388007d0806dc8b5804f076441f2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/strategy/service-page-strategy.md": {
+    "mtime": 1789908287.5997293,
+    "seen": 1789908608.3207424,
+    "ast_hash": "302192f4079defc23ae2b6f4a7e0989f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/90-day-roadmap-template.md": {
+    "mtime": 1789908287.6007276,
+    "seen": 1789908608.3207436,
+    "ast_hash": "3e4369efbc224a56279fac3d293c4630",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/ai-friendly-seo-report-template.md": {
+    "mtime": 1789908287.6007276,
+    "seen": 1789908608.3207448,
+    "ast_hash": "743735151e694c5f2a3780abdff5a509",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/client-proposal-template.md": {
+    "mtime": 1789908287.601729,
+    "seen": 1789908608.320746,
+    "ast_hash": "04bc3c954bee7f19496c9c708f9a22d6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/complete-seo-plan.md": {
+    "mtime": 1789908287.6027308,
+    "seen": 1789908608.3207474,
+    "ast_hash": "c8f94ebdddf662896a05f82c476ae50a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/local-seo-audit-template.md": {
+    "mtime": 1789908287.6037269,
+    "seen": 1789908608.3207483,
+    "ast_hash": "9daf09a19ea2c2285a756a9e861e0393",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/page-brief-template.md": {
+    "mtime": 1789908287.604895,
+    "seen": 1789908608.3207495,
+    "ast_hash": "5ffe925b037abe102c3ed73e5f0fad19",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/seo-audit-report-template.md": {
+    "mtime": 1789908287.6058946,
+    "seen": 1789908608.320751,
+    "ast_hash": "28599a4a45b85ecd0d9bee1b9f4e90cc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/playbooks/templates/seo-growth-plan-template.md": {
+    "mtime": 1789908287.6058946,
+    "seen": 1789908608.320752,
+    "ast_hash": "c3c0df9f7e1d29ee4b11d03b297f4ccc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/references/audit-delivery.md": {
+    "mtime": 1789908287.607402,
+    "seen": 1789908608.3207529,
+    "ast_hash": "7809d8451640701531f9673b8683cb2c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/references/capabilities.md": {
+    "mtime": 1789908287.6079068,
+    "seen": 1789908608.3207538,
+    "ast_hash": "68ca483dd467901fa892e8c4bacc8992",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/references/crawler.md": {
+    "mtime": 1789908287.6079068,
+    "seen": 1789908608.320755,
+    "ast_hash": "f2b2321049651ce59bb38a6f49518849",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/references/measurement-boundaries.md": {
+    "mtime": 1789908287.608917,
+    "seen": 1789908608.3207562,
+    "ast_hash": "97a00f8336565f334656be200debf337",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/references/reputation.md": {
+    "mtime": 1789908287.608917,
+    "seen": 1789908608.3207572,
+    "ast_hash": "b4592e520d422815aaed741af86dbacd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/assets/beyondseo-banner.png": {
+    "mtime": 1789908287.544056,
+    "seen": 1789908608.3318136,
+    "ast_hash": "c056dc674927e082a0d156b1b8a53833",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/assets/beyondseo-logo.png": {
+    "mtime": 1789908287.5450616,
+    "seen": 1789908608.331816,
+    "ast_hash": "c127ed19a7bf229d7a6a8e65fcbae68e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/beyondseo/src/beyondseo/report_assets/beyondseo-logo.png": {
+    "mtime": 1789908287.6282415,
+    "seen": 1789908608.3318172,
+    "ast_hash": "c127ed19a7bf229d7a6a8e65fcbae68e",
+    "semantic_hash": ""
+  },
+  "public/robots.txt": {
+    "mtime": 1789928992.2528532,
+    "seen": 1789929443.4808464,
+    "ast_hash": "24c3bbcbbe2917207c04faadac2e9ade",
     "semantic_hash": ""
   }
 }
