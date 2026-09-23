@@ -6,9 +6,10 @@ export function startServer(): Promise<number> {
   return new Promise((resolve, reject) => {
     const PORT = Number(process.env.PORT) || 3000;
 
-    const distPath = __dirname.endsWith('dist')
-      ? __dirname
-      : path.join(process.cwd(), 'dist');
+    const cwd = process.cwd();
+    const distPath = cwd.endsWith('dist')
+      ? cwd
+      : path.join(cwd, 'dist');
 
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {
@@ -32,6 +33,6 @@ export function startServer(): Promise<number> {
   });
 }
 
-if (require.main === module) {
+if (import.meta.url.endsWith('server.ts')) {
   startServer().catch((err) => console.error('Failed to start server:', err));
 }
