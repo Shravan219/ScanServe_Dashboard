@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Vyoma ScanServe - Michelin-Grade Restaurant POS, Kitchen KDS, QR Dining & Enterprise Cloud Operations System" />
-    <title>Vyoma ScanServe | Michelin-Grade Restaurant POS & KDS Operating System</title>
+    <meta name="description" content="Vyoma ScanServe - Secure staff dashboard for restaurant POS, Kitchen KDS, and billing operations." />
+    <title>Vyoma ScanServe | Staff Dashboard</title>
     
     <!-- Favicon & Brand Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -29,163 +29,32 @@
     <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vyomadashboard.vercel.app/" />
-    <meta property="og:title" content="Vyoma ScanServe | Michelin-Grade Restaurant POS & KDS Operating System" />
-    <meta property="og:description" content="Zero-latency tableside ordering, real-time kitchen display routing, automated WhatsApp digital tax invoicing & seamless omnichannel intake." />
+    <meta property="og:title" content="Vyoma ScanServe | Staff Dashboard" />
+    <meta property="og:description" content="Secure staff dashboard for restaurant POS, kitchen display, and billing operations." />
     <meta property="og:image" content="https://vyomadashboard.vercel.app/vyoma_logo.jpg" />
     <meta property="og:site_name" content="Vyoma ScanServe" />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://vyomadashboard.vercel.app/" />
-    <meta name="twitter:title" content="Vyoma ScanServe | Michelin-Grade Restaurant POS & KDS Operating System" />
-    <meta name="twitter:description" content="Zero-latency tableside ordering, real-time kitchen display routing & automated WhatsApp tax invoicing." />
+    <meta name="twitter:title" content="Vyoma ScanServe | Staff Dashboard" />
+    <meta name="twitter:description" content="Secure staff dashboard for restaurant POS, kitchen display, and billing operations." />
     <meta name="twitter:image" content="https://vyomadashboard.vercel.app/vyoma_logo.jpg" />
-
-    <!-- Schema.org JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "SoftwareApplication",
-          "@id": "https://vyomadashboard.vercel.app/#software",
-          "name": "Vyoma ScanServe",
-          "applicationCategory": "BusinessApplication",
-          "operatingSystem": "Web, Android, iOS, Windows",
-          "description": "Michelin-Grade Restaurant POS & KDS Operating System with zero-latency tableside ordering, multi-station kitchen display routing, and automated WhatsApp digital invoicing.",
-          "offers": [
-            {
-              "@type": "Offer",
-              "name": "Bistro & Cafe",
-              "price": "2999",
-              "priceCurrency": "INR",
-              "billingDuration": "P1M"
-            },
-            {
-              "@type": "Offer",
-              "name": "Grand Brasserie",
-              "price": "6999",
-              "priceCurrency": "INR",
-              "billingDuration": "P1M"
-            },
-            {
-              "@type": "Offer",
-              "name": "Enterprise Group",
-              "price": "14999",
-              "priceCurrency": "INR",
-              "billingDuration": "P1M"
-            }
-          ]
-        },
-        {
-          "@type": "Organization",
-          "@id": "https://vyomadashboard.vercel.app/#organization",
-          "name": "Vyoma ScanServe",
-          "url": "https://vyomadashboard.vercel.app/",
-          "logo": "https://vyomadashboard.vercel.app/vyoma_logo.jpg"
-        },
-        {
-          "@type": "FAQPage",
-          "@id": "https://vyomadashboard.vercel.app/#faq",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "What hardware devices do we need to run Vyoma ScanServe?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Vyoma ScanServe is hardware-agnostic. Floor captains can use standard Android tablets or iPads, kitchens use any HDMI or Android screen for the KDS, and receipts print via standard 80mm ESC/POS thermal printers or direct WhatsApp digital receipts."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How does the offline mode protect our kitchen during Wi-Fi cuts?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The local in-memory ring buffer ensures that floor captains can continue taking orders and printing kitchen tickets locally even during complete cloud internet outages. All transactions automatically reconcile to Supabase cloud once connectivity resumes."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How does automated WhatsApp invoice delivery work?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Digital tax invoices with GST breakdown, restaurant branding, and dynamic payment links are automatically sent directly to patron WhatsApp numbers upon bill request, eliminating wasted thermal paper rolls."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Can we try the live interactive demo before subscribing?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes. Vyoma ScanServe provides instant in-browser live sandboxes for Bistro & Cafe, Grand Brasserie, and Enterprise tiers with pre-seeded floor tables, KDS orders, and billing telemetry."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How long does restaurant deployment and staff training take?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Most restaurants deploy within 24 to 48 hours. Floor captain interfaces feature tactile 48px hit targets designed for 10-minute staff onboarding."
-              }
-            }
-          ]
-        }
-      ]
-    }
-    </script>
   </head>
   <body class="bg-black text-white font-sans antialiased selection:bg-[#C5A059]/30 selection:text-[#C5A059] overflow-x-hidden min-h-screen">
-    <div id="root" class="min-h-screen flex flex-col">
-      <!-- Semantic Static Fallback for Search Engine Crawlers & Initial Page Speed (Hydrated by React on load) -->
-      <header class="p-6 border-b border-white/10 flex justify-between items-center">
-        <div class="text-xl font-bold font-serif text-[#C5A059]">Vyoma ScanServe</div>
-        <nav class="hidden sm:flex gap-6 text-xs uppercase tracking-widest text-white/70">
-          <a href="#features" class="hover:text-[#C5A059]">Capabilities</a>
-          <a href="#architecture" class="hover:text-[#C5A059]">Operations</a>
-          <a href="#metrics" class="hover:text-[#C5A059]">Performance</a>
-          <a href="#pricing" class="hover:text-[#C5A059]">Pricing</a>
-          <a href="#faq" class="hover:text-[#C5A059]">FAQ</a>
-        </nav>
-      </header>
-      <main class="max-w-5xl mx-auto px-6 py-16">
-        <h1 class="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-white mb-6">
-          Fine Dining Velocity. Flawless Floor & Kitchen Synchrony.
-        </h1>
-        <p class="text-lg text-white/70 max-w-2xl leading-relaxed mb-8">
-          The mission-critical restaurant management operating system. Zero-latency tableside ordering, real-time kitchen display routing, automated WhatsApp digital tax invoicing, and seamless omnichannel delivery intake engineered for high-tempo luxury hospitality.
-        </p>
-        <section id="features" class="py-12 border-t border-white/10">
-          <h2 class="font-serif text-2xl font-bold mb-6">Engineered for High-Pressure Floor & Kitchen Dynamics</h2>
-          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white/80">
-            <li><strong>Captain Handheld Ordering:</strong> Tableside ordering on Android tablets and iPads with quick dietary tags and instant seat allocation.</li>
-            <li><strong>Multi-Station Kitchen KDS:</strong> Station routing (Prep, Grill, Pass, Bar) with glowing ticket aging and audible chimes.</li>
-            <li><strong>Omnichannel Delivery Hub:</strong> Unified order queue for Swiggy, Zomato, and Magicpin aggregator dispatch.</li>
-            <li><strong>Automated WhatsApp Invoicing:</strong> GST-compliant digital PDF tax invoices and payment links delivered to customer WhatsApp.</li>
-            <li><strong>VIP Recognition CRM:</strong> Automatic repeat patron detection by phone number with hospitality loyalty discounts.</li>
-            <li><strong>Hybrid On-Premise Resilience:</strong> Local in-memory ring buffer with Supabase cloud replication ensuring zero downtime during internet outages.</li>
-          </ul>
-        </section>
-        <section id="pricing" class="py-12 border-t border-white/10">
-          <h2 class="font-serif text-2xl font-bold mb-6">Transparent Investment: Predictable Pricing for Luxury Hospitality</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-            <div class="p-6 rounded-2xl border border-white/10 bg-white/5">
-              <h3 class="font-bold text-lg text-[#C5A059]">Bistro & Cafe</h3>
-              <p class="text-xl font-bold my-2">₹2,999 / month</p>
-              <p class="text-xs text-white/60">Up to 2 Captain Floor Tablets, 1 KDS Terminal, QR Code Table Menus, WhatsApp e-Receipts.</p>
-            </div>
-            <div class="p-6 rounded-2xl border border-[#C5A059]/40 bg-[#C5A059]/10">
-              <h3 class="font-bold text-lg text-[#C5A059]">Grand Brasserie</h3>
-              <p class="text-xl font-bold my-2">₹6,999 / month</p>
-              <p class="text-xs text-white/60">Unlimited Tablets, Multi-Station KDS, Swiggy & Zomato Intake, VIP Loyalty CRM, Sound Alerts.</p>
-            </div>
-            <div class="p-6 rounded-2xl border border-white/10 bg-white/5">
-              <h3 class="font-bold text-lg text-[#C5A059]">Enterprise Group</h3>
-              <p class="text-xl font-bold my-2">₹14,999 / month</p>
-              <p class="text-xs text-white/60">Multi-outlet centralized billing, Tally Prime / SAP bridges, Dedicated Relay Server, 99.99% SLA.</p>
-            </div>
-          </div>
-        </section>
-      </main>
+    <div id="root" class="min-h-screen bg-black">
+      <!-- Minimal boot screen — replaced by the staff password gate on mount -->
+      <div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;color:#fff;font-family:'Cormorant Garamond',Georgia,serif;">
+        <div style="width:64px;height:64px;border-radius:50%;border:1px solid rgba(197,160,89,0.3);background:rgba(197,160,89,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+          <span style="color:#C5A059;font-size:28px;">V</span>
+        </div>
+        <div style="font-size:28px;letter-spacing:0.04em;">
+          Vy<span style="color:#C5A059;font-style:italic;">oma</span>
+        </div>
+        <div style="margin-top:10px;font-size:10px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(255,255,255,0.45);font-family:system-ui,sans-serif;font-weight:700;">
+          Loading Secure Dashboard
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
